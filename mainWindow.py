@@ -195,7 +195,9 @@ class mainWindow(qWidget.QMainWindow):
         if btnName == "pushButton_LoadDataset":
             path = QFileDialog.getOpenFileName(self, 'Open a file', '', 'NetCDF files (*.nc)')
             if path != ('', ''):
-                print("starting reading...")
+                self.comboBox_dims.clear() # clear dim var combobox
+                self.listWidget_Variables.clear() # clear variable list.
+
                 nc_fid = Dataset(path[0], 'r')  # Dataset is the class behavior to open the file
 
                 # toexclude = ['Band1']
@@ -269,7 +271,6 @@ class mainWindow(qWidget.QMainWindow):
                 Utils.loadGlobeGeometry(self)
 
             self.stackedWidget.setCurrentWidget(self.page_InspectData)
-            self.on_comboboxDims_changed()
             Utils.statusMessage(self,"Data loaded.", "success")
 
         ############################
