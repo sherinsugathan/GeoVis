@@ -79,30 +79,82 @@ def ncdump(nc_fid, verb=True):
                 str_data += print_ncattr(var)
     return nc_attrs, nc_dims, nc_vars, str_data
 
+##############################################################################
+################# populate color maps to GUI control
+##############################################################################
+def populateSupportedColorMaps(self):
+    self.comboBox_ColorMaps.addItem("spectrum")
+    self.comboBox_ColorMaps.addItem("warm")
+    self.comboBox_ColorMaps.addItem("cool")
+    self.comboBox_ColorMaps.addItem("blues")
+    self.comboBox_ColorMaps.addItem("wild_flower")
+    self.comboBox_ColorMaps.addItem("citrus")
+    self.comboBox_ColorMaps.addItem("brewer_diverging_purple_orange_11")
+    self.comboBox_ColorMaps.addItem("brewer_diverging_purple_orange_10")
+    self.comboBox_ColorMaps.addItem("brewer_diverging_purple_orange_9")
+    self.comboBox_ColorMaps.addItem("brewer_diverging_purple_orange_8")
+    self.comboBox_ColorMaps.addItem("brewer_diverging_purple_orange_7")
+    self.comboBox_ColorMaps.addItem("brewer_diverging_purple_orange_6")
+    self.comboBox_ColorMaps.addItem("brewer_diverging_purple_orange_5")
+    self.comboBox_ColorMaps.addItem("brewer_diverging_purple_orange_4")
+    self.comboBox_ColorMaps.addItem("brewer_diverging_purple_orange_3")
+    self.comboBox_ColorMaps.addItem("brewer_diverging_spectral_11")
+    self.comboBox_ColorMaps.addItem("brewer_diverging_spectral_10")
+    self.comboBox_ColorMaps.addItem("brewer_diverging_spectral_9")
+    self.comboBox_ColorMaps.addItem("brewer_diverging_spectral_8")
+    self.comboBox_ColorMaps.addItem("brewer_diverging_spectral_7")
+    self.comboBox_ColorMaps.addItem("brewer_diverging_spectral_6")
+    self.comboBox_ColorMaps.addItem("brewer_diverging_spectral_5")
+    self.comboBox_ColorMaps.addItem("brewer_diverging_spectral_4")
+    self.comboBox_ColorMaps.addItem("brewer_diverging_spectral_3")
+    self.comboBox_ColorMaps.addItem("brewer_diverging_brown_blue_green_11")
+    self.comboBox_ColorMaps.addItem("brewer_diverging_brown_blue_green_10")
+    self.comboBox_ColorMaps.addItem("brewer_diverging_brown_blue_green_9")
+    self.comboBox_ColorMaps.addItem("brewer_diverging_brown_blue_green_8")
+    self.comboBox_ColorMaps.addItem("brewer_diverging_brown_blue_green_7")
+    self.comboBox_ColorMaps.addItem("brewer_diverging_brown_blue_green_6")
+    self.comboBox_ColorMaps.addItem("brewer_diverging_brown_blue_green_5")
+    self.comboBox_ColorMaps.addItem("brewer_diverging_brown_blue_green_4")
+    self.comboBox_ColorMaps.addItem("brewer_diverging_brown_blue_green_3")
+    self.comboBox_ColorMaps.addItem("brewer_sequential_blue_green_9")
+    self.comboBox_ColorMaps.addItem("brewer_sequential_blue_green_8")
+    self.comboBox_ColorMaps.addItem("brewer_sequential_blue_green_7")
+    self.comboBox_ColorMaps.addItem("brewer_sequential_blue_green_6")
+    self.comboBox_ColorMaps.addItem("brewer_sequential_blue_green_5")
+    self.comboBox_ColorMaps.addItem("brewer_sequential_blue_green_4")
+    self.comboBox_ColorMaps.addItem("brewer_sequential_blue_green_3")
+    self.comboBox_ColorMaps.addItem("brewer_sequential_yellow_orange_brown_9")
+    self.comboBox_ColorMaps.addItem("brewer_sequential_yellow_orange_brown_8")
+    self.comboBox_ColorMaps.addItem("brewer_sequential_yellow_orange_brown_7")
+    self.comboBox_ColorMaps.addItem("brewer_sequential_yellow_orange_brown_6")
+    self.comboBox_ColorMaps.addItem("brewer_sequential_yellow_orange_brown_5")
+    self.comboBox_ColorMaps.addItem("brewer_sequential_yellow_orange_brown_4")
+    self.comboBox_ColorMaps.addItem("brewer_sequential_yellow_orange_brown_3")
+    self.comboBox_ColorMaps.addItem("brewer_sequential_blue_purple_9")
+    self.comboBox_ColorMaps.addItem("brewer_sequential_blue_purple_8")
+    self.comboBox_ColorMaps.addItem("brewer_sequential_blue_purple_7")
+    self.comboBox_ColorMaps.addItem("brewer_sequential_blue_purple_6")
+    self.comboBox_ColorMaps.addItem("brewer_sequential_blue_purple_5")
+    self.comboBox_ColorMaps.addItem("brewer_sequential_blue_purple_4")
+    self.comboBox_ColorMaps.addItem("brewer_sequential_blue_purple_3")
+
 
 ##############################################################################
 ################# load globe geometry
 ##############################################################################
-def loadGlobeGeometry(self, netCDFPathString, variableToLoad=None):
+def loadGlobeGeometry(self, variableToLoad=None):
     self.ren.RemoveAllViewProps()
-    print("netCDF reading started")
-    reader = vtk.vtkNetCDFCFReader()
-    reader.SetFileName(netCDFPathString)
-    reader.UpdateMetaData()
-    reader.SetVariableArrayStatus("w", 1)
-    reader.SphericalCoordinatesOn()
-    reader.ReplaceFillValueWithNanOn()
-    reader.Update()
+    print("Loading NetCDF...")
+    self.reader.Update()
     print("reading completed")
 
-    print(reader.GetOutput())
+    #print(self.reader.GetOutput())
 
     cellDataToPointData = vtk.vtkCellDataToPointData()
-    cellDataToPointData.SetInputData(reader.GetOutput())
+    cellDataToPointData.SetInputData(self.reader.GetOutput())
     cellDataToPointData.ProcessAllArraysOn()
     cellDataToPointData.PassCellDataOn()
     cellDataToPointData.Update()
-    print("cell to points fine")
 
     # calculator = vtk.vtkArrayCalculator()
     # calculator.SetInputData(cellDataToPointData.GetOutput())
@@ -179,3 +231,14 @@ def updateGlobeGeometry(self, variableName):
         self.mapper.SetLookupTable(self.ctf)
         self.mapper.Update()
         self.iren.Render()
+
+##############################################################################
+################# show status message
+################# type = success (showed in green) , type = error (showed in red)
+##############################################################################
+def statusMessage(self, message, type="success"):
+    if(type == "success"):
+        self.textEdit_Status.setStyleSheet("background-color: #7E9C73;")
+    if(type == "error"):
+        self.textEdit_Status.setStyleSheet("background-color: #DE7575;")
+    self.textEdit_Status.setPlainText(message)

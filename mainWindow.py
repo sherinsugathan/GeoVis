@@ -47,16 +47,89 @@ class mainWindow(qWidget.QMainWindow):
     def setupUI(self):
         print("Starting application...")
         self.initializeRenderer()
-
         self.pushButton_LoadDataset.clicked.connect(self.on_buttonClick)  # Attaching button click handler.
-        self.pushButton_2DRenderView.clicked.connect(self.on_buttonClick)  # Attaching button click handler.
-        self.pushButton_3DRenderView.clicked.connect(self.on_buttonClick)  # Attaching button click handler.
-        self.pushButton_ApplyRenderParams.clicked.connect(self.on_buttonClick)  # Attaching button click handler.
-        self.pushButton_Update.clicked.connect(self.on_buttonClick) # Attaching button click handler.
+        self.pushButton_SetDimensions.clicked.connect(self.on_buttonClick)  # Attaching button click handler.
+        self.comboBox_dims.currentTextChanged.connect(self.on_comboboxDims_changed) # Changed dimensions handler.
+
+        # View radio buttons
+        self.radioButton_RawView.toggled.connect(self.changeView)
+        self.radioButton_2DView.toggled.connect(self.changeView)
+        self.radioButton_3DView.toggled.connect(self.changeView)
+
+        # Variable list double click
+        self.listWidget_Variables.doubleClicked.connect(self.applyVariable)
+
+        Utils.populateSupportedColorMaps(self)
+
 
         #self.horizontalSlider_start.valueChanged.connect(self.onsliderminChanged)
         #self.horizontalSlider_end.valueChanged.connect(self.onslidermaxChanged)
 
+
+    @pyqtSlot()
+    def applyVariable(self):
+        #scalarVariables = [item.text() for item in self.listWidget_Variables.selectedItems()]
+        #print(scalarVariables)
+        varName = self.listWidget_Variables.currentItem().text()
+        Utils.updateGlobeGeometry(self, varName)
+
+
+    @pyqtSlot()
+    def changeView(self):
+        rbtn = self.sender()
+        if(rbtn.isChecked() == True):
+            if(rbtn.text() == "Raw"):
+                self.stackedWidget.setCurrentWidget(self.page_InspectData)
+            ############################
+            # 2D Render View
+            ############################
+            if(rbtn.text() == "2D"):
+                self.stackedWidget.setCurrentWidget(self.page_2DMap)
+                layout = QVBoxLayout()
+                self.frame_2D.setLayout(layout)
+                coordinate = (37.8199286, -122.4782551)
+                m = folium.Map(
+                    tiles='cartodbpositron',
+                    zoom_start=13,
+                    location=coordinate, zoom_control=False
+                )
+                # save map data to data object
+                data = io.BytesIO()
+                m.save(data, close_file=False)
+
+                self.webView.setHtml(data.getvalue().decode())
+                layout.addWidget(self.webView)
+            ############################
+            # 3D Render View
+            ############################
+            if(rbtn.text() == "3D"):
+                self.stackedWidget.setCurrentWidget(self.page_3DMap)
+
+    @pyqtSlot()
+    def on_comboboxDims_changed(self):
+        selectedDimension = str(self.comboBox_dims.currentText())
+        # self.reader.ComputeArraySelection()
+        # self.reader.SetDimensions(selectedDimension)
+        dimNames = self.reader.GetVariableDimensions()
+        varNames = self.reader.GetAllVariableArrayNames()
+        dimNamesList = []
+        varNamesList = []
+        for i in range(dimNames.GetNumberOfValues()):
+            dimNamesList.append(str(dimNames.GetValue(i)))
+        for i in range(varNames.GetNumberOfValues()):
+            varNamesList.append(str(varNames.GetValue(i)))
+        index_pos_list = [i for i in range(len(dimNamesList)) if dimNamesList[i] == selectedDimension]
+        visVarList = []  # Variables of interest
+        for indexLocation in index_pos_list:
+            visVarList.append(self.reader.GetVariableArrayName(indexLocation))
+
+        # Update variable list
+        self.listWidget_Variables.clear()
+        for i in range(len(visVarList)):
+            item = QListWidgetItem(str(visVarList[i]))
+            # item.setFlags(item.flags() | qCore.Qt.ItemIsUserCheckable)
+            # item.setCheckState(qCore.Qt.Unchecked)
+            self.listWidget_Variables.addItem(item)
 
     @pyqtSlot()
     def updateLUT(self, newValue):
@@ -78,7 +151,6 @@ class mainWindow(qWidget.QMainWindow):
     @pyqtSlot()
     def onslidermaxChanged(self):
         self.valueEnd = self.horizontalSlider_end.value()
-
         print("end changing")
 
     @pyqtSlot()
@@ -146,9 +218,11 @@ class mainWindow(qWidget.QMainWindow):
 
 
 
-                ds = xr.open_dataset(path[0])
+                #ds = xr.open_dataset(path[0])
+
+                #print(ds.dims)
                 # Read the data variables from the dataset
-                dataVariables = list(ds.data_vars.keys())
+                #dataVariables = list(ds.data_vars.keys())
 
 
                 #ds2 = ds[['lat', 'lon']]
@@ -166,82 +240,67 @@ class mainWindow(qWidget.QMainWindow):
                 #entries = ['one', 'two', 'three']
                 #self.listWidget_Variables.addItems(nc_vars)
 
-                # Update variable list
-                self.listWidget_Variables.clear()
-                for i in range(len(dataVariables)):
-                    item = QListWidgetItem(str(dataVariables[i]))
-                    #item.setFlags(item.flags() | qCore.Qt.ItemIsUserCheckable)
-                    #item.setCheckState(qCore.Qt.Unchecked)
-                    self.listWidget_Variables.addItem(item)
+                # # Update variable list
+                # self.listWidget_Variables.clear()
+                # for i in range(len(dataVariables)):
+                #     item = QListWidgetItem(str(dataVariables[i]))
+                #     #item.setFlags(item.flags() | qCore.Qt.ItemIsUserCheckable)
+                #     #item.setCheckState(qCore.Qt.Unchecked)
+                #     self.listWidget_Variables.addItem(item)
 
 
                 self.plainTextEdit_netCDFDataText.setPlainText(str_data)
                 #print(nc_vars)
                 #print(str_data)
 
-                Utils.loadGlobeGeometry(self, path[0])
+                # Reader NETCDF
+                self.reader = vtk.vtkNetCDFCFReader()
+                self.reader.SetFileName(path[0])
+                self.reader.UpdateMetaData()
+                # reader.SetVariableArrayStatus("w", 1)
+                self.reader.SphericalCoordinatesOn()
+                self.reader.ReplaceFillValueWithNanOn()
 
+                allDimensions = self.reader.GetAllDimensions()
+                for i in range(allDimensions.GetNumberOfValues()):
+                    dimension = allDimensions.GetValue(i)
+                    self.comboBox_dims.addItem(dimension)
 
+                Utils.loadGlobeGeometry(self)
 
             self.stackedWidget.setCurrentWidget(self.page_InspectData)
-
-        ############################
-        # 2D Render View
-        ############################
-        if btnName == "pushButton_2DRenderView":
-            self.stackedWidget.setCurrentWidget(self.page_2DMap)
-            layout = QVBoxLayout()
-            self.frame_2D.setLayout(layout)
-            coordinate = (37.8199286, -122.4782551)
-            m = folium.Map(
-                tiles='cartodbpositron',
-                zoom_start=13,
-                location=coordinate, zoom_control=False
-            )
-            # save map data to data object
-            data = io.BytesIO()
-            m.save(data, close_file=False)
-
-            self.webView.setHtml(data.getvalue().decode())
-            layout.addWidget(self.webView)
-
-        ############################
-        # 3D Render View
-        ############################
-        if btnName == "pushButton_3DRenderView":
-            self.stackedWidget.setCurrentWidget(self.page_3DMap)
+            self.on_comboboxDims_changed()
+            Utils.statusMessage(self,"Data loaded.", "success")
 
         ############################
         # Apply selected variables.
         ############################
-        if btnName == "pushButton_ApplyRenderParams":
-            print("I am here")
-            selectedVariables = []
-            #print("count is", self.listWidget_Variables.count())
-            for index in range(self.listWidget_Variables.count()):
-                if(self.listWidget_Variables.item(index).isSelected() == True):
-                    selectedVariables.append(self.listWidget_Variables.item(index).text())
-            #print(selectedVariables)
-            # Update vis params list
-            self.listWidget_VisParams.clear()
-            for i in range(len(selectedVariables)):
-                item = QListWidgetItem(str(selectedVariables[i]))
-                #item.setFlags(item.flags() | qCore.Qt.ItemIsUserCheckable)
-                #item.setCheckState(qCore.Qt.Unchecked)
-                self.listWidget_VisParams.addItem(item)
+        if btnName == "pushButton_SetDimensions":
+            print("need to something here to regrid the data based on selected dimensions.")
 
-            self.tabWidget.setCurrentIndex(1)
-            self.stackedWidget.setCurrentWidget(self.page_3DMap)
+            #self.reader.Update()
+            #print("NUmber of var array is ", self.reader.GetNumberOfVariableArrays())
+            #print(selectedDimension)
 
-        ############################
-        # Render selected variables.
-        ############################
-        if btnName == "pushButton_Update":
-            if(self.listWidget_VisParams.count() == 0):
-                print("Please select display parameters.")
-                return
-            scalarVariables = [item.text() for item in self.listWidget_VisParams.selectedItems()]
-            Utils.updateGlobeGeometry(self, scalarVariables[0])
+
+
+
+            # selectedVariables = []
+            # #print("count is", self.listWidget_Variables.count())
+            # for index in range(self.listWidget_Variables.count()):
+            #     if(self.listWidget_Variables.item(index).isSelected() == True):
+            #         selectedVariables.append(self.listWidget_Variables.item(index).text())
+            # #print(selectedVariables)
+            # # Update vis params list
+            # self.listWidget_VisParams.clear()
+            # for i in range(len(selectedVariables)):
+            #     item = QListWidgetItem(str(selectedVariables[i]))
+            #     #item.setFlags(item.flags() | qCore.Qt.ItemIsUserCheckable)
+            #     #item.setCheckState(qCore.Qt.Unchecked)
+            #     self.listWidget_VisParams.addItem(item)
+            #
+            # self.tabWidget.setCurrentIndex(1)
+            # self.stackedWidget.setCurrentWidget(self.page_3DMap)
 
 
 app = qWidget.QApplication(sys.argv)
