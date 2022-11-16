@@ -225,7 +225,6 @@ def updateGlobeGeometry(self, variableName):
         self.mapper.ScalarVisibilityOff()
         return
     else:
-        print("Updating geometry")
         self.mapper.ScalarVisibilityOn()
         self.mapper.GetInput().GetPointData().SetActiveScalars(variableName)
         self.mapper.SetLookupTable(self.ctf)
@@ -242,3 +241,4 @@ def statusMessage(self, message, type="success"):
     if(type == "error"):
         self.textEdit_Status.setStyleSheet("background-color: #DE7575;")
     self.textEdit_Status.setPlainText(message)
+

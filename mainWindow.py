@@ -4,9 +4,10 @@ from PyQt5 import QtCore as qCore
 from PyQt5.QtCore import pyqtSlot
 
 from PyQt5.QtWidgets import QFileDialog, QCheckBox, QButtonGroup, QAbstractButton, QVBoxLayout, QListWidgetItem, \
-    QAbstractItemView
+    QAbstractItemView, QSizePolicy
 from PyQt5.QtWebEngineWidgets import QWebEngineView
 from PyQt5.QtCore import QThread
+
 qWidget.QApplication.setAttribute(qCore.Qt.AA_EnableHighDpiScaling, True) #enable highdpi scaling
 qWidget.QApplication.setAttribute(qCore.Qt.AA_UseHighDpiPixmaps, True) #use highdpi icons
 
@@ -148,6 +149,26 @@ class mainWindow(qWidget.QMainWindow):
         self.updateLUT(newValue)
         #print("start changing", self.newValue)
 
+    def progress_dialog(self, message):
+        prgr_dialog = qWidget.QProgressDialog()
+        prgr_dialog.setFixedSize(300, 50)
+        prgr_dialog.setAutoFillBackground(True)
+        prgr_dialog.setWindowModality(qCore.Qt.WindowModal)
+        prgr_dialog.setWindowTitle('Please wait')
+        prgr_dialog.setLabelText(message)
+        prgr_dialog.setSizeGripEnabled(False)
+        prgr_dialog.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
+        #prgr_dialog.setWindowFlag(Qt.WindowContextHelpButtonHint, False)
+        #prgr_dialog.setWindowFlag(Qt.WindowCloseButtonHint, False)
+        prgr_dialog.setModal(True)
+        prgr_dialog.setCancelButton(None)
+        prgr_dialog.setRange(0, 0)
+        prgr_dialog.setMinimumDuration(0)
+        prgr_dialog.setAutoClose(False)
+        prgr_dialog.show()
+        return
+
+
     @pyqtSlot()
     def onslidermaxChanged(self):
         self.valueEnd = self.horizontalSlider_end.value()
@@ -183,6 +204,33 @@ class mainWindow(qWidget.QMainWindow):
         super().closeEvent(QCloseEvent)
         self.vtkWidget.Finalize()
 
+    def progbar (self):
+        self.prog_win = QDialog()
+        self.prog_win.resize(400, 100)
+        self.prog_win.setFixedSize(self.prog_win.size())
+        self.prog_win.setWindowTitle("Processing request")
+        self.lbl = QLabel(self.prog_win)
+        self.lbl.setText("Please Wait.  .  .")
+        self.lbl.move(15,18)
+        self.progressBar = QtGui.QProgressBar(self.prog_win)
+        self.progressBar.resize(410, 25)
+        self.progressBar.move(15, 40)
+        self.progressBar.setRange(0,1)
+
+        self.myLongTask = TaskThread(mainObject = self) #initializing and passing data to QThread
+        self.prog_win.show()
+        self.onStart() #Start your very very long computation/process
+        self.myLongTask.taskFinished.connect(self.onFinished) #this won't be read until QThread send a signal i think
+
+    def onStart(self):
+        self.progressBar.setRange(0,0)
+        self.myLongTask.start()
+
+    #added this function to close the progress bar
+    def onFinished(self):
+        self.progressBar.setRange(0,1)
+        self.prog_win.close()
+
     # Handler for browse folder button click.
     @pyqtSlot()
     def on_buttonClick(self):
@@ -195,6 +243,7 @@ class mainWindow(qWidget.QMainWindow):
         if btnName == "pushButton_LoadDataset":
             path = QFileDialog.getOpenFileName(self, 'Open a file', '', 'NetCDF files (*.nc)')
             if path != ('', ''):
+                self.progress_dialog("hi sherin")
                 self.comboBox_dims.clear() # clear dim var combobox
                 self.listWidget_Variables.clear() # clear variable list.
 
@@ -278,6 +327,10 @@ class mainWindow(qWidget.QMainWindow):
         ############################
         if btnName == "pushButton_SetDimensions":
             print("need to something here to regrid the data based on selected dimensions.")
+            print("Setting dimensions to ", self.comboBox_dims.currentText())
+            self.reader.SetDimensions(self.comboBox_dims.currentText())
+            self.reader.ComputeArraySelection()
+            self.reader.Update()
 
             #self.reader.Update()
             #print("NUmber of var array is ", self.reader.GetNumberOfVariableArrays())
@@ -302,6 +355,22 @@ class mainWindow(qWidget.QMainWindow):
             #
             # self.tabWidget.setCurrentIndex(1)
             # self.stackedWidget.setCurrentWidget(self.page_3DMap)
+
+##############################################################################
+################# Data Reader Thread
+##############################################################################
+#My Thread
+class TaskThread(qCore.QThread):
+    taskFinished = qCore.pyqtSignal()
+
+    #I also added this so that I can pass data between classes
+    def __init__(self, mainObject, parent=None):
+        QThread.__init__(self, parent)
+        self.main = mainObject
+
+    def run(self):
+        pass
+
 
 
 app = qWidget.QApplication(sys.argv)
