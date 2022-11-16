@@ -42,6 +42,7 @@ class mainWindow(qWidget.QMainWindow):
     def __init__(self, *args):
         """Init."""
         super(mainWindow, self).__init__(*args)
+        self.path = None
         ui = os.path.join(os.path.dirname(__file__), 'assets/ui/gui.ui')
         uic.loadUi(ui, self)
 
@@ -61,6 +62,7 @@ class mainWindow(qWidget.QMainWindow):
         self.listWidget_Variables.doubleClicked.connect(self.applyVariable)
 
         Utils.populateSupportedColorMaps(self)
+        self.progbar()
 
 
         #self.horizontalSlider_start.valueChanged.connect(self.onsliderminChanged)
@@ -149,26 +151,6 @@ class mainWindow(qWidget.QMainWindow):
         self.updateLUT(newValue)
         #print("start changing", self.newValue)
 
-    def progress_dialog(self, message):
-        prgr_dialog = qWidget.QProgressDialog()
-        prgr_dialog.setFixedSize(300, 50)
-        prgr_dialog.setAutoFillBackground(True)
-        prgr_dialog.setWindowModality(qCore.Qt.WindowModal)
-        prgr_dialog.setWindowTitle('Please wait')
-        prgr_dialog.setLabelText(message)
-        prgr_dialog.setSizeGripEnabled(False)
-        prgr_dialog.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
-        #prgr_dialog.setWindowFlag(Qt.WindowContextHelpButtonHint, False)
-        #prgr_dialog.setWindowFlag(Qt.WindowCloseButtonHint, False)
-        prgr_dialog.setModal(True)
-        prgr_dialog.setCancelButton(None)
-        prgr_dialog.setRange(0, 0)
-        prgr_dialog.setMinimumDuration(0)
-        prgr_dialog.setAutoClose(False)
-        prgr_dialog.show()
-        return
-
-
     @pyqtSlot()
     def onslidermaxChanged(self):
         self.valueEnd = self.horizontalSlider_end.value()
@@ -204,32 +186,38 @@ class mainWindow(qWidget.QMainWindow):
         super().closeEvent(QCloseEvent)
         self.vtkWidget.Finalize()
 
+    # Reset UI state when loading dataset.
+    def resetUI(self):
+        pass
+
     def progbar (self):
-        self.prog_win = QDialog()
+        self.prog_win = qWidget.QDialog()
         self.prog_win.resize(400, 100)
+        self.prog_win.setModal(True)
         self.prog_win.setFixedSize(self.prog_win.size())
         self.prog_win.setWindowTitle("Processing request")
-        self.lbl = QLabel(self.prog_win)
+        self.lbl = qWidget.QLabel(self.prog_win)
         self.lbl.setText("Please Wait.  .  .")
         self.lbl.move(15,18)
-        self.progressBar = QtGui.QProgressBar(self.prog_win)
+        self.progressBar = qWidget.QProgressBar(self.prog_win)
         self.progressBar.resize(410, 25)
         self.progressBar.move(15, 40)
         self.progressBar.setRange(0,1)
 
-        self.myLongTask = TaskThread(mainObject = self) #initializing and passing data to QThread
-        self.prog_win.show()
-        self.onStart() #Start your very very long computation/process
-        self.myLongTask.taskFinished.connect(self.onFinished) #this won't be read until QThread send a signal i think
-
     def onStart(self):
-        self.progressBar.setRange(0,0)
+        #self.progressBar.setRange(0,0)
         self.myLongTask.start()
+        print("Task started")
 
     #added this function to close the progress bar
     def onFinished(self):
-        self.progressBar.setRange(0,1)
+        #self.progressBar.setRange(0,1)
         self.prog_win.close()
+        for item in self.dataDimensions:
+            self.comboBox_dims.addItem(item)
+        self.plainTextEdit_netCDFDataText.setPlainText(self.str_data)
+        self.stackedWidget.setCurrentWidget(self.page_InspectData)
+        Utils.statusMessage(self, "Data loaded.", "success")
 
     # Handler for browse folder button click.
     @pyqtSlot()
@@ -243,84 +231,16 @@ class mainWindow(qWidget.QMainWindow):
         if btnName == "pushButton_LoadDataset":
             path = QFileDialog.getOpenFileName(self, 'Open a file', '', 'NetCDF files (*.nc)')
             if path != ('', ''):
-                self.progress_dialog("hi sherin")
+                self.path = path[0]
+                self.prog_win.show()
+
                 self.comboBox_dims.clear() # clear dim var combobox
                 self.listWidget_Variables.clear() # clear variable list.
 
-                nc_fid = Dataset(path[0], 'r')  # Dataset is the class behavior to open the file
-
-                # toexclude = ['Band1']
-                #
-                # with Dataset(path[0]) as src, Dataset('C:\\Sherin\\Portables\\your_new_file5.nc', "w") as dst:
-                #     # copy global attributes all at once via dictionary
-                #     dst.setncatts(src.__dict__)
-                #     # copy dimensions
-                #     for name, dimension in src.dimensions.items():
-                #         dst.createDimension(
-                #             name, (len(dimension) if not dimension.isunlimited() else None))
-                #     # copy all file data except for the excluded
-                #     for name, variable in src.variables.items():
-                #         if name not in toexclude:
-                #             x = dst.createVariable(name, variable.datatype, variable.dimensions)
-                #             # copy variable attributes all at once via dictionary
-                #             dst[name][:] = src[name][:]
-                #             dst[name].setncatts(src[name].__dict__)
-
-
-
-
-                #ds = xr.open_dataset(path[0])
-
-                #print(ds.dims)
-                # Read the data variables from the dataset
-                #dataVariables = list(ds.data_vars.keys())
-
-
-                #ds2 = ds[['lat', 'lon']]
-                #ds2 = ds.drop(['Band1'])
-                #print(ds2)
-                #ds2.to_netcdf('C:\\Sherin\\Portables\\your_new_file6.nc')#, format='NETCDF4', mode='w', engine='netcdf4', compute=True)
-                #print(type(ds))
-
-                # and create an instance of the ncCDF4 class
-                nc_attrs, nc_dims, nc_vars, str_data = Utils.ncdump(nc_fid)
-
-                # for dim in nc_fid.variables.values():
-                #     print(dim)
-
-                #entries = ['one', 'two', 'three']
-                #self.listWidget_Variables.addItems(nc_vars)
-
-                # # Update variable list
-                # self.listWidget_Variables.clear()
-                # for i in range(len(dataVariables)):
-                #     item = QListWidgetItem(str(dataVariables[i]))
-                #     #item.setFlags(item.flags() | qCore.Qt.ItemIsUserCheckable)
-                #     #item.setCheckState(qCore.Qt.Unchecked)
-                #     self.listWidget_Variables.addItem(item)
-
-
-                self.plainTextEdit_netCDFDataText.setPlainText(str_data)
-                #print(nc_vars)
-                #print(str_data)
-
-                # Reader NETCDF
-                self.reader = vtk.vtkNetCDFCFReader()
-                self.reader.SetFileName(path[0])
-                self.reader.UpdateMetaData()
-                # reader.SetVariableArrayStatus("w", 1)
-                self.reader.SphericalCoordinatesOn()
-                self.reader.ReplaceFillValueWithNanOn()
-
-                allDimensions = self.reader.GetAllDimensions()
-                for i in range(allDimensions.GetNumberOfValues()):
-                    dimension = allDimensions.GetValue(i)
-                    self.comboBox_dims.addItem(dimension)
-
-                Utils.loadGlobeGeometry(self)
-
-            self.stackedWidget.setCurrentWidget(self.page_InspectData)
-            Utils.statusMessage(self,"Data loaded.", "success")
+                self.myLongTask = TaskThread(self)  # initializing and passing data to QThread
+                self.prog_win.show()
+                self.onStart()  # Start your very very long computation/process
+                self.myLongTask.taskFinished.connect(self.onFinished)  # this won't be read until QThread send a signal i think
 
         ############################
         # Apply selected variables.
@@ -369,7 +289,24 @@ class TaskThread(qCore.QThread):
         self.main = mainObject
 
     def run(self):
-        pass
+        print("Processing NetCDF file")
+        nc_fid = Dataset(self.main.path, 'r')  # Dataset is the class behavior to open the file
+        nc_attrs, nc_dims, nc_vars, self.main.str_data = Utils.ncdump(nc_fid)
+        # Reader NETCDF
+        self.main.reader = vtk.vtkNetCDFCFReader()
+        self.main.reader.SetFileName(self.main.path)
+        self.main.reader.UpdateMetaData()
+        # reader.SetVariableArrayStatus("w", 1)
+        self.main.reader.SphericalCoordinatesOn()
+        self.main.reader.ReplaceFillValueWithNanOn()
+
+        self.main.dataDimensions = []
+        allDimensions = self.main.reader.GetAllDimensions()
+        for i in range(allDimensions.GetNumberOfValues()):
+            dimension = allDimensions.GetValue(i)
+            self.main.dataDimensions.append(dimension)
+        Utils.loadGlobeGeometry(self.main)
+        self.taskFinished.emit()
 
 
 

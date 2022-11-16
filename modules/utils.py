@@ -214,7 +214,7 @@ def loadGlobeGeometry(self, variableToLoad=None):
 
     self.ren.AddActor(self.actor)
     self.ren.ResetCamera()
-    self.iren.Render()
+    #self.iren.Render()
     print("render issued")
 
 ##############################################################################

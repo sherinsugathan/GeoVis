@@ -540,6 +540,16 @@ QComboBox:item:checked {
             </widget>
            </item>
            <item>
+            <widget class="QProgressBar" name="progressBar">
+             <property name="value">
+              <number>100</number>
+             </property>
+             <property name="textVisible">
+              <bool>false</bool>
+             </property>
+            </widget>
+           </item>
+           <item>
             <widget class="QLabel" name="label_6">
              <property name="font">
               <font>
