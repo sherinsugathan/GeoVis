@@ -148,13 +148,13 @@ def loadGlobeGeometry(self, variableToLoad=None):
     self.reader.Update()
     print("reading completed")
 
-    #print(self.reader.GetOutput())
+    #print(self.reader.GetCalendar())
 
     cellDataToPointData = vtk.vtkCellDataToPointData()
     cellDataToPointData.SetInputData(self.reader.GetOutput())
     cellDataToPointData.ProcessAllArraysOn()
     cellDataToPointData.PassCellDataOn()
-    cellDataToPointData.Update()
+    #cellDataToPointData.Update()
 
     # calculator = vtk.vtkArrayCalculator()
     # calculator.SetInputData(cellDataToPointData.GetOutput())
@@ -227,6 +227,10 @@ def updateGlobeGeometry(self, variableName):
     else:
         self.mapper.ScalarVisibilityOn()
         self.mapper.GetInput().GetPointData().SetActiveScalars(variableName)
+        self.test = self.mapper.GetInput().GetPointData()
+        self.test2 = self.mapper.GetInput().GetPointData()
+        print(self.test)
+        print(self.test2)
         self.mapper.SetLookupTable(self.ctf)
         self.mapper.Update()
         self.iren.Render()

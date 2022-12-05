@@ -97,6 +97,66 @@ background-color: rgb(44, 48, 57);</string>
           </property>
          </widget>
         </item>
+        <item row="2" column="0">
+         <layout class="QHBoxLayout" name="horizontalLayout">
+          <property name="bottomMargin">
+           <number>0</number>
+          </property>
+          <item>
+           <widget class="QSlider" name="horizontalSlider">
+            <property name="styleSheet">
+             <string notr="true">QSlider::groove:horizontal {
+    border: 0px solid #999999;
+    height: 5px; /* the groove expands to the size of the slider by default. by giving it a height, it has a fixed size */
+   background: rgb(52, 59, 72);
+    margin: 2px 0;
+}
+
+QSlider::handle:horizontal {
+    background: rgb(175, 199, 242);
+    border: 1px solid #5c5c5c;
+    width: 18px;
+    margin: -2px 0; /* handle is placed by default on the contents rect of the groove. Expand outside the groove */
+    border-radius: 3px;
+}</string>
+            </property>
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+        <item row="0" column="2">
+         <layout class="QVBoxLayout" name="verticalLayout_4">
+          <property name="rightMargin">
+           <number>0</number>
+          </property>
+          <item>
+           <widget class="QSlider" name="verticalSlider">
+            <property name="styleSheet">
+             <string notr="true">QSlider::groove:vertical {
+border: 0px solid #999999;
+    background: rgb(52, 59, 72);
+    position: absolute; /* absolutely position 4px from the left and right of the widget. setting margins on the widget should work too... */
+    left: 4px; right: 4px;
+width:5px;
+}
+
+QSlider::handle:vertical {
+    height: 18px;
+border-radius: 3px;
+    background: rgb(175, 199, 242);
+    margin: 0 -2px; /* expand outside the groove */
+}</string>
+            </property>
+            <property name="orientation">
+             <enum>Qt::Vertical</enum>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
        </layout>
       </widget>
      </widget>
@@ -435,7 +495,16 @@ background : rgb(138, 157, 191);
                  </font>
                 </property>
                 <property name="styleSheet">
-                 <string notr="true">color:rgb(175, 199, 242);</string>
+                 <string notr="true">QRadioButton
+{
+color:rgb(175, 199, 242);
+}
+
+QRadioButton::indicator
+{
+width : 15px;
+height : 15px;
+}</string>
                 </property>
                 <property name="text">
                  <string>Raw</string>
@@ -454,7 +523,16 @@ background : rgb(138, 157, 191);
                  </font>
                 </property>
                 <property name="styleSheet">
-                 <string notr="true">color:rgb(175, 199, 242);</string>
+                 <string notr="true">QRadioButton
+{
+color:rgb(175, 199, 242);
+}
+
+QRadioButton::indicator
+{
+width : 15px;
+height : 15px;
+}</string>
                 </property>
                 <property name="text">
                  <string>2D</string>
@@ -470,10 +548,239 @@ background : rgb(138, 157, 191);
                  </font>
                 </property>
                 <property name="styleSheet">
-                 <string notr="true">color:rgb(175, 199, 242);</string>
+                 <string notr="true">QRadioButton
+{
+color:rgb(175, 199, 242);
+}
+
+QRadioButton::indicator
+{
+width : 15px;
+height : 15px;
+}</string>
                 </property>
                 <property name="text">
                  <string>3D</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </widget>
+           </item>
+           <item>
+            <layout class="QHBoxLayout" name="horizontalLayout_5">
+             <property name="bottomMargin">
+              <number>0</number>
+             </property>
+             <item>
+              <widget class="QLabel" name="label_2">
+               <property name="font">
+                <font>
+                 <family>Arial</family>
+                 <pointsize>10</pointsize>
+                </font>
+               </property>
+               <property name="styleSheet">
+                <string notr="true">color:rgb(175, 199, 242);</string>
+               </property>
+               <property name="text">
+                <string>Navigation Controls</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QLabel" name="label_FrameStatus">
+               <property name="font">
+                <font>
+                 <family>Arial</family>
+                 <pointsize>10</pointsize>
+                </font>
+               </property>
+               <property name="styleSheet">
+                <string notr="true">color:rgb(175, 199, 242);</string>
+               </property>
+               <property name="text">
+                <string>0/0</string>
+               </property>
+               <property name="alignment">
+                <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </item>
+           <item>
+            <widget class="QFrame" name="frame_3">
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>40</height>
+              </size>
+             </property>
+             <property name="styleSheet">
+              <string notr="true">background : rgb(52, 59, 72);</string>
+             </property>
+             <property name="frameShape">
+              <enum>QFrame::StyledPanel</enum>
+             </property>
+             <property name="frameShadow">
+              <enum>QFrame::Raised</enum>
+             </property>
+             <layout class="QHBoxLayout" name="horizontalLayout_3">
+              <item>
+               <widget class="QPushButton" name="pushButton_PlayReverse">
+                <property name="minimumSize">
+                 <size>
+                  <width>0</width>
+                  <height>20</height>
+                 </size>
+                </property>
+                <property name="font">
+                 <font>
+                  <family>Arial</family>
+                  <pointsize>16</pointsize>
+                 </font>
+                </property>
+                <property name="styleSheet">
+                 <string notr="true">QPushButton {
+	border: 2px solid rgb(52, 59, 72);
+	border-radius: 5px;	
+	background-color: rgb(87, 99, 122);
+color:rgb(175, 199, 242);
+}
+QPushButton:hover {
+	background-color: rgb(103, 117, 144);
+	border: 2px solid rgb(61, 70, 86);
+}
+QPushButton:pressed {	
+	background-color: rgb(35, 40, 49);
+	border: 2px solid rgb(43, 50, 61);
+}</string>
+                </property>
+                <property name="text">
+                 <string>&lt;&lt;</string>
+                </property>
+                <property name="iconSize">
+                 <size>
+                  <width>0</width>
+                  <height>0</height>
+                 </size>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QPushButton" name="pushButton_PreviousFrame">
+                <property name="font">
+                 <font>
+                  <family>Arial</family>
+                  <pointsize>16</pointsize>
+                 </font>
+                </property>
+                <property name="styleSheet">
+                 <string notr="true">QPushButton {
+	border: 2px solid rgb(52, 59, 72);
+	border-radius: 5px;	
+	background-color: rgb(87, 99, 122);
+color:rgb(175, 199, 242);
+}
+QPushButton:hover {
+	background-color: rgb(103, 117, 144);
+	border: 2px solid rgb(61, 70, 86);
+}
+QPushButton:pressed {	
+	background-color: rgb(35, 40, 49);
+	border: 2px solid rgb(43, 50, 61);
+}</string>
+                </property>
+                <property name="text">
+                 <string>&lt;</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QPushButton" name="pushButton_Pause">
+                <property name="font">
+                 <font>
+                  <family>Arial</family>
+                  <pointsize>16</pointsize>
+                 </font>
+                </property>
+                <property name="styleSheet">
+                 <string notr="true">QPushButton {
+	border: 2px solid rgb(52, 59, 72);
+	border-radius: 5px;	
+	background-color: rgb(87, 99, 122);
+color:rgb(175, 199, 242);
+}
+QPushButton:hover {
+	background-color: rgb(103, 117, 144);
+	border: 2px solid rgb(61, 70, 86);
+}
+QPushButton:pressed {	
+	background-color: rgb(35, 40, 49);
+	border: 2px solid rgb(43, 50, 61);
+}</string>
+                </property>
+                <property name="text">
+                 <string>||</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QPushButton" name="pushButton_NextFrame">
+                <property name="font">
+                 <font>
+                  <family>Arial</family>
+                  <pointsize>16</pointsize>
+                 </font>
+                </property>
+                <property name="styleSheet">
+                 <string notr="true">QPushButton {
+	border: 2px solid rgb(52, 59, 72);
+	border-radius: 5px;	
+	background-color: rgb(87, 99, 122);
+color:rgb(175, 199, 242);
+}
+QPushButton:hover {
+	background-color: rgb(103, 117, 144);
+	border: 2px solid rgb(61, 70, 86);
+}
+QPushButton:pressed {	
+	background-color: rgb(35, 40, 49);
+	border: 2px solid rgb(43, 50, 61);
+}</string>
+                </property>
+                <property name="text">
+                 <string>&gt;</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QPushButton" name="pushButton_PlayForward">
+                <property name="font">
+                 <font>
+                  <family>Arial</family>
+                  <pointsize>16</pointsize>
+                 </font>
+                </property>
+                <property name="styleSheet">
+                 <string notr="true">QPushButton {
+	border: 2px solid rgb(52, 59, 72);
+	border-radius: 5px;	
+	background-color: rgb(87, 99, 122);
+color:rgb(175, 199, 242);
+}
+QPushButton:hover {
+	background-color: rgb(103, 117, 144);
+	border: 2px solid rgb(61, 70, 86);
+}
+QPushButton:pressed {	
+	background-color: rgb(35, 40, 49);
+	border: 2px solid rgb(43, 50, 61);
+}</string>
+                </property>
+                <property name="text">
+                 <string>&gt;&gt;</string>
                 </property>
                </widget>
               </item>
@@ -536,16 +843,6 @@ QComboBox:item:checked {
     font-weight: bold;
 	 background-color: rgb(135	, 154, 181);
 }</string>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QProgressBar" name="progressBar">
-             <property name="value">
-              <number>100</number>
-             </property>
-             <property name="textVisible">
-              <bool>false</bool>
              </property>
             </widget>
            </item>

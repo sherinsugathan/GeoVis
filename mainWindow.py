@@ -8,14 +8,14 @@ from PyQt5.QtWidgets import QFileDialog, QCheckBox, QButtonGroup, QAbstractButto
 from PyQt5.QtWebEngineWidgets import QWebEngineView
 from PyQt5.QtCore import QThread
 
-qWidget.QApplication.setAttribute(qCore.Qt.AA_EnableHighDpiScaling, True) #enable highdpi scaling
-qWidget.QApplication.setAttribute(qCore.Qt.AA_UseHighDpiPixmaps, True) #use highdpi icons
-
+qWidget.QApplication.setAttribute(qCore.Qt.AA_EnableHighDpiScaling, True)  # enable highdpi scaling
+qWidget.QApplication.setAttribute(qCore.Qt.AA_UseHighDpiPixmaps, True)  # use highdpi icons
 
 from PyQt5 import uic, Qt
 from vtk.qt.QVTKRenderWindowInteractor import QVTKRenderWindowInteractor
 import sys
 import vtk
+
 vtk.vtkObject.GlobalWarningDisplayOff()
 import os
 import modules.utils as Utils
@@ -26,7 +26,7 @@ import io
 import xarray as xr
 
 # Pyinstaller exe requirements
-#import pkg_resources.py2_warn
+# import pkg_resources.py2_warn
 import vtkmodules
 import vtkmodules.all
 import vtkmodules.qt.QVTKRenderWindowInteractor
@@ -43,6 +43,8 @@ class mainWindow(qWidget.QMainWindow):
         """Init."""
         super(mainWindow, self).__init__(*args)
         self.path = None
+        self.rawTimes = []
+        self.currentTimeStep = None
         ui = os.path.join(os.path.dirname(__file__), 'assets/ui/gui.ui')
         uic.loadUi(ui, self)
 
@@ -51,7 +53,7 @@ class mainWindow(qWidget.QMainWindow):
         self.initializeRenderer()
         self.pushButton_LoadDataset.clicked.connect(self.on_buttonClick)  # Attaching button click handler.
         self.pushButton_SetDimensions.clicked.connect(self.on_buttonClick)  # Attaching button click handler.
-        self.comboBox_dims.currentTextChanged.connect(self.on_comboboxDims_changed) # Changed dimensions handler.
+        self.comboBox_dims.currentTextChanged.connect(self.on_comboboxDims_changed)  # Changed dimensions handler.
 
         # View radio buttons
         self.radioButton_RawView.toggled.connect(self.changeView)
@@ -64,29 +66,32 @@ class mainWindow(qWidget.QMainWindow):
         Utils.populateSupportedColorMaps(self)
         self.progbar()
 
+        self.myLongTask = TaskThread(self, isRefresh=True)  # initializing and passing data to QThread
+        self.myLongTask.taskFinished.connect(self.onFinished)  # this won't be read until QThread send a signal i think
+        self.myDimensionUpdateTask = TaskThread(self, isRefresh=False)  # initializing and passing data to QThread
+        self.myDimensionUpdateTask.taskFinished.connect(
+            self.onFinished)  # this won't be read until QThread send a signal i think
 
-        #self.horizontalSlider_start.valueChanged.connect(self.onsliderminChanged)
-        #self.horizontalSlider_end.valueChanged.connect(self.onslidermaxChanged)
-
+        # self.horizontalSlider_start.valueChanged.connect(self.onsliderminChanged)
+        # self.horizontalSlider_end.valueChanged.connect(self.onslidermaxChanged)
 
     @pyqtSlot()
     def applyVariable(self):
-        #scalarVariables = [item.text() for item in self.listWidget_Variables.selectedItems()]
-        #print(scalarVariables)
+        # scalarVariables = [item.text() for item in self.listWidget_Variables.selectedItems()]
+        # print(scalarVariables)
         varName = self.listWidget_Variables.currentItem().text()
         Utils.updateGlobeGeometry(self, varName)
-
 
     @pyqtSlot()
     def changeView(self):
         rbtn = self.sender()
-        if(rbtn.isChecked() == True):
-            if(rbtn.text() == "Raw"):
+        if (rbtn.isChecked() == True):
+            if (rbtn.text() == "Raw"):
                 self.stackedWidget.setCurrentWidget(self.page_InspectData)
             ############################
             # 2D Render View
             ############################
-            if(rbtn.text() == "2D"):
+            if (rbtn.text() == "2D"):
                 self.stackedWidget.setCurrentWidget(self.page_2DMap)
                 layout = QVBoxLayout()
                 self.frame_2D.setLayout(layout)
@@ -105,7 +110,7 @@ class mainWindow(qWidget.QMainWindow):
             ############################
             # 3D Render View
             ############################
-            if(rbtn.text() == "3D"):
+            if (rbtn.text() == "3D"):
                 self.stackedWidget.setCurrentWidget(self.page_3DMap)
 
     @pyqtSlot()
@@ -149,7 +154,7 @@ class mainWindow(qWidget.QMainWindow):
         self.valueStart = self.horizontalSlider_start.value()
         newValue = ((self.valueStart * 4765) / 2382) - 1018
         self.updateLUT(newValue)
-        #print("start changing", self.newValue)
+        # print("start changing", self.newValue)
 
     @pyqtSlot()
     def onslidermaxChanged(self):
@@ -167,7 +172,7 @@ class mainWindow(qWidget.QMainWindow):
         self.vtkWidget = QVTKRenderWindowInteractor(self.frame)
         self.vl.addWidget(self.vtkWidget)
         self.ren = vtk.vtkRenderer()
-        self.ren.SetBackground(5/255.0, 10.0/255, 38.0/255)
+        self.ren.SetBackground(5 / 255.0, 10.0 / 255, 38.0 / 255)
         self.vtkWidget.GetRenderWindow().AddRenderer(self.ren)
         self.iren = self.vtkWidget.GetRenderWindow().GetInteractor()
 
@@ -190,33 +195,58 @@ class mainWindow(qWidget.QMainWindow):
     def resetUI(self):
         pass
 
-    def progbar (self):
+    def progbar(self):
+        self.layout = QVBoxLayout()
+
         self.prog_win = qWidget.QDialog()
-        self.prog_win.resize(400, 100)
+        self.prog_win.resize(500, 300)
         self.prog_win.setModal(True)
+        self.prog_win.setWindowFlags(qCore.Qt.FramelessWindowHint)
         self.prog_win.setFixedSize(self.prog_win.size())
         self.prog_win.setWindowTitle("Processing request")
-        self.lbl = qWidget.QLabel(self.prog_win)
-        self.lbl.setText("Please Wait.  .  .")
-        self.lbl.move(15,18)
-        self.progressBar = qWidget.QProgressBar(self.prog_win)
-        self.progressBar.resize(410, 25)
-        self.progressBar.move(15, 40)
-        self.progressBar.setRange(0,1)
+        stylesheet = "border: 2px solid rgb(52, 59, 72);border-radius: 5px;	background-color: rgb(52, 59, 72);color:rgb(175, 199, 242);"
+        self.prog_win.setStyleSheet(stylesheet)
 
-    def onStart(self):
-        #self.progressBar.setRange(0,0)
-        self.myLongTask.start()
+        self.lbl = qWidget.QLabel(self.prog_win)
+        self.lbl.setAlignment(qCore.Qt.AlignCenter)
+        self.lbl.setStyleSheet("font: 12pt Arial;")
+        self.lbl.setText("Processing data... Please wait...")
+        # self.lbl.move(15,18)
+        self.progressBar = qWidget.QProgressBar(self.prog_win)
+        # self.progressBar.resize(410, 25)
+        self.progressBar.setMaximum(0)
+        self.progressBar.setMinimum(0)
+        self.progressBar.setMaximumHeight(15)
+        self.progressBar.setStyleSheet("background-color: rgb(90, 102, 125); border-radius: 2px;")
+        # self.progressBar.move(15, 40)
+
+        self.layout.addWidget(self.lbl, qCore.Qt.AlignCenter)
+        self.layout.addWidget(self.progressBar, qCore.Qt.AlignCenter)
+
+        # widget = QWidget()
+        self.prog_win.setLayout(self.layout)
+        # self.setCentralWidget(self.prog_win)
+        # self.progressBar.setRange(0,1)
+
+    def onStart(self, reload=True):
+        # self.progressBar.setRange(0,0)
+        if (reload == True):
+            self.myLongTask.start()
+        else:
+            self.myDimensionUpdateTask.start()
         print("Task started")
 
-    #added this function to close the progress bar
+    # added this function to close the progress bar
     def onFinished(self):
-        #self.progressBar.setRange(0,1)
+        # self.progressBar.setRange(0,1)
         self.prog_win.close()
         for item in self.dataDimensions:
             self.comboBox_dims.addItem(item)
         self.plainTextEdit_netCDFDataText.setPlainText(self.str_data)
-        self.stackedWidget.setCurrentWidget(self.page_InspectData)
+        if (self.rawTimes != None):
+            self.label_FrameStatus.setText("1/" + str(len(self.rawTimes)))
+            self.currentTimeStep = 0
+        # self.stackedWidget.setCurrentWidget(self.page_InspectData)
         Utils.statusMessage(self, "Data loaded.", "success")
 
     # Handler for browse folder button click.
@@ -234,30 +264,29 @@ class mainWindow(qWidget.QMainWindow):
                 self.path = path[0]
                 self.prog_win.show()
 
-                self.comboBox_dims.clear() # clear dim var combobox
-                self.listWidget_Variables.clear() # clear variable list.
+                self.comboBox_dims.clear()  # clear dim var combobox
+                self.listWidget_Variables.clear()  # clear variable list.
 
-                self.myLongTask = TaskThread(self)  # initializing and passing data to QThread
                 self.prog_win.show()
                 self.onStart()  # Start your very very long computation/process
-                self.myLongTask.taskFinished.connect(self.onFinished)  # this won't be read until QThread send a signal i think
 
         ############################
         # Apply selected variables.
         ############################
         if btnName == "pushButton_SetDimensions":
-            print("need to something here to regrid the data based on selected dimensions.")
+            # print("need to something here to regrid the data based on selected dimensions.")
             print("Setting dimensions to ", self.comboBox_dims.currentText())
             self.reader.SetDimensions(self.comboBox_dims.currentText())
             self.reader.ComputeArraySelection()
-            self.reader.Update()
+            self.prog_win.show()
+            self.onStart(False)  # Start your very very long computation/process
+            # Utils.loadGlobeGeometry(self)
+            # self.reader.Update()
+            # self.mapper.Update()
 
-            #self.reader.Update()
-            #print("NUmber of var array is ", self.reader.GetNumberOfVariableArrays())
-            #print(selectedDimension)
-
-
-
+            # self.reader.Update()
+            # print("NUmber of var array is ", self.reader.GetNumberOfVariableArrays())
+            # print(selectedDimension)
 
             # selectedVariables = []
             # #print("count is", self.listWidget_Variables.count())
@@ -276,38 +305,45 @@ class mainWindow(qWidget.QMainWindow):
             # self.tabWidget.setCurrentIndex(1)
             # self.stackedWidget.setCurrentWidget(self.page_3DMap)
 
+
 ##############################################################################
 ################# Data Reader Thread
 ##############################################################################
-#My Thread
+# My Thread
 class TaskThread(qCore.QThread):
     taskFinished = qCore.pyqtSignal()
 
-    #I also added this so that I can pass data between classes
-    def __init__(self, mainObject, parent=None):
+    # I also added this so that I can pass data between classes
+    def __init__(self, mainObject, isRefresh, parent=None):
         QThread.__init__(self, parent)
         self.main = mainObject
+        self.isRefresh = isRefresh
 
     def run(self):
-        print("Processing NetCDF file")
-        nc_fid = Dataset(self.main.path, 'r')  # Dataset is the class behavior to open the file
-        nc_attrs, nc_dims, nc_vars, self.main.str_data = Utils.ncdump(nc_fid)
-        # Reader NETCDF
-        self.main.reader = vtk.vtkNetCDFCFReader()
-        self.main.reader.SetFileName(self.main.path)
-        self.main.reader.UpdateMetaData()
-        # reader.SetVariableArrayStatus("w", 1)
-        self.main.reader.SphericalCoordinatesOn()
-        self.main.reader.ReplaceFillValueWithNanOn()
+        if (self.isRefresh == True):
+            print("Processing NetCDF file")
+            nc_fid = Dataset(self.main.path, 'r')  # Dataset is the class behavior to open the file
+            nc_attrs, nc_dims, nc_vars, self.main.str_data = Utils.ncdump(nc_fid)
+            # Reader NETCDF
+            self.main.reader = vtk.vtkNetCDFCFReader()
+            self.main.reader.SetFileName(self.main.path)
+            self.main.reader.UpdateMetaData()
+            # reader.SetVariableArrayStatus("w", 1)
+            self.main.reader.SphericalCoordinatesOn()
+            self.main.reader.ReplaceFillValueWithNanOn()
+            self.main.dataDimensions = []
+            allDimensions = self.main.reader.GetAllDimensions()
+            for i in range(allDimensions.GetNumberOfValues()):
+                dimension = allDimensions.GetValue(i)
+                self.main.dataDimensions.append(dimension)
 
-        self.main.dataDimensions = []
-        allDimensions = self.main.reader.GetAllDimensions()
-        for i in range(allDimensions.GetNumberOfValues()):
-            dimension = allDimensions.GetValue(i)
-            self.main.dataDimensions.append(dimension)
         Utils.loadGlobeGeometry(self.main)
-        self.taskFinished.emit()
+        self.main.rawTimes = self.main.reader.GetOutputInformation(0).Get(
+            vtk.vtkStreamingDemandDrivenPipeline.TIME_STEPS())
+        # tunits = self.main.reader.GetTimeUnits()
 
+        # print("RAW TIMES:", self.main.rawTimes)
+        self.taskFinished.emit()
 
 
 app = qWidget.QApplication(sys.argv)

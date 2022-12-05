@@ -146,3 +146,6 @@ cython_debug/
 data/
 *.whl
 .idea/
+
+# Sherin
+readerTest.py
