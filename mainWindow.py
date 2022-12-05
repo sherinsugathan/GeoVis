@@ -53,6 +53,11 @@ class mainWindow(qWidget.QMainWindow):
         self.initializeRenderer()
         self.pushButton_LoadDataset.clicked.connect(self.on_buttonClick)  # Attaching button click handler.
         self.pushButton_SetDimensions.clicked.connect(self.on_buttonClick)  # Attaching button click handler.
+        self.pushButton_PlayReverse.clicked.connect(self.on_buttonClick)  # Attaching button click handler.
+        self.pushButton_PreviousFrame.clicked.connect(self.on_buttonClick)  # Attaching button click handler.
+        self.pushButton_Pause.clicked.connect(self.on_buttonClick)  # Attaching button click handler.
+        self.pushButton_NextFrame.clicked.connect(self.on_buttonClick)  # Attaching button click handler.
+        self.pushButton_PlayForward.clicked.connect(self.on_buttonClick)  # Attaching button click handler.
         self.comboBox_dims.currentTextChanged.connect(self.on_comboboxDims_changed)  # Changed dimensions handler.
 
         # View radio buttons
@@ -244,7 +249,8 @@ class mainWindow(qWidget.QMainWindow):
             self.comboBox_dims.addItem(item)
         self.plainTextEdit_netCDFDataText.setPlainText(self.str_data)
         if (self.rawTimes != None):
-            self.label_FrameStatus.setText("1/" + str(len(self.rawTimes)))
+            self.maxTimeSteps = len(self.rawTimes)
+            self.label_FrameStatus.setText("1/" + str(self.maxTimeSteps))
             self.currentTimeStep = 0
         # self.stackedWidget.setCurrentWidget(self.page_InspectData)
         Utils.statusMessage(self, "Data loaded.", "success")
@@ -305,6 +311,50 @@ class mainWindow(qWidget.QMainWindow):
             # self.tabWidget.setCurrentIndex(1)
             # self.stackedWidget.setCurrentWidget(self.page_3DMap)
 
+        ############################
+        # Play Reverse
+        ############################
+        if btnName == "pushButton_PlayReverse":
+            print("play reverse")
+
+        ############################
+        # Previous Frame
+        ############################
+        if btnName == "pushButton_PreviousFrame":
+            if (self.stackedWidget.currentWidget().objectName() == "page_3DMap" or self.stackedWidget.currentWidget().objectName() == "page_2DMap"):
+                print("previous frame")
+
+        ############################
+        # Pause
+        ############################
+        if btnName == "pushButton_Pause":
+            print("pause playback")
+
+        ############################
+        # Next frame
+        ############################
+        if btnName == "pushButton_NextFrame":
+            if (self.stackedWidget.currentWidget().objectName() == "page_3DMap" or self.stackedWidget.currentWidget().objectName() == "page_2DMap"):
+                print("next frame")
+                if(self.currentTimeStep < self.maxTimeSteps):
+                    #print("Current step is ", self.rawTimes[self.currentTimeStep])
+                    self.reader.GetOutputInformation(0).Set(vtk.vtkStreamingDemandDrivenPipeline.UPDATE_TIME_STEP(), self.rawTimes[self.currentTimeStep])
+                    self.mapper.Update()
+                    self.iren.Render()
+                    self.currentTimeStep = self.currentTimeStep + 1
+                else:
+                    self.currentTimeStep = 0
+
+
+
+                #
+                #print("here")
+
+        ############################
+        # Play forward
+        ############################
+        if btnName == "pushButton_PlayForward":
+            print("play forward")
 
 ##############################################################################
 ################# Data Reader Thread
