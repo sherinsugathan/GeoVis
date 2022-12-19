@@ -9,7 +9,7 @@ The project makes use of the following libraries:
 Links to binaries (cross platform) appear here.
 
 # Sample dataset
-Link to the sample dataset.
+https://uio-my.sharepoint.com/:u:/g/personal/sherinsu_uio_no/ER7m6NV5_HlLupdAsknUAgIBAsF_WQDDfhycW_jr5vSaJw?e=rn7ga0
 
 # Usage
 Documetation on usage instructions.
