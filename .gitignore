@@ -149,3 +149,5 @@ data/
 
 # Sherin
 readerTest.py
+readerTest*.py
+sherinTemp*.py

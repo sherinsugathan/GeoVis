@@ -1,6 +1,7 @@
 import numpy as np
 import datetime as dt
 import vtk
+import xml.etree.ElementTree as ET
 
 
 ##############################################################################
@@ -78,66 +79,6 @@ def ncdump(nc_fid, verb=True):
                 str_data += "\t\tsize:" + str(nc_fid.variables[var].size) + "\n"
                 str_data += print_ncattr(var)
     return nc_attrs, nc_dims, nc_vars, str_data
-
-##############################################################################
-################# populate color maps to GUI control
-##############################################################################
-def populateSupportedColorMaps(self):
-    self.comboBox_ColorMaps.addItem("spectrum")
-    self.comboBox_ColorMaps.addItem("warm")
-    self.comboBox_ColorMaps.addItem("cool")
-    self.comboBox_ColorMaps.addItem("blues")
-    self.comboBox_ColorMaps.addItem("wild_flower")
-    self.comboBox_ColorMaps.addItem("citrus")
-    self.comboBox_ColorMaps.addItem("brewer_diverging_purple_orange_11")
-    self.comboBox_ColorMaps.addItem("brewer_diverging_purple_orange_10")
-    self.comboBox_ColorMaps.addItem("brewer_diverging_purple_orange_9")
-    self.comboBox_ColorMaps.addItem("brewer_diverging_purple_orange_8")
-    self.comboBox_ColorMaps.addItem("brewer_diverging_purple_orange_7")
-    self.comboBox_ColorMaps.addItem("brewer_diverging_purple_orange_6")
-    self.comboBox_ColorMaps.addItem("brewer_diverging_purple_orange_5")
-    self.comboBox_ColorMaps.addItem("brewer_diverging_purple_orange_4")
-    self.comboBox_ColorMaps.addItem("brewer_diverging_purple_orange_3")
-    self.comboBox_ColorMaps.addItem("brewer_diverging_spectral_11")
-    self.comboBox_ColorMaps.addItem("brewer_diverging_spectral_10")
-    self.comboBox_ColorMaps.addItem("brewer_diverging_spectral_9")
-    self.comboBox_ColorMaps.addItem("brewer_diverging_spectral_8")
-    self.comboBox_ColorMaps.addItem("brewer_diverging_spectral_7")
-    self.comboBox_ColorMaps.addItem("brewer_diverging_spectral_6")
-    self.comboBox_ColorMaps.addItem("brewer_diverging_spectral_5")
-    self.comboBox_ColorMaps.addItem("brewer_diverging_spectral_4")
-    self.comboBox_ColorMaps.addItem("brewer_diverging_spectral_3")
-    self.comboBox_ColorMaps.addItem("brewer_diverging_brown_blue_green_11")
-    self.comboBox_ColorMaps.addItem("brewer_diverging_brown_blue_green_10")
-    self.comboBox_ColorMaps.addItem("brewer_diverging_brown_blue_green_9")
-    self.comboBox_ColorMaps.addItem("brewer_diverging_brown_blue_green_8")
-    self.comboBox_ColorMaps.addItem("brewer_diverging_brown_blue_green_7")
-    self.comboBox_ColorMaps.addItem("brewer_diverging_brown_blue_green_6")
-    self.comboBox_ColorMaps.addItem("brewer_diverging_brown_blue_green_5")
-    self.comboBox_ColorMaps.addItem("brewer_diverging_brown_blue_green_4")
-    self.comboBox_ColorMaps.addItem("brewer_diverging_brown_blue_green_3")
-    self.comboBox_ColorMaps.addItem("brewer_sequential_blue_green_9")
-    self.comboBox_ColorMaps.addItem("brewer_sequential_blue_green_8")
-    self.comboBox_ColorMaps.addItem("brewer_sequential_blue_green_7")
-    self.comboBox_ColorMaps.addItem("brewer_sequential_blue_green_6")
-    self.comboBox_ColorMaps.addItem("brewer_sequential_blue_green_5")
-    self.comboBox_ColorMaps.addItem("brewer_sequential_blue_green_4")
-    self.comboBox_ColorMaps.addItem("brewer_sequential_blue_green_3")
-    self.comboBox_ColorMaps.addItem("brewer_sequential_yellow_orange_brown_9")
-    self.comboBox_ColorMaps.addItem("brewer_sequential_yellow_orange_brown_8")
-    self.comboBox_ColorMaps.addItem("brewer_sequential_yellow_orange_brown_7")
-    self.comboBox_ColorMaps.addItem("brewer_sequential_yellow_orange_brown_6")
-    self.comboBox_ColorMaps.addItem("brewer_sequential_yellow_orange_brown_5")
-    self.comboBox_ColorMaps.addItem("brewer_sequential_yellow_orange_brown_4")
-    self.comboBox_ColorMaps.addItem("brewer_sequential_yellow_orange_brown_3")
-    self.comboBox_ColorMaps.addItem("brewer_sequential_blue_purple_9")
-    self.comboBox_ColorMaps.addItem("brewer_sequential_blue_purple_8")
-    self.comboBox_ColorMaps.addItem("brewer_sequential_blue_purple_7")
-    self.comboBox_ColorMaps.addItem("brewer_sequential_blue_purple_6")
-    self.comboBox_ColorMaps.addItem("brewer_sequential_blue_purple_5")
-    self.comboBox_ColorMaps.addItem("brewer_sequential_blue_purple_4")
-    self.comboBox_ColorMaps.addItem("brewer_sequential_blue_purple_3")
-
 
 ##############################################################################
 ################# load globe geometry
@@ -221,16 +162,56 @@ def loadGlobeGeometry(self, variableToLoad=None):
 ################# load globe geometry
 ##############################################################################
 def updateGlobeGeometry(self, variableName):
+    print("updating globe geometry")
     if(variableName == None or variableName == ""):
         self.mapper.ScalarVisibilityOff()
         return
     else:
+        #self.pa.AddArray(1, variableName)  # 0 for PointData, 1 for CellData, 2 for FieldData
+        #self.pa.Update()
         self.mapper.ScalarVisibilityOn()
-        self.mapper.GetInput().GetPointData().SetActiveScalars(variableName)
-        self.test = self.mapper.GetInput().GetPointData()
-        self.test2 = self.mapper.GetInput().GetPointData()
-        print(self.test)
-        print(self.test2)
+        #self.mapper.GetInput().GetPointData().SetActiveScalars(variableName)
+        print(self.pa.GetOutput().GetCellData().GetNumberOfArrays())
+        #print(self.pa.GetOutput().GetCellData().GetScalars())
+        #numberOfArrays = self.pa.GetOutput().GetCellData().GetNumberOfArrays()
+        #for i in range(numberOfArrays):
+        #    print(self.pa.GetOutput().GetCellData().GetArray(i).GetName())
+
+        self.mapper.GetInput().GetCellData().AddArray(self.pa.GetOutput().GetCellData().GetAbstractArray(variableName))
+        #self.mapper.GetInput().GetCellData().AddArray(self.pa.GetOutput().GetCellData().GetArray(0))
+        self.mapper.GetInput().GetCellData().SetActiveScalars(variableName)
+        dataRange = self.mapper.GetInput().GetCellData().GetScalars(variableName).GetRange()
+
+        #print("sherin", self.gradient.gradient())
+
+        # self.ctf.RemoveAllPoints()
+        # self.ctf.AddRGBPoint(dataRange[0], 0.231373, 0.298039, 0.752941)
+        # self.ctf.AddRGBPoint(dataRange[1], 0.705882, 0.0156863, 0.14902)
+        # self.ctf.Build()
+        gradients = self.gradient.gradient()
+        stops = [data[0] for data in gradients]
+        oldMin = 0
+        oldMax = 1
+        newMin = dataRange[0]
+        newMax = dataRange[1]
+        newRange = newMax - newMin
+
+        self.ctf.RemoveAllPoints()
+        for gradient in gradients:
+            oldValue = float(gradient[0])
+            newValue = ((oldValue - oldMin) * newRange) + newMin
+            self.ctf.AddRGBPoint(newValue, gradient[1].redF(), gradient[1].greenF(), gradient[1].blueF())
+        if(self.checkBox_LogScale.isChecked()):
+            self.ctf.SetScaleToLog10()
+        else:
+            self.ctf.SetScaleToLinear()
+        self.ctf.Build()
+
+        #print("entering here")
+        #self.test = self.mapper.GetInput().GetPointData()
+        #self.test2 = self.mapper.GetInput().GetPointData()
+        #print(self.test)
+        #print(self.test2)
         self.mapper.SetLookupTable(self.ctf)
         self.mapper.Update()
         self.iren.Render()
@@ -246,3 +227,25 @@ def statusMessage(self, message, type="success"):
         self.textEdit_Status.setStyleSheet("background-color: #DE7575;")
     self.textEdit_Status.setPlainText(message)
 
+
+##############################################################################
+################# read color ramp xml file
+################# returns color data as list of dictionaries.
+##############################################################################
+def readColorMapInfo(self, colorRampFile):
+    tree = ET.parse(colorRampFile)
+    root = tree.getroot()
+    colorDataList = []
+    # parse color xml info.
+    for elem in root:
+        cmapitem = {}
+        cmapitem['name'] = elem.attrib['name']
+        for subelem in elem:
+            if (subelem.attrib['k'] == 'color1'):
+                cmapitem['color1'] = subelem.attrib['v']
+            if (subelem.attrib['k'] == 'color2'):
+                cmapitem['color2'] = subelem.attrib['v']
+            if (subelem.attrib['k'] == 'stops'):
+                cmapitem['stops'] = subelem.attrib['v']
+        colorDataList.append(cmapitem)
+    return colorDataList

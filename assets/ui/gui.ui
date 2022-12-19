@@ -17,7 +17,7 @@
    </sizepolicy>
   </property>
   <property name="windowTitle">
-   <string>GeoVis - For Research Use Only</string>
+   <string>GeoVis - v1.0.0</string>
   </property>
   <property name="styleSheet">
    <string notr="true">background-color: rgb(33, 37, 43);
@@ -28,7 +28,7 @@ color: rgb(255, 255, 255);</string>
     <item row="0" column="1">
      <widget class="QStackedWidget" name="stackedWidget">
       <property name="currentIndex">
-       <number>0</number>
+       <number>2</number>
       </property>
       <widget class="QWidget" name="page_InspectData">
        <layout class="QGridLayout" name="gridLayout_3">
@@ -72,7 +72,7 @@ color: rgb(255, 255, 255);</string>
       </widget>
       <widget class="QWidget" name="page_3DMap">
        <layout class="QGridLayout" name="gridLayout_2">
-        <item row="0" column="0">
+        <item row="1" column="0">
          <widget class="QFrame" name="frame">
           <property name="sizePolicy">
            <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
@@ -85,27 +85,36 @@ color: rgb(255, 255, 255);</string>
           </property>
           <property name="styleSheet">
            <string notr="true">border-style: solid;
-border-radius: 10px;
+border-radius: 5px;
 border: 0px solid lightgray;
 background-color: rgb(44, 48, 57);</string>
           </property>
           <property name="frameShape">
-           <enum>QFrame::StyledPanel</enum>
+           <enum>QFrame::Box</enum>
           </property>
           <property name="frameShadow">
-           <enum>QFrame::Raised</enum>
+           <enum>QFrame::Plain</enum>
           </property>
          </widget>
         </item>
-        <item row="2" column="0">
+        <item row="1" column="2">
+         <layout class="QVBoxLayout" name="verticalLayout_4">
+          <property name="rightMargin">
+           <number>0</number>
+          </property>
+         </layout>
+        </item>
+        <item row="3" column="0">
          <layout class="QHBoxLayout" name="horizontalLayout">
           <property name="bottomMargin">
            <number>0</number>
           </property>
-          <item>
-           <widget class="QSlider" name="horizontalSlider">
-            <property name="styleSheet">
-             <string notr="true">QSlider::groove:horizontal {
+         </layout>
+        </item>
+        <item row="0" column="0">
+         <widget class="QSlider" name="horizontalSlider_Main">
+          <property name="styleSheet">
+           <string notr="true">QSlider::groove:horizontal {
     border: 0px solid #999999;
     height: 5px; /* the groove expands to the size of the slider by default. by giving it a height, it has a fixed size */
    background: rgb(52, 59, 72);
@@ -119,43 +128,33 @@ QSlider::handle:horizontal {
     margin: -2px 0; /* handle is placed by default on the contents rect of the groove. Expand outside the groove */
     border-radius: 3px;
 }</string>
-            </property>
-            <property name="orientation">
-             <enum>Qt::Horizontal</enum>
-            </property>
-           </widget>
-          </item>
-         </layout>
-        </item>
-        <item row="0" column="2">
-         <layout class="QVBoxLayout" name="verticalLayout_4">
-          <property name="rightMargin">
-           <number>0</number>
           </property>
-          <item>
-           <widget class="QSlider" name="verticalSlider">
-            <property name="styleSheet">
-             <string notr="true">QSlider::groove:vertical {
-border: 0px solid #999999;
-    background: rgb(52, 59, 72);
-    position: absolute; /* absolutely position 4px from the left and right of the widget. setting margins on the widget should work too... */
-    left: 4px; right: 4px;
-width:5px;
-}
-
-QSlider::handle:vertical {
-    height: 18px;
-border-radius: 3px;
-    background: rgb(175, 199, 242);
-    margin: 0 -2px; /* expand outside the groove */
-}</string>
-            </property>
-            <property name="orientation">
-             <enum>Qt::Vertical</enum>
-            </property>
-           </widget>
-          </item>
-         </layout>
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="0">
+         <widget class="QFrame" name="frame_colormap">
+          <property name="minimumSize">
+           <size>
+            <width>0</width>
+            <height>40</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>16777215</width>
+            <height>40</height>
+           </size>
+          </property>
+          <property name="frameShape">
+           <enum>QFrame::StyledPanel</enum>
+          </property>
+          <property name="frameShadow">
+           <enum>QFrame::Raised</enum>
+          </property>
+         </widget>
         </item>
        </layout>
       </widget>
@@ -600,7 +599,7 @@ height : 15px;
                 <string notr="true">color:rgb(175, 199, 242);</string>
                </property>
                <property name="text">
-                <string>0/0</string>
+                <string>-/-</string>
                </property>
                <property name="alignment">
                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -632,7 +631,7 @@ height : 15px;
                 <property name="minimumSize">
                  <size>
                   <width>0</width>
-                  <height>20</height>
+                  <height>30</height>
                  </size>
                 </property>
                 <property name="font">
@@ -658,18 +657,31 @@ QPushButton:pressed {
 }</string>
                 </property>
                 <property name="text">
-                 <string>&lt;&lt;</string>
+                 <string/>
+                </property>
+                <property name="icon">
+                 <iconset>
+                  <normaloff>../icons/reverseplay.png</normaloff>../icons/reverseplay.png</iconset>
                 </property>
                 <property name="iconSize">
                  <size>
-                  <width>0</width>
-                  <height>0</height>
+                  <width>15</width>
+                  <height>15</height>
                  </size>
+                </property>
+                <property name="shortcut">
+                 <string>Enter</string>
                 </property>
                </widget>
               </item>
               <item>
                <widget class="QPushButton" name="pushButton_PreviousFrame">
+                <property name="minimumSize">
+                 <size>
+                  <width>0</width>
+                  <height>30</height>
+                 </size>
+                </property>
                 <property name="font">
                  <font>
                   <family>Arial</family>
@@ -693,12 +705,22 @@ QPushButton:pressed {
 }</string>
                 </property>
                 <property name="text">
-                 <string>&lt;</string>
+                 <string/>
+                </property>
+                <property name="icon">
+                 <iconset>
+                  <normaloff>../icons/prevframe.png</normaloff>../icons/prevframe.png</iconset>
                 </property>
                </widget>
               </item>
               <item>
                <widget class="QPushButton" name="pushButton_Pause">
+                <property name="minimumSize">
+                 <size>
+                  <width>0</width>
+                  <height>30</height>
+                 </size>
+                </property>
                 <property name="font">
                  <font>
                   <family>Arial</family>
@@ -722,12 +744,22 @@ QPushButton:pressed {
 }</string>
                 </property>
                 <property name="text">
-                 <string>||</string>
+                 <string/>
+                </property>
+                <property name="icon">
+                 <iconset>
+                  <normaloff>../icons/pause.png</normaloff>../icons/pause.png</iconset>
                 </property>
                </widget>
               </item>
               <item>
                <widget class="QPushButton" name="pushButton_NextFrame">
+                <property name="minimumSize">
+                 <size>
+                  <width>0</width>
+                  <height>30</height>
+                 </size>
+                </property>
                 <property name="font">
                  <font>
                   <family>Arial</family>
@@ -751,12 +783,22 @@ QPushButton:pressed {
 }</string>
                 </property>
                 <property name="text">
-                 <string>&gt;</string>
+                 <string/>
+                </property>
+                <property name="icon">
+                 <iconset>
+                  <normaloff>../icons/nextframe.png</normaloff>../icons/nextframe.png</iconset>
                 </property>
                </widget>
               </item>
               <item>
                <widget class="QPushButton" name="pushButton_PlayForward">
+                <property name="minimumSize">
+                 <size>
+                  <width>0</width>
+                  <height>30</height>
+                 </size>
+                </property>
                 <property name="font">
                  <font>
                   <family>Arial</family>
@@ -780,7 +822,17 @@ QPushButton:pressed {
 }</string>
                 </property>
                 <property name="text">
-                 <string>&gt;&gt;</string>
+                 <string/>
+                </property>
+                <property name="icon">
+                 <iconset>
+                  <normaloff>../icons/forwardplay.png</normaloff>../icons/forwardplay.png</iconset>
+                </property>
+                <property name="iconSize">
+                 <size>
+                  <width>15</width>
+                  <height>15</height>
+                 </size>
                 </property>
                </widget>
               </item>
@@ -788,20 +840,46 @@ QPushButton:pressed {
             </widget>
            </item>
            <item>
-            <widget class="QLabel" name="label_4">
-             <property name="font">
-              <font>
-               <family>Arial</family>
-               <pointsize>10</pointsize>
-              </font>
+            <layout class="QHBoxLayout" name="horizontalLayout_4">
+             <property name="bottomMargin">
+              <number>0</number>
              </property>
-             <property name="styleSheet">
-              <string notr="true">color:rgb(175, 199, 242);</string>
-             </property>
-             <property name="text">
-              <string>Color Mapping</string>
-             </property>
-            </widget>
+             <item>
+              <widget class="QLabel" name="label_4">
+               <property name="font">
+                <font>
+                 <family>Arial</family>
+                 <pointsize>10</pointsize>
+                </font>
+               </property>
+               <property name="styleSheet">
+                <string notr="true">color:rgb(175, 199, 242);</string>
+               </property>
+               <property name="text">
+                <string>Color Mapping</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QCheckBox" name="checkBox_LogScale">
+               <property name="font">
+                <font>
+                 <family>Arial</family>
+                 <pointsize>10</pointsize>
+                </font>
+               </property>
+               <property name="layoutDirection">
+                <enum>Qt::RightToLeft</enum>
+               </property>
+               <property name="styleSheet">
+                <string notr="true">color:rgb(175, 199, 242);</string>
+               </property>
+               <property name="text">
+                <string>Use Log Scale</string>
+               </property>
+              </widget>
+             </item>
+            </layout>
            </item>
            <item>
             <widget class="QComboBox" name="comboBox_ColorMaps">

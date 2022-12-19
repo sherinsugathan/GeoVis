@@ -12,13 +12,18 @@ qWidget.QApplication.setAttribute(qCore.Qt.AA_EnableHighDpiScaling, True)  # ena
 qWidget.QApplication.setAttribute(qCore.Qt.AA_UseHighDpiPixmaps, True)  # use highdpi icons
 
 from PyQt5 import uic, Qt
+from PyQt5.QtGui import QColor
 from vtk.qt.QVTKRenderWindowInteractor import QVTKRenderWindowInteractor
 import sys
 import vtk
 
 vtk.vtkObject.GlobalWarningDisplayOff()
 import os
+import ctypes
 import modules.utils as Utils
+import modules.gradient as Gd
+import matplotlib.colors
+
 from netCDF4 import Dataset
 import netCDF4 as nc
 import folium
@@ -34,7 +39,8 @@ import vtkmodules.util
 import vtkmodules.util.numpy_support
 import cftime
 import cftime._strptime
-
+myappid = 'uio.geovis.netcdfvisualizer.100' # arbitrary string
+ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(myappid)
 
 class mainWindow(qWidget.QMainWindow):
     """Main window class."""
@@ -44,7 +50,16 @@ class mainWindow(qWidget.QMainWindow):
         super(mainWindow, self).__init__(*args)
         self.path = None
         self.rawTimes = []
+        self.pa = None
+        self.cmaps = None
         self.currentTimeStep = None
+        # set app icon
+        app_icon = qGui.QIcon()
+        app_icon.addFile('assets\\icons\\icons8-92.png', qCore.QSize(92, 92))
+        app_icon.addFile('assets\\icons\\icons8-100.png', qCore.QSize(100, 100))
+        app_icon.addFile('assets\\icons\\icons8-200.png', qCore.QSize(200, 200))
+        app_icon.addFile('assets\\icons\\icons8-400.png', qCore.QSize(400, 400))
+        self.setWindowIcon(app_icon)
         ui = os.path.join(os.path.dirname(__file__), 'assets/ui/gui.ui')
         uic.loadUi(ui, self)
 
@@ -68,24 +83,39 @@ class mainWindow(qWidget.QMainWindow):
         # Variable list double click
         self.listWidget_Variables.doubleClicked.connect(self.applyVariable)
 
-        Utils.populateSupportedColorMaps(self)
+        # time slider
+        self.horizontalSlider_Main.valueChanged.connect(self.on_timeSlider_Changed)
+
+        # Log scale
+        self.checkBox_LogScale.stateChanged.connect(self.on_scaleChanged)
         self.progbar()
 
         self.myLongTask = TaskThread(self, isRefresh=True)  # initializing and passing data to QThread
         self.myLongTask.taskFinished.connect(self.onFinished)  # this won't be read until QThread send a signal i think
         self.myDimensionUpdateTask = TaskThread(self, isRefresh=False)  # initializing and passing data to QThread
-        self.myDimensionUpdateTask.taskFinished.connect(
-            self.onFinished)  # this won't be read until QThread send a signal i think
+        self.myDimensionUpdateTask.taskFinished.connect(self.onFinished)  # this won't be read until QThread send a signal i think
 
-        # self.horizontalSlider_start.valueChanged.connect(self.onsliderminChanged)
-        # self.horizontalSlider_end.valueChanged.connect(self.onslidermaxChanged)
+        self.initializeApp()
+
+
+    @pyqtSlot()
+    def on_scaleChanged(self):
+        if(self.checkBox_LogScale.isChecked()==True):
+            self.ctf.SetScaleToLog10()
+        else:
+            self.ctf.SetScaleToLinear()
+        self.ctf.Build()
+        self.mapper.SetLookupTable(self.ctf)
+        self.mapper.Update()
+        self.iren.Render()
+
 
     @pyqtSlot()
     def applyVariable(self):
         # scalarVariables = [item.text() for item in self.listWidget_Variables.selectedItems()]
         # print(scalarVariables)
-        varName = self.listWidget_Variables.currentItem().text()
-        Utils.updateGlobeGeometry(self, varName)
+        self.varName = self.listWidget_Variables.currentItem().text()
+        Utils.updateGlobeGeometry(self, self.varName)
 
     @pyqtSlot()
     def changeView(self):
@@ -119,6 +149,17 @@ class mainWindow(qWidget.QMainWindow):
                 self.stackedWidget.setCurrentWidget(self.page_3DMap)
 
     @pyqtSlot()
+    def on_timeSlider_Changed(self):
+        self.currentTimeStep = self.horizontalSlider_Main.value()
+        self.reader.GetOutputInformation(0).Set(vtk.vtkStreamingDemandDrivenPipeline.UPDATE_TIME_STEP(), self.rawTimes[self.currentTimeStep - 1])
+        self.pa.AddArray(1, self.varName)  # 0 for PointData, 1 for CellData, 2 for FieldData
+        self.pa.Update()
+        self.mapper.GetInput().GetCellData().AddArray(self.pa.GetOutput().GetCellData().GetAbstractArray(self.varName))
+        #self.mapper.GetInput().GetCellData().AddArray(self.pa.GetOutput().GetCellData().GetArray(0))
+        self.label_FrameStatus.setText(str(self.currentTimeStep) + "/" + str(self.maxTimeSteps))
+        self.iren.Render()
+
+    @pyqtSlot()
     def on_comboboxDims_changed(self):
         selectedDimension = str(self.comboBox_dims.currentText())
         # self.reader.ComputeArraySelection()
@@ -145,30 +186,51 @@ class mainWindow(qWidget.QMainWindow):
             self.listWidget_Variables.addItem(item)
 
     @pyqtSlot()
-    def updateLUT(self, newValue):
+    def comboBox_ColorMaps_changed(self):
+        for cmapItem in self.cmaps:
+            if(cmapItem['name'] == str(self.comboBox_ColorMaps.currentText())):
+                color1List = [int(x) for x in cmapItem['color1'].split(',')]
+                color2List = [int(x) for x in cmapItem['color2'].split(',')]
+                gradientList = []
+                cstart = (0, QColor(color1List[0], color1List[1], color1List[2], color1List[3]))
+                cend = (1, QColor(color2List[0], color2List[1], color2List[2], color2List[3]))
+                stops = cmapItem['stops'].split(':')
+                gradientList.append(cstart)
+                for item in stops:
+                    stopData = item.split(';')
+                    stop = float(stopData[0])
+                    cvalues = [int(x) for x in stopData[1].split(',')]
+                    gradientList.append((stop, QColor(cvalues[0], cvalues[1], cvalues[2], cvalues[3])))
+                gradientList.append(cend)
+                self.gradient.setGradient(gradientList)
+                self.gradient.update()
+                break
+
+    @pyqtSlot()
+    def updateLUT(self):
+        #print("updating lut")
+        gradients = self.gradient.gradient()
+        dataRange = self.mapper.GetInput().GetCellData().GetScalars(self.varName).GetRange()
+        stops = [data[0] for data in gradients]
+        oldMin = 0
+        oldMax = 1
+        newMin = dataRange[0]
+        newMax = dataRange[1]
+        newRange = newMax - newMin
+
         self.ctf.RemoveAllPoints()
-        self.ctf.AddRGBPoint(-1018.2862548828125, 0.231373, 0.298039, 0.752941)
-        self.ctf.AddRGBPoint(newValue, 0.865003, 0.865003, 0.865003)
-        self.ctf.AddRGBPoint(3747.783203125, 0.705882, 0.0156863, 0.14902)
+        for gradient in gradients:
+            #print(type(gradient[1]))
+            oldValue = float(gradient[0])
+            newValue = ((oldValue - oldMin) * newRange) + newMin
+            if(isinstance(gradient[1], str)==True):
+                 rgb = matplotlib.colors.to_rgb(gradient[1])
+                 self.ctf.AddRGBPoint(newValue, rgb[0], rgb[1], rgb[2])
+            else:
+                self.ctf.AddRGBPoint(newValue, gradient[1].redF(), gradient[1].greenF(), gradient[1].blueF())
         self.ctf.Build()
         self.mapper.Update()
         self.iren.Render()
-
-    @pyqtSlot()
-    def onsliderminChanged(self):
-        self.valueStart = self.horizontalSlider_start.value()
-        newValue = ((self.valueStart * 4765) / 2382) - 1018
-        self.updateLUT(newValue)
-        # print("start changing", self.newValue)
-
-    @pyqtSlot()
-    def onslidermaxChanged(self):
-        self.valueEnd = self.horizontalSlider_end.value()
-        print("end changing")
-
-    @pyqtSlot()
-    def on_click_printHello(self):
-        print("Hello Sherin!")
 
     # Handler for browse folder button click.
     @pyqtSlot()
@@ -196,13 +258,44 @@ class mainWindow(qWidget.QMainWindow):
         super().closeEvent(QCloseEvent)
         self.vtkWidget.Finalize()
 
+    def initializeApp(self):
+        self.pa = vtk.vtkPassArrays()
+        self.gradient = Gd.Gradient()
+        self.gradient.setGradient([(0, 'black'), (1, 'green'), (0.5, 'red')])
+        self.layout = QVBoxLayout()
+        self.layout.addWidget(self.gradient, qCore.Qt.AlignCenter)
+        self.frame_colormap.setLayout(self.layout)
+        # Read color map information.
+        self.cmaps = Utils.readColorMapInfo(self, "assets//colormaps//colormaps.xml")
+        for item in self.cmaps:
+            self.comboBox_ColorMaps.addItem(item['name'])
+        color1List = [int(x) for x in self.cmaps[0]['color1'].split(',')]
+        color2List = [int(x) for x in self.cmaps[0]['color2'].split(',')]
+        gradientList = []
+        cstart = (0, QColor(color1List[0],color1List[1], color1List[2], color1List[3]))
+        cend = (1, QColor(color2List[0], color2List[1], color2List[2], color2List[3]))
+        stops = self.cmaps[0]['stops'].split(':')
+        gradientList.append(cstart)
+        for item in stops:
+            stopData = item.split(';')
+            stop = float(stopData[0])
+            cvalues = [int(x) for x in stopData[1].split(',')]
+            gradientList.append((stop, QColor(cvalues[0], cvalues[1], cvalues[2], cvalues[3])))
+        gradientList.append(cend)
+        self.gradient.setGradient(gradientList)
+        self.comboBox_ColorMaps.currentTextChanged.connect(self.comboBox_ColorMaps_changed)  # Changed dimensions handler.
+        self.gradient.gradientChanged.connect(self.colorMapChanged)
+
+    # Visualization color map changed.
+    def colorMapChanged(self):
+        self.updateLUT()
+
     # Reset UI state when loading dataset.
     def resetUI(self):
         pass
 
     def progbar(self):
         self.layout = QVBoxLayout()
-
         self.prog_win = qWidget.QDialog()
         self.prog_win.resize(500, 300)
         self.prog_win.setModal(True)
@@ -248,10 +341,15 @@ class mainWindow(qWidget.QMainWindow):
         for item in self.dataDimensions:
             self.comboBox_dims.addItem(item)
         self.plainTextEdit_netCDFDataText.setPlainText(self.str_data)
-        if (self.rawTimes != None):
+        if (self.rawTimes != None): # valid time points available.
             self.maxTimeSteps = len(self.rawTimes)
             self.label_FrameStatus.setText("1/" + str(self.maxTimeSteps))
-            self.currentTimeStep = 0
+            self.horizontalSlider_Main.setMaximum(self.maxTimeSteps)
+            self.horizontalSlider_Main.setEnabled(True)
+        else: # no time points available
+            self.horizontalSlider_Main.setEnabled(False)
+            self.label_FrameStatus.setText("1/1")
+        self.currentTimeStep = 1
         # self.stackedWidget.setCurrentWidget(self.page_InspectData)
         Utils.statusMessage(self, "Data loaded.", "success")
 
@@ -322,7 +420,17 @@ class mainWindow(qWidget.QMainWindow):
         ############################
         if btnName == "pushButton_PreviousFrame":
             if (self.stackedWidget.currentWidget().objectName() == "page_3DMap" or self.stackedWidget.currentWidget().objectName() == "page_2DMap"):
-                print("previous frame")
+                if (self.currentTimeStep > 1):
+                    self.currentTimeStep = self.currentTimeStep - 1
+                else:
+                    self.currentTimeStep = self.maxTimeSteps
+                self.reader.GetOutputInformation(0).Set(vtk.vtkStreamingDemandDrivenPipeline.UPDATE_TIME_STEP(), self.rawTimes[self.currentTimeStep - 1])
+                self.pa.AddArray(1, self.varName)  # 0 for PointData, 1 for CellData, 2 for FieldData
+                self.pa.Update()
+                self.mapper.GetInput().GetCellData().AddArray(self.pa.GetOutput().GetCellData().GetAbstractArray(self.varName))
+                #self.mapper.GetInput().GetCellData().AddArray(self.pa.GetOutput().GetCellData().GetArray(0))
+                self.label_FrameStatus.setText(str(self.currentTimeStep) + "/" + str(self.maxTimeSteps))
+                self.iren.Render()
 
         ############################
         # Pause
@@ -335,20 +443,21 @@ class mainWindow(qWidget.QMainWindow):
         ############################
         if btnName == "pushButton_NextFrame":
             if (self.stackedWidget.currentWidget().objectName() == "page_3DMap" or self.stackedWidget.currentWidget().objectName() == "page_2DMap"):
-                print("next frame")
                 if(self.currentTimeStep < self.maxTimeSteps):
-                    #print("Current step is ", self.rawTimes[self.currentTimeStep])
-                    self.reader.GetOutputInformation(0).Set(vtk.vtkStreamingDemandDrivenPipeline.UPDATE_TIME_STEP(), self.rawTimes[self.currentTimeStep])
-                    self.mapper.Update()
-                    self.iren.Render()
                     self.currentTimeStep = self.currentTimeStep + 1
                 else:
-                    self.currentTimeStep = 0
+                    self.currentTimeStep = 1
 
+                self.reader.GetOutputInformation(0).Set(vtk.vtkStreamingDemandDrivenPipeline.UPDATE_TIME_STEP(), self.rawTimes[self.currentTimeStep - 1])
+                self.pa.AddArray(1, self.varName)  # 0 for PointData, 1 for CellData, 2 for FieldData
+                self.pa.Update()
+                self.mapper.GetInput().GetCellData().AddArray(self.pa.GetOutput().GetCellData().GetAbstractArray(self.varName))
+                #self.mapper.GetInput().GetCellData().AddArray(self.pa.GetOutput().GetCellData().GetArray(0))
+                self.mapper.GetInput().GetCellData().SetActiveScalars(self.varName)
+                self.label_FrameStatus.setText(str(self.currentTimeStep) + "/" + str(self.maxTimeSteps))
 
-
-                #
-                #print("here")
+                self.mapper.Update()
+                self.iren.Render()
 
         ############################
         # Play forward
@@ -387,10 +496,11 @@ class TaskThread(qCore.QThread):
                 dimension = allDimensions.GetValue(i)
                 self.main.dataDimensions.append(dimension)
 
+        self.main.pa.SetInputConnection(self.main.reader.GetOutputPort())
         Utils.loadGlobeGeometry(self.main)
-        self.main.rawTimes = self.main.reader.GetOutputInformation(0).Get(
-            vtk.vtkStreamingDemandDrivenPipeline.TIME_STEPS())
+        self.main.rawTimes = self.main.reader.GetOutputInformation(0).Get(vtk.vtkStreamingDemandDrivenPipeline.TIME_STEPS())
         # tunits = self.main.reader.GetTimeUnits()
+
 
         # print("RAW TIMES:", self.main.rawTimes)
         self.taskFinished.emit()
