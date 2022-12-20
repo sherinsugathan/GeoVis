@@ -152,7 +152,7 @@ def loadGlobeGeometry(self, variableToLoad=None):
 
     self.actor = vtk.vtkActor()
     self.actor.SetMapper(self.mapper)
-
+    self.actor.GetProperty().SetOpacity(0)
     self.ren.AddActor(self.actor)
     self.ren.ResetCamera()
     #self.iren.Render()
@@ -162,21 +162,21 @@ def loadGlobeGeometry(self, variableToLoad=None):
 ################# load globe geometry
 ##############################################################################
 def updateGlobeGeometry(self, variableName):
-    print("updating globe geometry")
+    #print("updating globe geometry")
     if(variableName == None or variableName == ""):
         self.mapper.ScalarVisibilityOff()
+        self.actor.GetProperty().SetOpacity(0)
         return
     else:
         #self.pa.AddArray(1, variableName)  # 0 for PointData, 1 for CellData, 2 for FieldData
         #self.pa.Update()
         self.mapper.ScalarVisibilityOn()
         #self.mapper.GetInput().GetPointData().SetActiveScalars(variableName)
-        print(self.pa.GetOutput().GetCellData().GetNumberOfArrays())
+        #print(self.pa.GetOutput().GetCellData().GetNumberOfArrays())
         #print(self.pa.GetOutput().GetCellData().GetScalars())
         #numberOfArrays = self.pa.GetOutput().GetCellData().GetNumberOfArrays()
         #for i in range(numberOfArrays):
         #    print(self.pa.GetOutput().GetCellData().GetArray(i).GetName())
-
         self.mapper.GetInput().GetCellData().AddArray(self.pa.GetOutput().GetCellData().GetAbstractArray(variableName))
         #self.mapper.GetInput().GetCellData().AddArray(self.pa.GetOutput().GetCellData().GetArray(0))
         self.mapper.GetInput().GetCellData().SetActiveScalars(variableName)
@@ -213,6 +213,7 @@ def updateGlobeGeometry(self, variableName):
         #print(self.test)
         #print(self.test2)
         self.mapper.SetLookupTable(self.ctf)
+        self.actor.GetProperty().SetOpacity(1)
         self.mapper.Update()
         self.iren.Render()
 

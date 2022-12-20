@@ -24,6 +24,7 @@ import modules.utils as Utils
 import modules.gradient as Gd
 import matplotlib.colors
 
+
 from netCDF4 import Dataset
 import netCDF4 as nc
 import folium
@@ -239,7 +240,7 @@ class mainWindow(qWidget.QMainWindow):
         self.vtkWidget = QVTKRenderWindowInteractor(self.frame)
         self.vl.addWidget(self.vtkWidget)
         self.ren = vtk.vtkRenderer()
-        self.ren.SetBackground(5 / 255.0, 10.0 / 255, 38.0 / 255)
+        self.ren.SetBackground(33 / 255.0, 37.0 / 255, 43.0 / 255)
         self.vtkWidget.GetRenderWindow().AddRenderer(self.ren)
         self.iren = self.vtkWidget.GetRenderWindow().GetInteractor()
 

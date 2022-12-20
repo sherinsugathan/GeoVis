@@ -151,3 +151,4 @@ data/
 readerTest.py
 readerTest*.py
 sherinTemp*.py
+exampleDataset/
