@@ -116,6 +116,26 @@ class mainWindow(qWidget.QMainWindow):
         # scalarVariables = [item.text() for item in self.listWidget_Variables.selectedItems()]
         # print(scalarVariables)
         self.varName = self.listWidget_Variables.currentItem().text()
+
+        self.fmt = qGui.QTextCharFormat()
+        self.fmt.setBackground(qGui.QColor('yellow'))
+        self.fmt.setForeground(qGui.QColor('black'))
+        cursor = qGui.QTextCursor(self.plainTextEdit_netCDFDataText.document())
+        cursor.select(qGui.QTextCursor.Document)
+        cursor.setCharFormat(qGui.QTextCharFormat()) # Clear existing selections
+        cursor.clearSelection()
+
+        pattern = "Name:" + str(self.varName)
+        regex = qCore.QRegExp(pattern)
+        pos = 0
+        index = regex.indexIn(self.plainTextEdit_netCDFDataText.document().toPlainText(), pos)
+        if(index != -1):
+            cursor.setPosition(index,qGui.QTextCursor.MoveAnchor)
+            cursor.setPosition(index + len(pattern), qGui.QTextCursor.KeepAnchor)
+            self.plainTextEdit_netCDFDataText.setTextCursor(cursor)
+            self.plainTextEdit_netCDFDataText.ensureCursorVisible()
+            cursor.setCharFormat(self.fmt)
+
         Utils.updateGlobeGeometry(self, self.varName)
 
     @pyqtSlot()
@@ -342,6 +362,7 @@ class mainWindow(qWidget.QMainWindow):
         for item in self.dataDimensions:
             self.comboBox_dims.addItem(item)
         self.plainTextEdit_netCDFDataText.setPlainText(self.str_data)
+
         if (self.rawTimes != None): # valid time points available.
             self.maxTimeSteps = len(self.rawTimes)
             self.label_FrameStatus.setText("1/" + str(self.maxTimeSteps))
