@@ -305,6 +305,7 @@ class mainWindow(qWidget.QMainWindow):
             self.mapper.GetInput().GetCellData().AddArray(self.pa.GetOutput().GetCellData().GetAbstractArray(self.varName))
             # self.mapper.GetInput().GetCellData().AddArray(self.pa.GetOutput().GetCellData().GetArray(0))
             self.label_FrameStatus.setText(str(self.currentTimeStep) + "/" + str(self.maxTimeSteps))
+            print(str(self.currentTimeStep))
             self.iren.Render()
 
     def closeEvent(self, QCloseEvent):
@@ -470,7 +471,7 @@ class mainWindow(qWidget.QMainWindow):
             self.animationDirection = -1
             print("play reverse")
             if(self.timer.isActive() == False):
-                self.timer.start(50)
+                self.timer.start()
 
         ############################
         # Previous Frame
@@ -524,7 +525,7 @@ class mainWindow(qWidget.QMainWindow):
             print("play forward")
             self.animationDirection = 1
             if (self.timer.isActive() == False):
-                self.timer.start(50)
+                self.timer.start()
 
 
 ##############################################################################
