@@ -54,6 +54,7 @@ class mainWindow(qWidget.QMainWindow):
         self.pa = None
         self.cmaps = None
         self.currentTimeStep = None
+        self.animationDirection = 1
         # set app icon
         app_icon = qGui.QIcon()
         app_icon.addFile('assets\\icons\\icons8-92.png', qCore.QSize(92, 92))
@@ -132,9 +133,11 @@ class mainWindow(qWidget.QMainWindow):
         if(index != -1):
             cursor.setPosition(index,qGui.QTextCursor.MoveAnchor)
             cursor.setPosition(index + len(pattern), qGui.QTextCursor.KeepAnchor)
-            self.plainTextEdit_netCDFDataText.setTextCursor(cursor)
             self.plainTextEdit_netCDFDataText.ensureCursorVisible()
+            #cursor.movePosition(qGui.QTextCursor.End, qGui.QTextCursor.MoveAnchor, 1)
             cursor.setCharFormat(self.fmt)
+            self.plainTextEdit_netCDFDataText.setTextCursor(cursor)
+            self.plainTextEdit_netCDFDataText.textCursor().clearSelection()
 
         Utils.updateGlobeGeometry(self, self.varName)
 
@@ -271,9 +274,38 @@ class mainWindow(qWidget.QMainWindow):
         self.ren.ResetCamera()
         self.frame.setLayout(self.vl)
         self.iren.Initialize()
+        # Sign up to receive TimerEvent
+        #cb = vtkTimerCallback(1, self.iren)
+        #self.iren.AddObserver('TimerEvent', cb.execute)
+        #cb.timerId = self.iren.CreateRepeatingTimer(500)
+
+        self.timer = qCore.QTimer()
+        self.timer.timeout.connect(self.onTimerEvent)
+        #self.timer.start(100)
+
         # web view
         self.webView = QWebEngineView()
         print("Renderer Initialized.")
+
+    def onTimerEvent(self):
+        if (self.stackedWidget.currentWidget().objectName() == "page_3DMap" or self.stackedWidget.currentWidget().objectName() == "page_2DMap"):
+            if(self.animationDirection == -1):
+                if (self.currentTimeStep > 1):
+                    self.currentTimeStep = self.currentTimeStep - 1
+                else:
+                    self.currentTimeStep = self.maxTimeSteps
+            else:
+                if (self.currentTimeStep < self.maxTimeSteps):
+                    self.currentTimeStep = self.currentTimeStep + 1
+                else:
+                    self.currentTimeStep = 1
+            self.reader.GetOutputInformation(0).Set(vtk.vtkStreamingDemandDrivenPipeline.UPDATE_TIME_STEP(), self.rawTimes[self.currentTimeStep - 1])
+            self.pa.AddArray(1, self.varName)  # 0 for PointData, 1 for CellData, 2 for FieldData
+            self.pa.Update()
+            self.mapper.GetInput().GetCellData().AddArray(self.pa.GetOutput().GetCellData().GetAbstractArray(self.varName))
+            # self.mapper.GetInput().GetCellData().AddArray(self.pa.GetOutput().GetCellData().GetArray(0))
+            self.label_FrameStatus.setText(str(self.currentTimeStep) + "/" + str(self.maxTimeSteps))
+            self.iren.Render()
 
     def closeEvent(self, QCloseEvent):
         super().closeEvent(QCloseEvent)
@@ -435,7 +467,10 @@ class mainWindow(qWidget.QMainWindow):
         # Play Reverse
         ############################
         if btnName == "pushButton_PlayReverse":
+            self.animationDirection = -1
             print("play reverse")
+            if(self.timer.isActive() == False):
+                self.timer.start(50)
 
         ############################
         # Previous Frame
@@ -459,6 +494,7 @@ class mainWindow(qWidget.QMainWindow):
         ############################
         if btnName == "pushButton_Pause":
             print("pause playback")
+            self.timer.stop()
 
         ############################
         # Next frame
@@ -486,11 +522,14 @@ class mainWindow(qWidget.QMainWindow):
         ############################
         if btnName == "pushButton_PlayForward":
             print("play forward")
+            self.animationDirection = 1
+            if (self.timer.isActive() == False):
+                self.timer.start(50)
+
 
 ##############################################################################
 ################# Data Reader Thread
 ##############################################################################
-# My Thread
 class TaskThread(qCore.QThread):
     taskFinished = qCore.pyqtSignal()
 
@@ -523,10 +562,8 @@ class TaskThread(qCore.QThread):
         self.main.rawTimes = self.main.reader.GetOutputInformation(0).Get(vtk.vtkStreamingDemandDrivenPipeline.TIME_STEPS())
         # tunits = self.main.reader.GetTimeUnits()
 
-
         # print("RAW TIMES:", self.main.rawTimes)
         self.taskFinished.emit()
-
 
 app = qWidget.QApplication(sys.argv)
 window = mainWindow()
