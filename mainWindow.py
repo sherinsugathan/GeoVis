@@ -79,7 +79,7 @@ class mainWindow(qWidget.QMainWindow):
 
         # View radio buttons
         self.radioButton_RawView.toggled.connect(self.changeView)
-        self.radioButton_2DView.toggled.connect(self.changeView)
+        #self.radioButton_2DView.toggled.connect(self.changeView)
         self.radioButton_3DView.toggled.connect(self.changeView)
 
         # Variable list double click
@@ -140,6 +140,7 @@ class mainWindow(qWidget.QMainWindow):
             self.plainTextEdit_netCDFDataText.textCursor().clearSelection()
 
         Utils.updateGlobeGeometry(self, self.varName)
+        Utils.variableControlsSetVisible(self, True)
 
     @pyqtSlot()
     def changeView(self):
@@ -163,9 +164,9 @@ class mainWindow(qWidget.QMainWindow):
                 # save map data to data object
                 data = io.BytesIO()
                 m.save(data, close_file=False)
-
-                self.webView.setHtml(data.getvalue().decode())
-                layout.addWidget(self.webView)
+                # Enable the following two lines when 2D maps are required.
+                #self.webView.setHtml(data.getvalue().decode())
+                #layout.addWidget(self.webView)
             ############################
             # 3D Render View
             ############################
@@ -284,7 +285,7 @@ class mainWindow(qWidget.QMainWindow):
         #self.timer.start(100)
 
         # web view
-        self.webView = QWebEngineView()
+        #self.webView = QWebEngineView()
         print("Renderer Initialized.")
 
     def onTimerEvent(self):
@@ -305,7 +306,6 @@ class mainWindow(qWidget.QMainWindow):
             self.mapper.GetInput().GetCellData().AddArray(self.pa.GetOutput().GetCellData().GetAbstractArray(self.varName))
             # self.mapper.GetInput().GetCellData().AddArray(self.pa.GetOutput().GetCellData().GetArray(0))
             self.label_FrameStatus.setText(str(self.currentTimeStep) + "/" + str(self.maxTimeSteps))
-            print(str(self.currentTimeStep))
             self.iren.Render()
 
     def closeEvent(self, QCloseEvent):
@@ -339,6 +339,10 @@ class mainWindow(qWidget.QMainWindow):
         self.gradient.setGradient(gradientList)
         self.comboBox_ColorMaps.currentTextChanged.connect(self.comboBox_ColorMaps_changed)  # Changed dimensions handler.
         self.gradient.gradientChanged.connect(self.colorMapChanged)
+
+        # Disable all data controls when mainwindow loads.
+        Utils.controlsSetVisible(self, False)
+
 
     # Visualization color map changed.
     def colorMapChanged(self):
@@ -407,6 +411,8 @@ class mainWindow(qWidget.QMainWindow):
         self.currentTimeStep = 1
         # self.stackedWidget.setCurrentWidget(self.page_InspectData)
         Utils.statusMessage(self, "Data loaded.", "success")
+        # Enable all data controls
+        Utils.controlsSetVisible(self, True)
 
     # Handler for browse folder button click.
     @pyqtSlot()

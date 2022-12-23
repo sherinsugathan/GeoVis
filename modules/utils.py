@@ -230,6 +230,41 @@ def statusMessage(self, message, type="success"):
 
 
 ##############################################################################
+################# show/hide basic data controls
+##############################################################################
+def controlsSetVisible(self, visibility):
+    self.horizontalSlider_Main.setVisible(visibility)
+    self.pushButton_SetDimensions.setVisible(visibility)
+    self.gradient.setVisible(visibility)
+    self.comboBox_dims.setVisible(visibility)
+    self.label_3.setVisible(visibility)
+    self.label.setVisible(visibility)
+    self.label_5.setVisible(visibility)
+    self.frame_2.setVisible(visibility)
+    self.listWidget_Variables.setVisible(visibility)
+    self.label_6.setVisible(visibility)
+    self.textEdit_Status.setVisible(visibility)
+    if(visibility==True):
+        visibility = not visibility
+    self.frame_3.setVisible(visibility)
+    self.comboBox_ColorMaps.setVisible(visibility)
+    self.checkBox_LogScale.setVisible(visibility)
+    self.label_FrameStatus.setVisible(visibility)
+    self.label_2.setVisible(visibility)
+    self.label_4.setVisible(visibility)
+
+##############################################################################
+################# show/hide variable data controls
+##############################################################################
+def variableControlsSetVisible(self, visibility):
+    self.frame_3.setVisible(visibility)
+    self.comboBox_ColorMaps.setVisible(visibility)
+    self.checkBox_LogScale.setVisible(visibility)
+    self.label_FrameStatus.setVisible(visibility)
+    self.label_2.setVisible(visibility)
+    self.label_4.setVisible(visibility)
+
+##############################################################################
 ################# read color ramp xml file
 ################# returns color data as list of dictionaries.
 ##############################################################################

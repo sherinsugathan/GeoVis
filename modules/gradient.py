@@ -51,16 +51,16 @@ class Gradient(QtWidgets.QWidget):
             pen.setColor(QtGui.QColor('white'))
             painter.setPen(pen)
 
-            painter.drawLine(stop * width, y - self._handle_h, stop * width, y + self._handle_h)
+            painter.drawLine(int(stop * width), int(y - self._handle_h), int(stop * width), int(y + self._handle_h))
 
             pen.setColor(QtGui.QColor('red'))
             painter.setPen(pen)
 
             rect = QtCore.QRect(
-                stop * width - self._handle_w / 2,
-                y - self._handle_h / 2,
-                self._handle_w,
-                self._handle_h
+                int(stop * width - self._handle_w / 2),
+                int(y - self._handle_h / 2),
+                int(self._handle_w),
+                int(self._handle_h)
             )
             painter.drawRect(rect)
         #self.gradientChanged.emit()
