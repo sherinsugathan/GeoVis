@@ -38,10 +38,11 @@ import vtkmodules.all
 import vtkmodules.qt.QVTKRenderWindowInteractor
 import vtkmodules.util
 import vtkmodules.util.numpy_support
-import cftime
-import cftime._strptime
-myappid = 'uio.geovis.netcdfvisualizer.100' # arbitrary string
-ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(myappid)
+if os.name == 'nt':
+    import cftime
+    import cftime._strptime
+    myappid = 'uio.geovis.netcdfvisualizer.100' # arbitrary string
+    ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(myappid)
 
 class mainWindow(qWidget.QMainWindow):
     """Main window class."""
