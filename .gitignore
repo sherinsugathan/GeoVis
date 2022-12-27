@@ -152,3 +152,4 @@ readerTest.py
 readerTest*.py
 sherinTemp*.py
 exampleDataset/
+venv_geovis/

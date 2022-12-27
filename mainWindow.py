@@ -22,7 +22,7 @@ import os
 import ctypes
 import modules.utils as Utils
 import modules.gradient as Gd
-import matplotlib.colors
+#import matplotlib.colorsp
 
 
 from netCDF4 import Dataset
@@ -534,6 +534,10 @@ class mainWindow(qWidget.QMainWindow):
             if (self.timer.isActive() == False):
                 self.timer.start()
 
+    
+    def closeEvent(self, event):
+        self.timer.stop()
+        sys.exit()
 
 ##############################################################################
 ################# Data Reader Thread
