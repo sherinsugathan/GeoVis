@@ -176,6 +176,7 @@ class Gradient(QtWidgets.QWidget):
             self._gradient[self._drag_position] = stop, color
             self._constrain_gradient()
             self.update()
+            self.gradientChanged.emit()  # disable this line for stopping continuous cmap updates.
 
     def mouseDoubleClickEvent(self, e):
         # Calculate the position of the click relative 0..1 to the width.

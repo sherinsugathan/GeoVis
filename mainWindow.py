@@ -22,6 +22,7 @@ import os
 import ctypes
 import modules.utils as Utils
 import modules.gradient as Gd
+import matplotlib
 #import matplotlib.colorsp
 
 
@@ -142,6 +143,7 @@ class mainWindow(qWidget.QMainWindow):
 
         Utils.updateGlobeGeometry(self, self.varName)
         Utils.variableControlsSetVisible(self, True)
+        Utils.statusMessage(self, "Variable(s) displayed: " + self.varName, "success")
 
     @pyqtSlot()
     def changeView(self):
@@ -391,7 +393,6 @@ class mainWindow(qWidget.QMainWindow):
             self.myLongTask.start()
         else:
             self.myDimensionUpdateTask.start()
-        print("Task started")
 
     # added this function to close the progress bar
     def onFinished(self):
@@ -441,13 +442,13 @@ class mainWindow(qWidget.QMainWindow):
         ############################
         if btnName == "pushButton_SetDimensions":
             # print("need to something here to regrid the data based on selected dimensions.")
-            print("Setting dimensions to ", self.comboBox_dims.currentText())
+            #print("Setting dimensions to ", self.comboBox_dims.currentText())
             self.reader.SetDimensions(self.comboBox_dims.currentText())
             self.reader.ComputeArraySelection()
             self.prog_win.show()
             self.onStart(False)  # Start your very very long computation/process
             # Utils.loadGlobeGeometry(self)
-            # self.reader.Update()
+            # self.reader.Update()disc
             # self.mapper.Update()
 
             # self.reader.Update()
@@ -476,7 +477,7 @@ class mainWindow(qWidget.QMainWindow):
         ############################
         if btnName == "pushButton_PlayReverse":
             self.animationDirection = -1
-            print("play reverse")
+            #print("play reverse")
             if(self.timer.isActive() == False):
                 self.timer.start()
 
@@ -495,13 +496,13 @@ class mainWindow(qWidget.QMainWindow):
                 self.mapper.GetInput().GetCellData().AddArray(self.pa.GetOutput().GetCellData().GetAbstractArray(self.varName))
                 #self.mapper.GetInput().GetCellData().AddArray(self.pa.GetOutput().GetCellData().GetArray(0))
                 self.label_FrameStatus.setText(str(self.currentTimeStep) + "/" + str(self.maxTimeSteps))
-                self.iren.Render()
+                self.iren.fre()
 
         ############################
         # Pause
         ############################
         if btnName == "pushButton_Pause":
-            print("pause playback")
+            #print("pause playback")
             self.timer.stop()
 
         ############################
@@ -529,7 +530,7 @@ class mainWindow(qWidget.QMainWindow):
         # Play forward
         ############################
         if btnName == "pushButton_PlayForward":
-            print("play forward")
+            #print("play forward")
             self.animationDirection = 1
             if (self.timer.isActive() == False):
                 self.timer.start()

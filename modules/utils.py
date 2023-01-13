@@ -85,9 +85,9 @@ def ncdump(nc_fid, verb=True):
 ##############################################################################
 def loadGlobeGeometry(self, variableToLoad=None):
     self.ren.RemoveAllViewProps()
-    print("Loading NetCDF...")
+    #print("Loading NetCDF...")
     self.reader.Update()
-    print("reading completed")
+    #print("reading completed")
 
     #print(self.reader.GetCalendar())
 
@@ -156,7 +156,7 @@ def loadGlobeGeometry(self, variableToLoad=None):
     self.ren.AddActor(self.actor)
     self.ren.ResetCamera()
     #self.iren.Render()
-    print("render issued")
+    #print("render issued")
 
 ##############################################################################
 ################# load globe geometry
@@ -194,6 +194,8 @@ def updateGlobeGeometry(self, variableName):
         oldMax = 1
         newMin = dataRange[0]
         newMax = dataRange[1]
+        self.label_VarMin.setText(str(f'{newMin:.2f}'))
+        self.label_VarMax.setText(str(f'{newMax:.2f}'))
         newRange = newMax - newMin
 
         self.ctf.RemoveAllPoints()
