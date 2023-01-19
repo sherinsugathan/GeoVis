@@ -2,6 +2,7 @@ import sys
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtCore import Qt
 from PyQt5.QtCore import pyqtSignal as Signal
+from PyQt5.QtWidgets import QWidget, QPushButton, QLineEdit, QInputDialog
 
 class Gradient(QtWidgets.QWidget):
     gradientChanged = Signal()
@@ -162,6 +163,17 @@ class Gradient(QtWidgets.QWidget):
             if n is not None:
                 # Activate drag mode.
                 self._drag_position = n
+        elif e.button() == Qt.MiddleButton:
+            text, ok = QInputDialog.getText(self, 'Set Value', 'Please enter a value for this stop.')
+            if (text.replace('.','',1).isdigit() == False): # if not a number
+                return
+            n = self._find_stop_handle_for_event(e)
+            normalized_value, color = self._gradient[n]
+            self.removeStopAtPosition(n)
+            self.addStop(float(text), color)
+            self._drag_position = None
+            self._sort_gradient()
+            self.gradientChanged.emit()
 
     def mouseReleaseEvent(self, e):
         self._drag_position = None

@@ -173,7 +173,7 @@ def loadOverlay(self, timeStrings):
     txtprop = self.textActor.GetTextProperty()
     txtprop.SetFontFamily(4)
     txtprop.SetFontFile("assets\\fonts\\arial.ttf")
-    txtprop.SetFontSize(26)
+    txtprop.SetFontSize(16)
     txtprop.SetColor(0.686274, 0.7803921, 0.949019)
     txtprop.SetJustificationToRight()
     self.ren.AddActor2D(self.textActor)
