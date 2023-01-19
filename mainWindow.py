@@ -28,6 +28,7 @@ import matplotlib
 
 from netCDF4 import Dataset
 import netCDF4 as nc
+from netCDF4 import num2date, date2num, date2index
 import folium
 import io
 import xarray as xr
@@ -57,6 +58,8 @@ class mainWindow(qWidget.QMainWindow):
         self.cmaps = None
         self.currentTimeStep = None
         self.animationDirection = 1
+        self.actualTimeStrings = None
+        self.IsTemporalDataset = False
         # set app icon
         app_icon = qGui.QIcon()
         app_icon.addFile('assets\\icons\\icons8-92.png', qCore.QSize(92, 92))
@@ -143,7 +146,7 @@ class mainWindow(qWidget.QMainWindow):
 
         Utils.updateGlobeGeometry(self, self.varName)
         Utils.variableControlsSetVisible(self, True)
-        Utils.statusMessage(self, "Variable(s) displayed: " + self.varName, "success")
+        Utils.statusMessage(self, "Active: " + self.varName, "success")
 
     @pyqtSlot()
     def changeView(self):
@@ -179,6 +182,8 @@ class mainWindow(qWidget.QMainWindow):
     @pyqtSlot()
     def on_timeSlider_Changed(self):
         self.currentTimeStep = self.horizontalSlider_Main.value()
+        if(self.main.IsTemporalDataset == True):
+            self.textActor.SetInput(str(self.actualTimeStrings[self.currentTimeStep]))
         self.reader.GetOutputInformation(0).Set(vtk.vtkStreamingDemandDrivenPipeline.UPDATE_TIME_STEP(), self.rawTimes[self.currentTimeStep - 1])
         self.pa.AddArray(1, self.varName)  # 0 for PointData, 1 for CellData, 2 for FieldData
         self.pa.Update()
@@ -275,6 +280,7 @@ class mainWindow(qWidget.QMainWindow):
         self.iren.SetInteractorStyle(self.actor_style)
 
         self.iren.SetRenderWindow(self.vtkWidget.GetRenderWindow())
+        #self.ren.UseFXAAOn()
         self.ren.ResetCamera()
         self.frame.setLayout(self.vl)
         self.iren.Initialize()
@@ -282,6 +288,22 @@ class mainWindow(qWidget.QMainWindow):
         #cb = vtkTimerCallback(1, self.iren)
         #self.iren.AddObserver('TimerEvent', cb.execute)
         #cb.timerId = self.iren.CreateRepeatingTimer(500)
+
+
+        #textWidget = vtk.vtkTextWidget()
+
+        #textRepresentation = vtk.vtkTextRepresentation()
+        #textRepresentation.GetPositionCoordinate().SetValue(0.15, 0.15)
+        #textRepresentation.GetPosition2Coordinate().SetValue(0.7, 0.2)
+        #textWidget.SetRepresentation(textRepresentation)
+
+        #textWidget.SetInteractor(self.iren)
+        #textWidget.SetTextActor(textActor)
+        #textWidget.SelectableOff()
+        #textWidget.On()
+
+        self.iren.Render()
+        self.ren.Render()
 
         self.timer = qCore.QTimer()
         self.timer.timeout.connect(self.onTimerEvent)
@@ -306,6 +328,8 @@ class mainWindow(qWidget.QMainWindow):
             self.reader.GetOutputInformation(0).Set(vtk.vtkStreamingDemandDrivenPipeline.UPDATE_TIME_STEP(), self.rawTimes[self.currentTimeStep - 1])
             self.pa.AddArray(1, self.varName)  # 0 for PointData, 1 for CellData, 2 for FieldData
             self.pa.Update()
+            if (self.IsTemporalDataset == True):
+                self.textActor.SetInput(str(self.actualTimeStrings[self.currentTimeStep-1]))
             self.mapper.GetInput().GetCellData().AddArray(self.pa.GetOutput().GetCellData().GetAbstractArray(self.varName))
             # self.mapper.GetInput().GetCellData().AddArray(self.pa.GetOutput().GetCellData().GetArray(0))
             self.label_FrameStatus.setText(str(self.currentTimeStep) + "/" + str(self.maxTimeSteps))
@@ -491,12 +515,14 @@ class mainWindow(qWidget.QMainWindow):
                 else:
                     self.currentTimeStep = self.maxTimeSteps
                 self.reader.GetOutputInformation(0).Set(vtk.vtkStreamingDemandDrivenPipeline.UPDATE_TIME_STEP(), self.rawTimes[self.currentTimeStep - 1])
+                if (self.IsTemporalDataset == True):
+                    self.textActor.SetInput(str(self.actualTimeStrings[self.currentTimeStep-1]))
                 self.pa.AddArray(1, self.varName)  # 0 for PointData, 1 for CellData, 2 for FieldData
                 self.pa.Update()
                 self.mapper.GetInput().GetCellData().AddArray(self.pa.GetOutput().GetCellData().GetAbstractArray(self.varName))
                 #self.mapper.GetInput().GetCellData().AddArray(self.pa.GetOutput().GetCellData().GetArray(0))
                 self.label_FrameStatus.setText(str(self.currentTimeStep) + "/" + str(self.maxTimeSteps))
-                self.iren.fre()
+                self.iren.Render()
 
         ############################
         # Pause
@@ -518,12 +544,13 @@ class mainWindow(qWidget.QMainWindow):
                 self.reader.GetOutputInformation(0).Set(vtk.vtkStreamingDemandDrivenPipeline.UPDATE_TIME_STEP(), self.rawTimes[self.currentTimeStep - 1])
                 self.pa.AddArray(1, self.varName)  # 0 for PointData, 1 for CellData, 2 for FieldData
                 self.pa.Update()
+                if (self.IsTemporalDataset == True):
+                    self.textActor.SetInput(str(self.actualTimeStrings[self.currentTimeStep-1]))
                 self.mapper.GetInput().GetCellData().AddArray(self.pa.GetOutput().GetCellData().GetAbstractArray(self.varName))
                 #self.mapper.GetInput().GetCellData().AddArray(self.pa.GetOutput().GetCellData().GetArray(0))
                 self.mapper.GetInput().GetCellData().SetActiveScalars(self.varName)
                 self.label_FrameStatus.setText(str(self.currentTimeStep) + "/" + str(self.maxTimeSteps))
-
-                self.mapper.Update()
+                #self.mapper.Update()
                 self.iren.Render()
 
         ############################
@@ -557,6 +584,15 @@ class TaskThread(qCore.QThread):
             print("Processing NetCDF file")
             nc_fid = Dataset(self.main.path, 'r')  # Dataset is the class behavior to open the file
             nc_attrs, nc_dims, nc_vars, self.main.str_data = Utils.ncdump(nc_fid)
+            if('time' in nc_fid.variables):
+                sfctmp = nc_fid.variables['time']
+                timedim = sfctmp.dimensions[0]  # time dim name
+                times = nc_fid.variables[timedim]
+                dates = num2date(times[:], times.units)
+                timeStrings = [date.strftime('%Y-%m-%d %H:%M:%S') for date in dates[:]]
+                self.main.IsTemporalDataset = True
+            else:
+                self.main.IsTemporalDataset = False
             # Reader NETCDF
             self.main.reader = vtk.vtkNetCDFCFReader()
             self.main.reader.SetFileName(self.main.path)
@@ -572,7 +608,11 @@ class TaskThread(qCore.QThread):
 
         self.main.pa.SetInputConnection(self.main.reader.GetOutputPort())
         Utils.loadGlobeGeometry(self.main)
+        if(self.main.IsTemporalDataset == True):
+            Utils.loadOverlay(self.main, timeStrings)
+            self.main.actualTimeStrings = timeStrings
         self.main.rawTimes = self.main.reader.GetOutputInformation(0).Get(vtk.vtkStreamingDemandDrivenPipeline.TIME_STEPS())
+
         # tunits = self.main.reader.GetTimeUnits()
 
         # print("RAW TIMES:", self.main.rawTimes)

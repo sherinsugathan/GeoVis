@@ -17,7 +17,7 @@
    </sizepolicy>
   </property>
   <property name="windowTitle">
-   <string>GeoVis - v1.0.1</string>
+   <string>GeoVis - v1.1.0</string>
   </property>
   <property name="styleSheet">
    <string notr="true">background-color: rgb(33, 37, 43);
@@ -140,7 +140,13 @@ background-color: rgb(44, 48, 57);</string>
            <number>0</number>
           </property>
           <item>
-           <widget class="QLabel" name="label_VarMin">
+           <widget class="QLineEdit" name="lineEdit_VarMin">
+            <property name="maximumSize">
+             <size>
+              <width>50</width>
+              <height>16777215</height>
+             </size>
+            </property>
             <property name="font">
              <font>
               <family>Arial</family>
@@ -148,10 +154,10 @@ background-color: rgb(44, 48, 57);</string>
              </font>
             </property>
             <property name="styleSheet">
-             <string notr="true">color:rgb(175, 199, 242);</string>
-            </property>
-            <property name="text">
-             <string/>
+             <string notr="true">border: 0px solid gray; 
+/*border-color:  rgb(135	, 154, 181);*/
+background : rgb(52, 59, 72);
+color:rgb(175, 199, 242);</string>
             </property>
            </widget>
           </item>
@@ -178,7 +184,13 @@ background-color: rgb(44, 48, 57);</string>
            </widget>
           </item>
           <item>
-           <widget class="QLabel" name="label_VarMax">
+           <widget class="QLineEdit" name="lineEdit_VarMax">
+            <property name="maximumSize">
+             <size>
+              <width>50</width>
+              <height>16777215</height>
+             </size>
+            </property>
             <property name="font">
              <font>
               <family>Arial</family>
@@ -186,10 +198,53 @@ background-color: rgb(44, 48, 57);</string>
              </font>
             </property>
             <property name="styleSheet">
-             <string notr="true">color:rgb(175, 199, 242);</string>
+             <string notr="true">border: 0px solid gray; 
+/*border-color:  rgb(135	, 154, 181);*/
+background : rgb(52, 59, 72);
+color:rgb(175, 199, 242);</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="pushButton_UpdateRange">
+            <property name="minimumSize">
+             <size>
+              <width>100</width>
+              <height>25</height>
+             </size>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>200</width>
+              <height>16777215</height>
+             </size>
+            </property>
+            <property name="font">
+             <font>
+              <family>Arial</family>
+              <pointsize>10</pointsize>
+             </font>
+            </property>
+            <property name="styleSheet">
+             <string notr="true">QPushButton {
+	border: 0px solid rgb(52, 59, 72);
+	border-radius: 5px;	
+	/*background-color: rgb(52, 59, 72);*/
+background-color: rgb(87, 99, 122);
+color:rgb(175, 199, 242);
+}
+QPushButton:hover {
+	/*background-color: rgb(57, 65, 80);*/
+background-color: rgb(103, 117, 144);
+	border: 2px solid rgb(61, 70, 86);
+}
+QPushButton:pressed {	
+	background-color: rgb(35, 40, 49);
+	border: 2px solid rgb(43, 50, 61);
+}</string>
             </property>
             <property name="text">
-             <string/>
+             <string>Update Range</string>
             </property>
            </widget>
           </item>
@@ -227,6 +282,89 @@ background-color: rgb(44, 48, 57);</string>
       </property>
       <layout class="QVBoxLayout" name="verticalLayout">
        <item>
+        <widget class="QLabel" name="label_8">
+         <property name="font">
+          <font>
+           <family>Arial</family>
+           <pointsize>18</pointsize>
+           <bold>true</bold>
+          </font>
+         </property>
+         <property name="layoutDirection">
+          <enum>Qt::LeftToRight</enum>
+         </property>
+         <property name="text">
+          <string>🌎GeoVis</string>
+         </property>
+         <property name="scaledContents">
+          <bool>false</bool>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignCenter</set>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <spacer name="verticalSpacer_4">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeType">
+          <enum>QSizePolicy::Fixed</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>20</width>
+           <height>10</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+       <item>
+        <widget class="QPushButton" name="pushButton_LoadDataset">
+         <property name="minimumSize">
+          <size>
+           <width>0</width>
+           <height>30</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>280</width>
+           <height>16777215</height>
+          </size>
+         </property>
+         <property name="font">
+          <font>
+           <family>Arial</family>
+           <pointsize>10</pointsize>
+          </font>
+         </property>
+         <property name="styleSheet">
+          <string notr="true">QPushButton {
+border: 2px solid rgb(44, 48, 57);
+	border-radius: 5px;	
+	/*background-color: rgb(52, 59, 72);*/
+background-color: rgb(87, 99, 122);
+color:rgb(175, 199, 242);
+}
+QPushButton:hover {
+	/*background-color: rgb(57, 65, 80);*/
+background-color: rgb(103, 117, 144);
+border: 0px solid rgb(52, 59, 72);
+	
+}
+QPushButton:pressed {	
+	background-color: rgb(35, 40, 49);
+	border: 2px solid rgb(43, 50, 61);
+}</string>
+         </property>
+         <property name="text">
+          <string>Browse NetCDF Data</string>
+         </property>
+        </widget>
+       </item>
+       <item>
         <widget class="QTabWidget" name="tabWidget">
          <property name="sizePolicy">
           <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
@@ -244,12 +382,14 @@ background-color: rgb(44, 48, 57);</string>
           <string notr="true">QTabWidget::pane {
   border: 0px solid lightgray;
   top:-1px; 
-  background: rgb(245, 245, 245);; 
+border-radius: 5px;	
+  background: rgb(245, 245, 245);
 } 
 
 QTabBar::tab {
-	background-color: rgb(40, 44, 52);
+	background-color: rgb(87, 99, 122);
   border: 0px solid lightgray; 
+border-radius: 5px;	
   padding: 10px;
 } 
 
@@ -273,47 +413,6 @@ QTabBar::tab:selected {
            <string>Data</string>
           </attribute>
           <layout class="QVBoxLayout" name="verticalLayout_2">
-           <item>
-            <widget class="QPushButton" name="pushButton_LoadDataset">
-             <property name="minimumSize">
-              <size>
-               <width>0</width>
-               <height>30</height>
-              </size>
-             </property>
-             <property name="maximumSize">
-              <size>
-               <width>280</width>
-               <height>16777215</height>
-              </size>
-             </property>
-             <property name="font">
-              <font>
-               <family>Arial</family>
-               <pointsize>10</pointsize>
-              </font>
-             </property>
-             <property name="styleSheet">
-              <string notr="true">QPushButton {
-	border: 2px solid rgb(52, 59, 72);
-	border-radius: 5px;	
-	background-color: rgb(52, 59, 72);
-color:rgb(175, 199, 242);
-}
-QPushButton:hover {
-	background-color: rgb(57, 65, 80);
-	border: 2px solid rgb(61, 70, 86);
-}
-QPushButton:pressed {	
-	background-color: rgb(35, 40, 49);
-	border: 2px solid rgb(43, 50, 61);
-}</string>
-             </property>
-             <property name="text">
-              <string>Browse NetCDF Data</string>
-             </property>
-            </widget>
-           </item>
            <item>
             <spacer name="verticalSpacer_3">
              <property name="orientation">
@@ -401,14 +500,17 @@ background-color: rgb(81,92,112);
              </property>
              <property name="styleSheet">
               <string notr="true">QPushButton {
-	border: 2px solid rgb(52, 59, 72);
+border: 2px solid rgb(44, 48, 57);
 	border-radius: 5px;	
-	background-color: rgb(52, 59, 72);
+	/*background-color: rgb(52, 59, 72);*/
+background-color: rgb(87, 99, 122);
 color:rgb(175, 199, 242);
 }
 QPushButton:hover {
-	background-color: rgb(57, 65, 80);
-	border: 2px solid rgb(61, 70, 86);
+	/*background-color: rgb(57, 65, 80);*/
+background-color: rgb(103, 117, 144);
+border: 0px solid rgb(52, 59, 72);
+	
 }
 QPushButton:pressed {	
 	background-color: rgb(35, 40, 49);
@@ -433,7 +535,7 @@ QPushButton:pressed {
               <string notr="true">color:rgb(175, 199, 242);</string>
              </property>
              <property name="text">
-              <string>Data Variables</string>
+              <string>Choose Data Variables</string>
              </property>
             </widget>
            </item>
@@ -990,12 +1092,15 @@ background-color: rgb(81,92,112);
              </property>
              <property name="styleSheet">
               <string notr="true">QPushButton {
-	border: 2px solid rgb(52, 59, 72);
+	border: 0px solid rgb(52, 59, 72);
 	border-radius: 5px;	
-	background-color: rgb(52, 59, 72);
+	/*background-color: rgb(52, 59, 72);*/
+background-color: rgb(87, 99, 122);
+color:rgb(175, 199, 242);
 }
 QPushButton:hover {
-	background-color: rgb(57, 65, 80);
+	/*background-color: rgb(57, 65, 80);*/
+background-color: rgb(103, 117, 144);
 	border: 2px solid rgb(61, 70, 86);
 }
 QPushButton:pressed {	
@@ -1024,12 +1129,15 @@ QPushButton:pressed {
              </property>
              <property name="styleSheet">
               <string notr="true">QPushButton {
-	border: 2px solid rgb(52, 59, 72);
+	border: 0px solid rgb(52, 59, 72);
 	border-radius: 5px;	
-	background-color: rgb(52, 59, 72);
+	/*background-color: rgb(52, 59, 72);*/
+background-color: rgb(87, 99, 122);
+color:rgb(175, 199, 242);
 }
 QPushButton:hover {
-	background-color: rgb(57, 65, 80);
+	/*background-color: rgb(57, 65, 80);*/
+background-color: rgb(103, 117, 144);
 	border: 2px solid rgb(61, 70, 86);
 }
 QPushButton:pressed {	

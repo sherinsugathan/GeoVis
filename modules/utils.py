@@ -158,6 +158,26 @@ def loadGlobeGeometry(self, variableToLoad=None):
     #self.iren.Render()
     #print("render issued")
 
+
+##############################################################################
+################# load globe geometry
+##############################################################################
+def loadOverlay(self, timeStrings):
+    # Create text overlay
+    self.textActor = vtk.vtkTextActor()
+    self.textActor.SetInput(str(timeStrings[0]))
+    self.textActor.GetTextProperty().SetColor(1.0, 1.0, 1.0)
+    self.textActor.GetPositionCoordinate().SetCoordinateSystemToNormalizedViewport()
+    self.textActor.SetPosition(0.99, 0.96)
+    self.textActor.SetVisibility(True)
+    txtprop = self.textActor.GetTextProperty()
+    txtprop.SetFontFamily(4)
+    txtprop.SetFontFile("assets\\fonts\\arial.ttf")
+    txtprop.SetFontSize(26)
+    txtprop.SetColor(0.686274, 0.7803921, 0.949019)
+    txtprop.SetJustificationToRight()
+    self.ren.AddActor2D(self.textActor)
+
 ##############################################################################
 ################# load globe geometry
 ##############################################################################
@@ -194,8 +214,8 @@ def updateGlobeGeometry(self, variableName):
         oldMax = 1
         newMin = dataRange[0]
         newMax = dataRange[1]
-        self.label_VarMin.setText(str(f'{newMin:.2f}'))
-        self.label_VarMax.setText(str(f'{newMax:.2f}'))
+        self.lineEdit_VarMin.setText(str(f'{newMin:.2f}'))
+        self.lineEdit_VarMax.setText(str(f'{newMax:.2f}'))
         newRange = newMax - newMin
 
         self.ctf.RemoveAllPoints()
