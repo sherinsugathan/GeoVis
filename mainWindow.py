@@ -60,6 +60,7 @@ class mainWindow(qWidget.QMainWindow):
         self.animationDirection = 1
         self.actualTimeStrings = None
         self.IsTemporalDataset = False
+        self.maxTimeSteps = None
         # set app icon
         app_icon = qGui.QIcon()
         app_icon.addFile('assets\\icons\\icons8-92.png', qCore.QSize(92, 92))
@@ -124,24 +125,22 @@ class mainWindow(qWidget.QMainWindow):
         self.varName = self.listWidget_Variables.currentItem().text()
 
         self.fmt = qGui.QTextCharFormat()
-        self.fmt.setBackground(qGui.QColor('yellow'))
-        self.fmt.setForeground(qGui.QColor('black'))
-        cursor = qGui.QTextCursor(self.plainTextEdit_netCDFDataText.document())
-        cursor.select(qGui.QTextCursor.Document)
-        cursor.setCharFormat(qGui.QTextCharFormat()) # Clear existing selections
-        cursor.clearSelection()
+        self.cursor = qGui.QTextCursor(self.plainTextEdit_netCDFDataText.document())
+        self.cursor.select(qGui.QTextCursor.Document)
+        self.cursor.setCharFormat(qGui.QTextCharFormat()) # Clear existing selections
+        self.cursor.clearSelection()
 
         pattern = "Name:" + str(self.varName)
         regex = qCore.QRegExp(pattern)
         pos = 0
         index = regex.indexIn(self.plainTextEdit_netCDFDataText.document().toPlainText(), pos)
         if(index != -1):
-            cursor.setPosition(index,qGui.QTextCursor.MoveAnchor)
-            cursor.setPosition(index + len(pattern), qGui.QTextCursor.KeepAnchor)
+            self.cursor.setPosition(index,qGui.QTextCursor.MoveAnchor)
+            self.cursor.setPosition(index + len(pattern), qGui.QTextCursor.KeepAnchor)
             self.plainTextEdit_netCDFDataText.ensureCursorVisible()
             #cursor.movePosition(qGui.QTextCursor.End, qGui.QTextCursor.MoveAnchor, 1)
-            cursor.setCharFormat(self.fmt)
-            self.plainTextEdit_netCDFDataText.setTextCursor(cursor)
+            self.cursor.setCharFormat(self.fmt)
+            self.plainTextEdit_netCDFDataText.setTextCursor(self.cursor)
             self.plainTextEdit_netCDFDataText.textCursor().clearSelection()
 
         Utils.updateGlobeGeometry(self, self.varName)
@@ -274,6 +273,7 @@ class mainWindow(qWidget.QMainWindow):
         self.ren = vtk.vtkRenderer()
         self.ren.SetBackground(33 / 255.0, 37.0 / 255, 43.0 / 255)
         self.vtkWidget.GetRenderWindow().AddRenderer(self.ren)
+        #self.vtkWidget.GetRenderWindow().SetMultiSamples(4)
         self.iren = self.vtkWidget.GetRenderWindow().GetInteractor()
 
         self.actor_style = vtk.vtkInteractorStyleTrackballCamera()
@@ -432,6 +432,7 @@ class mainWindow(qWidget.QMainWindow):
             self.horizontalSlider_Main.setMaximum(self.maxTimeSteps)
             self.horizontalSlider_Main.setEnabled(True)
         else: # no time points available
+            self.maxTimeSteps = 1
             self.horizontalSlider_Main.setEnabled(False)
             self.label_FrameStatus.setText("1/1")
         self.currentTimeStep = 1
@@ -452,6 +453,7 @@ class mainWindow(qWidget.QMainWindow):
         if btnName == "pushButton_LoadDataset":
             path = QFileDialog.getOpenFileName(self, 'Open a file', '', 'NetCDF files (*.nc)')
             if path != ('', ''):
+                self.radioButton_RawView.setChecked(True)
                 self.path = path[0]
                 self.prog_win.show()
 
@@ -467,6 +469,8 @@ class mainWindow(qWidget.QMainWindow):
         if btnName == "pushButton_SetDimensions":
             # print("need to something here to regrid the data based on selected dimensions.")
             #print("Setting dimensions to ", self.comboBox_dims.currentText())
+            self.comboBox_dims.clear()
+            self.listWidget_Variables.clearSelection()
             self.reader.SetDimensions(self.comboBox_dims.currentText())
             self.reader.ComputeArraySelection()
             self.prog_win.show()
@@ -500,15 +504,17 @@ class mainWindow(qWidget.QMainWindow):
         # Play Reverse
         ############################
         if btnName == "pushButton_PlayReverse":
-            self.animationDirection = -1
-            #print("play reverse")
-            if(self.timer.isActive() == False):
-                self.timer.start()
+            if (self.maxTimeSteps != 1):
+                self.animationDirection = -1
+                if(self.timer.isActive() == False):
+                    self.timer.start()
 
         ############################
         # Previous Frame
         ############################
         if btnName == "pushButton_PreviousFrame":
+            if (self.maxTimeSteps == 1):
+                return
             if (self.stackedWidget.currentWidget().objectName() == "page_3DMap" or self.stackedWidget.currentWidget().objectName() == "page_2DMap"):
                 if (self.currentTimeStep > 1):
                     self.currentTimeStep = self.currentTimeStep - 1
@@ -535,6 +541,8 @@ class mainWindow(qWidget.QMainWindow):
         # Next frame
         ############################
         if btnName == "pushButton_NextFrame":
+            if(self.maxTimeSteps == 1):
+                return
             if (self.stackedWidget.currentWidget().objectName() == "page_3DMap" or self.stackedWidget.currentWidget().objectName() == "page_2DMap"):
                 if(self.currentTimeStep < self.maxTimeSteps):
                     self.currentTimeStep = self.currentTimeStep + 1
@@ -557,10 +565,10 @@ class mainWindow(qWidget.QMainWindow):
         # Play forward
         ############################
         if btnName == "pushButton_PlayForward":
-            #print("play forward")
-            self.animationDirection = 1
-            if (self.timer.isActive() == False):
-                self.timer.start()
+            if(self.maxTimeSteps != 1):
+                self.animationDirection = 1
+                if (self.timer.isActive() == False):
+                    self.timer.start()
 
     
     def closeEvent(self, event):
@@ -589,7 +597,7 @@ class TaskThread(qCore.QThread):
                 timedim = sfctmp.dimensions[0]  # time dim name
                 times = nc_fid.variables[timedim]
                 dates = num2date(times[:], times.units)
-                timeStrings = [date.strftime('%Y-%m-%d %H:%M:%S') for date in dates[:]]
+                self.main.actualTimeStrings = [date.strftime('%Y-%m-%d %H:%M:%S') for date in dates[:]]
                 self.main.IsTemporalDataset = True
             else:
                 self.main.IsTemporalDataset = False
@@ -609,8 +617,7 @@ class TaskThread(qCore.QThread):
         self.main.pa.SetInputConnection(self.main.reader.GetOutputPort())
         Utils.loadGlobeGeometry(self.main)
         if(self.main.IsTemporalDataset == True):
-            Utils.loadOverlay(self.main, timeStrings)
-            self.main.actualTimeStrings = timeStrings
+            Utils.loadOverlay(self.main, self.main.actualTimeStrings)
         self.main.rawTimes = self.main.reader.GetOutputInformation(0).Get(vtk.vtkStreamingDemandDrivenPipeline.TIME_STEPS())
 
         # tunits = self.main.reader.GetTimeUnits()
