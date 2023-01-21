@@ -2,6 +2,7 @@ from PyQt5 import QtWidgets as qWidget
 from PyQt5 import QtGui as qGui
 from PyQt5 import QtCore as qCore
 from PyQt5.QtCore import pyqtSlot
+from pathlib import Path
 
 from PyQt5.QtWidgets import QFileDialog, QCheckBox, QButtonGroup, QAbstractButton, QVBoxLayout, QListWidgetItem, \
     QAbstractItemView, QSizePolicy
@@ -63,10 +64,10 @@ class mainWindow(qWidget.QMainWindow):
         self.maxTimeSteps = None
         # set app icon
         app_icon = qGui.QIcon()
-        app_icon.addFile('assets\\icons\\icons8-92.png', qCore.QSize(92, 92))
-        app_icon.addFile('assets\\icons\\icons8-100.png', qCore.QSize(100, 100))
-        app_icon.addFile('assets\\icons\\icons8-200.png', qCore.QSize(200, 200))
-        app_icon.addFile('assets\\icons\\icons8-400.png', qCore.QSize(400, 400))
+        app_icon.addFile('assets/icons/icons8-92.png', qCore.QSize(92, 92))
+        app_icon.addFile('assets/icons/icons8-100.png', qCore.QSize(100, 100))
+        app_icon.addFile('assets/icons/icons8-200.png', qCore.QSize(200, 200))
+        app_icon.addFile('assets/icons/icons8-400.png', qCore.QSize(400, 400))
         self.setWindowIcon(app_icon)
         ui = os.path.join(os.path.dirname(__file__), 'assets/ui/gui.ui')
         uic.loadUi(ui, self)
