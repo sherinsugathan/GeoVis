@@ -182,7 +182,7 @@ class mainWindow(qWidget.QMainWindow):
     @pyqtSlot()
     def on_timeSlider_Changed(self):
         self.currentTimeStep = self.horizontalSlider_Main.value()
-        if(self.main.IsTemporalDataset == True):
+        if(self.IsTemporalDataset == True):
             self.textActor.SetInput(str(self.actualTimeStrings[self.currentTimeStep]))
         self.reader.GetOutputInformation(0).Set(vtk.vtkStreamingDemandDrivenPipeline.UPDATE_TIME_STEP(), self.rawTimes[self.currentTimeStep - 1])
         self.pa.AddArray(1, self.varName)  # 0 for PointData, 1 for CellData, 2 for FieldData
@@ -430,7 +430,7 @@ class mainWindow(qWidget.QMainWindow):
         if (self.rawTimes != None): # valid time points available.
             self.maxTimeSteps = len(self.rawTimes)
             self.label_FrameStatus.setText("1/" + str(self.maxTimeSteps))
-            self.horizontalSlider_Main.setMaximum(self.maxTimeSteps)
+            self.horizontalSlider_Main.setMaximum(self.maxTimeSteps-1)
             self.horizontalSlider_Main.setEnabled(True)
         else: # no time points available
             self.maxTimeSteps = 1
