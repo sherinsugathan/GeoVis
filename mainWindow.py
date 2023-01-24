@@ -290,19 +290,6 @@ class mainWindow(qWidget.QMainWindow):
         #self.iren.AddObserver('TimerEvent', cb.execute)
         #cb.timerId = self.iren.CreateRepeatingTimer(500)
 
-
-        #textWidget = vtk.vtkTextWidget()
-
-        #textRepresentation = vtk.vtkTextRepresentation()
-        #textRepresentation.GetPositionCoordinate().SetValue(0.15, 0.15)
-        #textRepresentation.GetPosition2Coordinate().SetValue(0.7, 0.2)
-        #textWidget.SetRepresentation(textRepresentation)
-
-        #textWidget.SetInteractor(self.iren)
-        #textWidget.SetTextActor(textActor)
-        #textWidget.SelectableOff()
-        #textWidget.On()
-
         self.iren.Render()
         self.ren.Render()
 

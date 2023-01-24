@@ -153,3 +153,4 @@ readerTest*.py
 sherinTemp*.py
 exampleDataset/
 venv_geovis/
+.vs/
