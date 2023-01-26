@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>1035</width>
-    <height>619</height>
+    <height>702</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -17,7 +17,7 @@
    </sizepolicy>
   </property>
   <property name="windowTitle">
-   <string>GeoVis - v1.1.0</string>
+   <string>GeoVis - v1.2.0</string>
   </property>
   <property name="styleSheet">
    <string notr="true">background-color: rgb(33, 37, 43);

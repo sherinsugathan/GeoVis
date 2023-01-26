@@ -247,15 +247,15 @@ class mainWindow(qWidget.QMainWindow):
         stops = [data[0] for data in gradients]
         oldMin = 0
         oldMax = 1
-        newMin = dataRange[0]
-        newMax = dataRange[1]
-        newRange = newMax - newMin
+        self.newMin = dataRange[0]
+        self.newMax = dataRange[1]
+        newRange = self.newMax - self.newMin
 
         self.ctf.RemoveAllPoints()
         for gradient in gradients:
             #print(type(gradient[1]))
             oldValue = float(gradient[0])
-            newValue = ((oldValue - oldMin) * newRange) + newMin
+            newValue = ((oldValue - oldMin) * newRange) + self.newMin
             if(isinstance(gradient[1], str)==True):
                  rgb = matplotlib.colors.to_rgb(gradient[1])
                  self.ctf.AddRGBPoint(newValue, rgb[0], rgb[1], rgb[2])
@@ -329,7 +329,7 @@ class mainWindow(qWidget.QMainWindow):
 
     def initializeApp(self):
         self.pa = vtk.vtkPassArrays()
-        self.gradient = Gd.Gradient()
+        self.gradient = Gd.Gradient(self)
         self.gradient.setGradient([(0, 'black'), (1, 'green'), (0.5, 'red')])
         self.layout = QVBoxLayout()
         self.layout.addWidget(self.gradient, qCore.Qt.AlignCenter)
@@ -544,7 +544,7 @@ class mainWindow(qWidget.QMainWindow):
                     self.textActor.SetInput(str(self.actualTimeStrings[self.currentTimeStep-1]))
                 self.mapper.GetInput().GetCellData().AddArray(self.pa.GetOutput().GetCellData().GetAbstractArray(self.varName))
                 #self.mapper.GetInput().GetCellData().AddArray(self.pa.GetOutput().GetCellData().GetArray(0))
-                self.mapper.GetInput().GetCellData().SetActiveScalars(self.varName)
+                self.mapper.GetInput().GetCellData().SetrActiveScalars(self.varName)
                 self.label_FrameStatus.setText(str(self.currentTimeStep) + "/" + str(self.maxTimeSteps))
                 #self.mapper.Update()
                 self.iren.Render()

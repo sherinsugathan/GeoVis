@@ -7,7 +7,7 @@ from PyQt5.QtWidgets import QWidget, QPushButton, QLineEdit, QInputDialog
 class Gradient(QtWidgets.QWidget):
     gradientChanged = Signal()
 
-    def __init__(self, gradient=None, *args, **kwargs):
+    def __init__(self, smain=None, gradient=None, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
         self.setSizePolicy(
@@ -17,6 +17,9 @@ class Gradient(QtWidgets.QWidget):
 
         if gradient:
             self._gradient = gradient
+
+        if smain:
+            self.main = smain
 
         else:
             self._gradient = [
@@ -169,8 +172,10 @@ class Gradient(QtWidgets.QWidget):
                 return
             n = self._find_stop_handle_for_event(e)
             normalized_value, color = self._gradient[n]
+            
             self.removeStopAtPosition(n)
-            self.addStop(float(text), color)
+            normalized_user_input = (float(text) - self.main.newMin)/(self.main.newMax - self.main.newMin)
+            self.addStop(float(normalized_user_input), color)
             self._drag_position = None
             self._sort_gradient()
             self.gradientChanged.emit()
