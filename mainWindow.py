@@ -23,14 +23,14 @@ import os
 import ctypes
 import modules.utils as Utils
 import modules.gradient as Gd
-import matplotlib
+#import matplotlib
 #import matplotlib.colorsp
 
 
 from netCDF4 import Dataset
 import netCDF4 as nc
 from netCDF4 import num2date, date2num, date2index
-import folium
+#import folium
 import io
 import xarray as xr
 
@@ -441,6 +441,9 @@ class mainWindow(qWidget.QMainWindow):
         if btnName == "pushButton_LoadDataset":
             path = QFileDialog.getOpenFileName(self, 'Open a file', '', 'NetCDF files (*.nc)')
             if path != ('', ''):
+                # Stop play threads if running
+                if (self.timer.isActive() == True):
+	                self.timer.stop()
                 self.radioButton_RawView.setChecked(True)
                 self.path = path[0]
                 self.prog_win.show()
@@ -457,6 +460,11 @@ class mainWindow(qWidget.QMainWindow):
         if btnName == "pushButton_SetDimensions":
             # print("need to something here to regrid the data based on selected dimensions.")
             #print("Setting dimensions to ", self.comboBox_dims.currentText())
+
+            # Stop play threads if running
+            if (self.timer.isActive() == True):
+	            self.timer.stop()
+
             self.comboBox_dims.clear()
             self.listWidget_Variables.clearSelection()
             self.reader.SetDimensions(self.comboBox_dims.currentText())
