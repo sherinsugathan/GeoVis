@@ -140,13 +140,7 @@ background-color: rgb(44, 48, 57);</string>
            <number>0</number>
           </property>
           <item>
-           <widget class="QLineEdit" name="lineEdit_VarMin">
-            <property name="maximumSize">
-             <size>
-              <width>50</width>
-              <height>16777215</height>
-             </size>
-            </property>
+           <widget class="QLabel" name="label_VarMin">
             <property name="font">
              <font>
               <family>Arial</family>
@@ -154,10 +148,13 @@ background-color: rgb(44, 48, 57);</string>
              </font>
             </property>
             <property name="styleSheet">
-             <string notr="true">border: 0px solid gray; 
-/*border-color:  rgb(135	, 154, 181);*/
-background : rgb(52, 59, 72);
-color:rgb(175, 199, 242);</string>
+             <string notr="true">color:rgb(175, 199, 242);</string>
+            </property>
+            <property name="text">
+             <string/>
+            </property>
+            <property name="textFormat">
+             <enum>Qt::AutoText</enum>
             </property>
            </widget>
           </item>
@@ -184,13 +181,7 @@ color:rgb(175, 199, 242);</string>
            </widget>
           </item>
           <item>
-           <widget class="QLineEdit" name="lineEdit_VarMax">
-            <property name="maximumSize">
-             <size>
-              <width>50</width>
-              <height>16777215</height>
-             </size>
-            </property>
+           <widget class="QLabel" name="label_VarMax">
             <property name="font">
              <font>
               <family>Arial</family>
@@ -198,10 +189,10 @@ color:rgb(175, 199, 242);</string>
              </font>
             </property>
             <property name="styleSheet">
-             <string notr="true">border: 0px solid gray; 
-/*border-color:  rgb(135	, 154, 181);*/
-background : rgb(52, 59, 72);
-color:rgb(175, 199, 242);</string>
+             <string notr="true">color:rgb(175, 199, 242);</string>
+            </property>
+            <property name="text">
+             <string/>
             </property>
            </widget>
           </item>
@@ -227,7 +218,7 @@ color:rgb(175, 199, 242);</string>
             </property>
             <property name="styleSheet">
              <string notr="true">QPushButton {
-	border: 0px solid rgb(52, 59, 72);
+border: 2px solid rgb(44, 48, 57);
 	border-radius: 5px;	
 	/*background-color: rgb(52, 59, 72);*/
 background-color: rgb(87, 99, 122);
@@ -236,7 +227,8 @@ color:rgb(175, 199, 242);
 QPushButton:hover {
 	/*background-color: rgb(57, 65, 80);*/
 background-color: rgb(103, 117, 144);
-	border: 2px solid rgb(61, 70, 86);
+border: 0px solid rgb(52, 59, 72);
+	
 }
 QPushButton:pressed {	
 	background-color: rgb(35, 40, 49);
@@ -244,7 +236,7 @@ QPushButton:pressed {
 }</string>
             </property>
             <property name="text">
-             <string>Update Range</string>
+             <string>Modify Range</string>
             </property>
            </widget>
           </item>
@@ -1092,7 +1084,7 @@ background-color: rgb(81,92,112);
              </property>
              <property name="styleSheet">
               <string notr="true">QPushButton {
-	border: 0px solid rgb(52, 59, 72);
+border: 2px solid rgb(44, 48, 57);
 	border-radius: 5px;	
 	/*background-color: rgb(52, 59, 72);*/
 background-color: rgb(87, 99, 122);
@@ -1101,7 +1093,8 @@ color:rgb(175, 199, 242);
 QPushButton:hover {
 	/*background-color: rgb(57, 65, 80);*/
 background-color: rgb(103, 117, 144);
-	border: 2px solid rgb(61, 70, 86);
+border: 0px solid rgb(52, 59, 72);
+	
 }
 QPushButton:pressed {	
 	background-color: rgb(35, 40, 49);
@@ -1129,7 +1122,7 @@ QPushButton:pressed {
              </property>
              <property name="styleSheet">
               <string notr="true">QPushButton {
-	border: 0px solid rgb(52, 59, 72);
+border: 2px solid rgb(44, 48, 57);
 	border-radius: 5px;	
 	/*background-color: rgb(52, 59, 72);*/
 background-color: rgb(87, 99, 122);
@@ -1138,7 +1131,8 @@ color:rgb(175, 199, 242);
 QPushButton:hover {
 	/*background-color: rgb(57, 65, 80);*/
 background-color: rgb(103, 117, 144);
-	border: 2px solid rgb(61, 70, 86);
+border: 0px solid rgb(52, 59, 72);
+	
 }
 QPushButton:pressed {	
 	background-color: rgb(35, 40, 49);

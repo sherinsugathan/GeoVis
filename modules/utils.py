@@ -214,8 +214,8 @@ def updateGlobeGeometry(self, variableName):
         oldMax = 1
         newMin = dataRange[0]
         newMax = dataRange[1]
-        self.lineEdit_VarMin.setText(str(f'{newMin:.2f}'))
-        self.lineEdit_VarMax.setText(str(f'{newMax:.2f}'))
+        self.label_VarMin.setText(str(f'{newMin:.2f}'))
+        self.label_VarMax.setText(str(f'{newMax:.2f}'))
         newRange = newMax - newMin
 
         self.ctf.RemoveAllPoints()

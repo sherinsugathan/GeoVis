@@ -8,6 +8,7 @@ from PyQt5.QtWidgets import QFileDialog, QCheckBox, QButtonGroup, QAbstractButto
     QAbstractItemView, QSizePolicy
 from PyQt5.QtWebEngineWidgets import QWebEngineView
 from PyQt5.QtCore import QThread
+from PyQt5.QtWidgets import QInputDialog, QErrorMessage
 
 qWidget.QApplication.setAttribute(qCore.Qt.AA_EnableHighDpiScaling, True)  # enable highdpi scaling
 qWidget.QApplication.setAttribute(qCore.Qt.AA_UseHighDpiPixmaps, True)  # use highdpi icons
@@ -23,7 +24,7 @@ import os
 import ctypes
 import modules.utils as Utils
 import modules.gradient as Gd
-#import matplotlib
+import matplotlib
 #import matplotlib.colorsp
 
 
@@ -82,6 +83,7 @@ class mainWindow(qWidget.QMainWindow):
         self.pushButton_Pause.clicked.connect(self.on_buttonClick)  # Attaching button click handler.
         self.pushButton_NextFrame.clicked.connect(self.on_buttonClick)  # Attaching button click handler.
         self.pushButton_PlayForward.clicked.connect(self.on_buttonClick)  # Attaching button click handler.
+        self.pushButton_UpdateRange.clicked.connect(self.on_buttonClick)  # Attaching button click handler.
         self.comboBox_dims.currentTextChanged.connect(self.on_comboboxDims_changed)  # Changed dimensions handler.
 
         # View radio buttons
@@ -565,6 +567,50 @@ class mainWindow(qWidget.QMainWindow):
                 self.animationDirection = 1
                 if (self.timer.isActive() == False):
                     self.timer.start()
+
+
+        ############################
+        # Set New Scalar Range
+        ############################
+        if btnName == "pushButton_UpdateRange":
+            text_start, ok = QInputDialog.getText(self, 'Set Start Value', 'Please enter the start value.')
+            if (text_start.replace('.','',1).isdigit() == False): # if not a number
+                em = QErrorMessage(self)
+                em.showMessage("Unable to set the range. Please check your data.")
+                return
+            text_end, ok = QInputDialog.getText(self, 'Set End Value', 'Please enter the end value.')
+            if (text_end.replace('.','',1).isdigit() == False): # if not a number
+                em = QErrorMessage(self)
+                em.showMessage("Unable to set the range. Please check your data.")
+                return
+
+            dataRange = self.mapper.GetInput().GetCellData().GetScalars(self.varName).GetRange()
+            oldMin = 0
+            oldMax = 1
+            newMin = float(text_start)
+            newMax = float(text_end)
+            if(newMax <= newMin or newMin < dataRange[0] or newMax > dataRange[1]):
+                em = QErrorMessage(self)
+                em.showMessage("Unable to set the range. Please check your data.")
+                return
+            newRange = newMax - newMin
+            gradients = self.gradient.gradient()
+            self.ctf.RemoveAllPoints()
+            for gradient in gradients:
+                oldValue = float(gradient[0])
+                newValue = ((oldValue - oldMin) * newRange) + newMin
+                self.ctf.AddRGBPoint(newValue, gradient[1].redF(), gradient[1].greenF(), gradient[1].blueF())
+            if(self.checkBox_LogScale.isChecked()):
+                self.ctf.SetScaleToLog10()
+            else:
+                self.ctf.SetScaleToLinear()
+            self.ctf.Build()
+
+            self.label_VarMin.setText(str(f'{newMin:.2f}'))
+            self.label_VarMax.setText(str(f'{newMax:.2f}'))
+
+            self.iren.Render()
+
 
     
     def closeEvent(self, event):
