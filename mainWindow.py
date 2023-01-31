@@ -63,6 +63,8 @@ class mainWindow(qWidget.QMainWindow):
         self.actualTimeStrings = None
         self.IsTemporalDataset = False
         self.maxTimeSteps = None
+        self.newMin = None
+        self.newMax = None
         # set app icon
         app_icon = qGui.QIcon()
         app_icon.addFile('assets/icons/icons8-92.png', qCore.QSize(92, 92))

@@ -36,7 +36,7 @@ class Gradient(QtWidgets.QWidget):
     def paintEvent(self, e):
         painter = QtGui.QPainter(self)
         width = painter.device().width()
-        height = painter.device().height()
+        height = painter.device().height()/2
 
         # Draw the linear horizontal gradient.
         gradient = QtGui.QLinearGradient(0, 0, width, 0)
@@ -48,17 +48,27 @@ class Gradient(QtWidgets.QWidget):
 
         pen = QtGui.QPen()
 
-        y = painter.device().height() / 2
+        y = painter.device().height() / 4
 
+        
         # Draw the stop handles.
         for stop, _ in self._gradient:
             pen.setColor(QtGui.QColor('white'))
             painter.setPen(pen)
 
             painter.drawLine(int(stop * width), int(y - self._handle_h), int(stop * width), int(y + self._handle_h))
-
+            if(self.main.newMin!=None):
+                newRange = self.main.newMax - self.main.newMin
+                newValue = (stop * newRange) + self.main.newMin
+                if(stop == 0.0):
+                    painter.drawText(int(stop * width)+2,int(y)+20, str(round(newValue,1)))
+                elif(stop == 1.0):
+                    painter.drawText(int(stop * width)-40,int(y)+20, str(round(newValue,1)))
+                else:
+                    painter.drawText(int(stop * width)-10,int(y)+20, str(round(newValue,1)))
             pen.setColor(QtGui.QColor('red'))
             painter.setPen(pen)
+            
 
             rect = QtCore.QRect(
                 int(stop * width - self._handle_w / 2),
@@ -134,8 +144,8 @@ class Gradient(QtWidgets.QWidget):
 
     def _find_stop_handle_for_event(self, e, to_exclude=None):
         width = self.width()
-        height = self.height()
-        midpoint = height / 2
+        height = self.height()/2
+        midpoint = height / 4
 
         # Are we inside a stop point? First check y.
         if (
