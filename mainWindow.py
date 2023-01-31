@@ -151,6 +151,10 @@ class mainWindow(qWidget.QMainWindow):
         Utils.updateGlobeGeometry(self, self.varName)
         Utils.variableControlsSetVisible(self, True)
         Utils.statusMessage(self, "Active: " + self.varName, "success")
+        dataRange = self.mapper.GetInput().GetCellData().GetScalars(self.varName).GetRange()
+        self.newMin = dataRange[0]
+        self.newMax = dataRange[1]
+        self.gradient.update()
 
     @pyqtSlot()
     def changeView(self):
@@ -225,6 +229,7 @@ class mainWindow(qWidget.QMainWindow):
     @pyqtSlot()
     def comboBox_ColorMaps_changed(self):
         for cmapItem in self.cmaps:
+            print("hello I am being called")
             if(cmapItem['name'] == str(self.comboBox_ColorMaps.currentText())):
                 color1List = [int(x) for x in cmapItem['color1'].split(',')]
                 color2List = [int(x) for x in cmapItem['color2'].split(',')]
@@ -247,12 +252,11 @@ class mainWindow(qWidget.QMainWindow):
     def updateLUT(self):
         #print("updating lut")
         gradients = self.gradient.gradient()
-        dataRange = self.mapper.GetInput().GetCellData().GetScalars(self.varName).GetRange()
+       
         stops = [data[0] for data in gradients]
         oldMin = 0
         oldMax = 1
-        self.newMin = dataRange[0]
-        self.newMax = dataRange[1]
+        
         newRange = self.newMax - self.newMin
 
         self.ctf.RemoveAllPoints()
@@ -608,8 +612,8 @@ class mainWindow(qWidget.QMainWindow):
                 self.ctf.SetScaleToLinear()
             self.ctf.Build()
 
-            self.label_VarMin.setText(str(f'{newMin:.2f}'))
-            self.label_VarMax.setText(str(f'{newMax:.2f}'))
+            #self.label_VarMin.setText(str(f'{newMin:.2f}'))
+            #self.label_VarMax.setText(str(f'{newMax:.2f}'))
 
             self.iren.Render()
 

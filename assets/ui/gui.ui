@@ -140,25 +140,6 @@ background-color: rgb(44, 48, 57);</string>
            <number>0</number>
           </property>
           <item>
-           <widget class="QLabel" name="label_VarMin">
-            <property name="font">
-             <font>
-              <family>Arial</family>
-              <pointsize>8</pointsize>
-             </font>
-            </property>
-            <property name="styleSheet">
-             <string notr="true">color:rgb(175, 199, 242);</string>
-            </property>
-            <property name="text">
-             <string/>
-            </property>
-            <property name="textFormat">
-             <enum>Qt::AutoText</enum>
-            </property>
-           </widget>
-          </item>
-          <item>
            <widget class="QFrame" name="frame_colormap">
             <property name="minimumSize">
              <size>
@@ -177,22 +158,6 @@ background-color: rgb(44, 48, 57);</string>
             </property>
             <property name="frameShadow">
              <enum>QFrame::Raised</enum>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QLabel" name="label_VarMax">
-            <property name="font">
-             <font>
-              <family>Arial</family>
-              <pointsize>8</pointsize>
-             </font>
-            </property>
-            <property name="styleSheet">
-             <string notr="true">color:rgb(175, 199, 242);</string>
-            </property>
-            <property name="text">
-             <string/>
             </property>
            </widget>
           </item>
