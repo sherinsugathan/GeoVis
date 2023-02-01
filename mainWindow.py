@@ -88,6 +88,7 @@ class mainWindow(qWidget.QMainWindow):
         self.pushButton_PlayForward.clicked.connect(self.on_buttonClick)  # Attaching button click handler.
         self.pushButton_UpdateRange.clicked.connect(self.on_buttonClick)  # Attaching button click handler.
         self.pushButton_ResetRange.clicked.connect(self.on_buttonClick)  # Attaching button click handler.
+        self.pushButton_ExportImage.clicked.connect(self.on_buttonClick)  # Attaching button click handler.
         self.comboBox_dims.currentTextChanged.connect(self.on_comboboxDims_changed)  # Changed dimensions handler.
 
         # View radio buttons
@@ -603,6 +604,12 @@ class mainWindow(qWidget.QMainWindow):
             self.update_scene_for_new_range()
             self.gradient.update()
 
+        ############################
+        # Export image.
+        ############################
+        if btnName == "pushButton_ExportImage":
+            Utils.exportImage(self)
+
     ##############################################################################
     # Update the scene for new range.
     ##############################################################################
@@ -633,6 +640,8 @@ class mainWindow(qWidget.QMainWindow):
             self.ctf.SetScaleToLinear()
         self.ctf.Build()
         self.iren.Render()
+
+    
 
     def closeEvent(self, event):
         self.timer.stop()

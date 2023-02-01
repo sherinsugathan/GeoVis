@@ -1065,20 +1065,7 @@ background-color: rgb(81,92,112);
           </attribute>
           <layout class="QVBoxLayout" name="verticalLayout_3">
            <item>
-            <widget class="QLabel" name="label_7">
-             <property name="font">
-              <font>
-               <family>Arial</family>
-               <pointsize>8</pointsize>
-              </font>
-             </property>
-             <property name="text">
-              <string>Note: Controls in this tab not implemented yet.</string>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QPushButton" name="pushButton_Play">
+            <widget class="QPushButton" name="pushButton_ExportImage">
              <property name="minimumSize">
               <size>
                <width>0</width>

@@ -2,6 +2,8 @@ import numpy as np
 import datetime as dt
 import vtk
 import xml.etree.ElementTree as ET
+from PyQt5.QtWidgets import QInputDialog, QErrorMessage, QFileDialog
+import time
 
 
 ##############################################################################
@@ -307,3 +309,28 @@ def readColorMapInfo(self, colorRampFile):
                 cmapitem['stops'] = subelem.attrib['v']
         colorDataList.append(cmapitem)
     return colorDataList
+
+
+##############################################################################
+################# Save current visualization to file.
+################# returns nothing.
+##############################################################################
+def exportImage(self):
+    if(self.stackedWidget.currentWidget().objectName() == "page_3DMap"):
+        windowToImageFilter = vtk.vtkWindowToImageFilter()
+        windowToImageFilter.SetInput(self.vtkWidget.GetRenderWindow())
+        windowToImageFilter.SetScale(2) # image quality
+        windowToImageFilter.SetInputBufferTypeToRGBA() # also record the alpha
+        windowToImageFilter.ReadFrontBufferOff()       # read from the back buffer
+        windowToImageFilter.Update()
+        self.iren.Render()
+
+        writer = vtk.vtkPNGWriter()
+        file = str(QFileDialog.getExistingDirectory(self, "Select Directory"))
+        timestr = time.strftime("%Y%m%d-%H%M%S")
+        writer.SetFileName(file+"/"+timestr+".png")
+        writer.SetInputConnection(windowToImageFilter.GetOutputPort())
+        writer.Write()
+    else:
+        error_dialog = QErrorMessage()
+        error_dialog.showMessage('Cannot save current view as image switch. Please switch to 3D view and try again.')
