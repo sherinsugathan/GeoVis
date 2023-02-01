@@ -65,6 +65,7 @@ class mainWindow(qWidget.QMainWindow):
         self.maxTimeSteps = None
         self.newMin = None
         self.newMax = None
+        self.dataRange = None
         # set app icon
         app_icon = qGui.QIcon()
         app_icon.addFile('assets/icons/icons8-92.png', qCore.QSize(92, 92))
@@ -86,6 +87,7 @@ class mainWindow(qWidget.QMainWindow):
         self.pushButton_NextFrame.clicked.connect(self.on_buttonClick)  # Attaching button click handler.
         self.pushButton_PlayForward.clicked.connect(self.on_buttonClick)  # Attaching button click handler.
         self.pushButton_UpdateRange.clicked.connect(self.on_buttonClick)  # Attaching button click handler.
+        self.pushButton_ResetRange.clicked.connect(self.on_buttonClick)  # Attaching button click handler.
         self.comboBox_dims.currentTextChanged.connect(self.on_comboboxDims_changed)  # Changed dimensions handler.
 
         # View radio buttons
@@ -149,11 +151,12 @@ class mainWindow(qWidget.QMainWindow):
             self.plainTextEdit_netCDFDataText.textCursor().clearSelection()
 
         Utils.updateGlobeGeometry(self, self.varName)
-        Utils.variableControlsSetVisible(self, True)
+        if(self.radioButton_3DView.isChecked() == True):
+            Utils.variableControlsSetVisible(self, True)
         Utils.statusMessage(self, "Active: " + self.varName, "success")
-        dataRange = self.mapper.GetInput().GetCellData().GetScalars(self.varName).GetRange()
-        self.newMin = dataRange[0]
-        self.newMax = dataRange[1]
+        #self.dataRange = self.mapper.GetInput().GetCellData().GetScalars(self.varName).GetRange()
+        self.newMin = self.dataRange[0]
+        self.newMax = self.dataRange[1]
         self.gradient.update()
 
     @pyqtSlot()
@@ -162,30 +165,33 @@ class mainWindow(qWidget.QMainWindow):
         if (rbtn.isChecked() == True):
             if (rbtn.text() == "Raw"):
                 self.stackedWidget.setCurrentWidget(self.page_InspectData)
+                Utils.variableControlsSetVisible(self, False)
             ############################
-            # 2D Render View
+            # 2D Render View  (# Not going to be implemented.)
             ############################
-            if (rbtn.text() == "2D"):
-                self.stackedWidget.setCurrentWidget(self.page_2DMap)
-                layout = QVBoxLayout()
-                self.frame_2D.setLayout(layout)
-                coordinate = (37.8199286, -122.4782551)
-                m = folium.Map(
-                    tiles='cartodbpositron',
-                    zoom_start=13,
-                    location=coordinate, zoom_control=False
-                )
-                # save map data to data object
-                data = io.BytesIO()
-                m.save(data, close_file=False)
-                # Enable the following two lines when 2D maps are required.
-                #self.webView.setHtml(data.getvalue().decode())
-                #layout.addWidget(self.webView)
+            #if (rbtn.text() == "2D"):  # Not going to be implemented.
+                #self.stackedWidget.setCurrentWidget(self.page_2DMap)
+                #layout = QVBoxLayout()
+                #self.frame_2D.setLayout(layout)
+                #coordinate = (37.8199286, -122.4782551)
+                #m = folium.Map(
+                #    tiles='cartodbpositron',
+                #    zoom_start=13,
+                #    location=coordinate, zoom_control=False
+                #)
+                ## save map data to data object
+                #data = io.BytesIO()
+                #m.save(data, close_file=False)
+                ## Enable the following two lines when 2D maps are required.
+                ##self.webView.setHtml(data.getvalue().decode())
+                ##layout.addWidget(self.webView)
             ############################
             # 3D Render View
             ############################
             if (rbtn.text() == "3D"):
                 self.stackedWidget.setCurrentWidget(self.page_3DMap)
+                if(self.varName!=None):
+                    Utils.variableControlsSetVisible(self, True)
 
     @pyqtSlot()
     def on_timeSlider_Changed(self):
@@ -229,7 +235,6 @@ class mainWindow(qWidget.QMainWindow):
     @pyqtSlot()
     def comboBox_ColorMaps_changed(self):
         for cmapItem in self.cmaps:
-            print("hello I am being called")
             if(cmapItem['name'] == str(self.comboBox_ColorMaps.currentText())):
                 color1List = [int(x) for x in cmapItem['color1'].split(',')]
                 color2List = [int(x) for x in cmapItem['color2'].split(',')]
@@ -589,36 +594,46 @@ class mainWindow(qWidget.QMainWindow):
                 em = QErrorMessage(self)
                 em.showMessage("Unable to set the range. Please check your data.")
                 return
+            self.update_scene_for_new_range(text_start, text_end)
 
-            dataRange = self.mapper.GetInput().GetCellData().GetScalars(self.varName).GetRange()
-            oldMin = 0
-            oldMax = 1
-            newMin = float(text_start)
-            newMax = float(text_end)
-            if(newMax <= newMin or newMin < dataRange[0] or newMax > dataRange[1]):
-                em = QErrorMessage(self)
-                em.showMessage("Unable to set the range. Please check your data.")
-                return
-            newRange = newMax - newMin
-            gradients = self.gradient.gradient()
-            self.ctf.RemoveAllPoints()
-            for gradient in gradients:
-                oldValue = float(gradient[0])
-                newValue = ((oldValue - oldMin) * newRange) + newMin
-                self.ctf.AddRGBPoint(newValue, gradient[1].redF(), gradient[1].greenF(), gradient[1].blueF())
-            if(self.checkBox_LogScale.isChecked()):
-                self.ctf.SetScaleToLog10()
-            else:
-                self.ctf.SetScaleToLinear()
-            self.ctf.Build()
+        ############################
+        # Reset variable scalar range to default.
+        ############################
+        if btnName == "pushButton_ResetRange":
+            self.update_scene_for_new_range()
+            self.gradient.update()
 
-            #self.label_VarMin.setText(str(f'{newMin:.2f}'))
-            #self.label_VarMax.setText(str(f'{newMax:.2f}'))
+    ##############################################################################
+    # Update the scene for new range.
+    ##############################################################################
+    def update_scene_for_new_range(self, text_start = None, text_end = None):
+        #dataRange = self.mapper.GetInput().GetCellData().GetScalars(self.varName).GetRange()
+        oldMin = 0
+        oldMax = 1
+        if(text_start!= None and text_end!=None):
+            self.newMin = float(text_start)
+            self.newMax = float(text_end)
+        else:
+            self.newMin = self.dataRange[0]
+            self.newMax = self.dataRange[1]
+        if(self.newMax <= self.newMin or self.newMin < self.dataRange[0] or self.newMax > self.dataRange[1]):
+            em = QErrorMessage(self)
+            em.showMessage("Unable to set the range. Please check your data.")
+            return
+        newRange = self.newMax - self.newMin
+        gradients = self.gradient.gradient()
+        self.ctf.RemoveAllPoints()
+        for gradient in gradients:
+            oldValue = float(gradient[0])
+            newValue = ((oldValue - oldMin) * newRange) + self.newMin
+            self.ctf.AddRGBPoint(newValue, gradient[1].redF(), gradient[1].greenF(), gradient[1].blueF())
+        if(self.checkBox_LogScale.isChecked()):
+            self.ctf.SetScaleToLog10()
+        else:
+            self.ctf.SetScaleToLinear()
+        self.ctf.Build()
+        self.iren.Render()
 
-            self.iren.Render()
-
-
-    
     def closeEvent(self, event):
         self.timer.stop()
         sys.exit()

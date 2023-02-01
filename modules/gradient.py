@@ -63,11 +63,11 @@ class Gradient(QtWidgets.QWidget):
                 newRange = self.main.newMax - self.main.newMin
                 newValue = (stop * newRange) + self.main.newMin
                 if(stop == 0.0):
-                    painter.drawText(int(stop * width)+2,int(y)+30, str(round(newValue,1)))
+                    painter.drawText(int(stop * width)+2,int(y)+20, str(round(newValue,1)))
                 elif(stop == 1.0):
-                    painter.drawText(int(stop * width)-40,int(y)+30, str(round(newValue,1)))
+                    painter.drawText(int(stop * width)-40,int(y)+20, str(round(newValue,1)))
                 else:
-                    painter.drawText(int(stop * width)-10,int(y)+30, str(round(newValue,1)))
+                    painter.drawText(int(stop * width)-10,int(y)+20, str(round(newValue,1)))
             pen.setColor(QtGui.QColor('red'))
             painter.setPen(pen)
             

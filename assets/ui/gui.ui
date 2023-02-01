@@ -178,7 +178,7 @@ background-color: rgb(44, 48, 57);</string>
             <property name="font">
              <font>
               <family>Arial</family>
-              <pointsize>10</pointsize>
+              <pointsize>8</pointsize>
              </font>
             </property>
             <property name="styleSheet">
@@ -201,7 +201,51 @@ QPushButton:pressed {
 }</string>
             </property>
             <property name="text">
-             <string>Modify Range</string>
+             <string>Set Range</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="pushButton_ResetRange">
+            <property name="minimumSize">
+             <size>
+              <width>100</width>
+              <height>25</height>
+             </size>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>200</width>
+              <height>16777215</height>
+             </size>
+            </property>
+            <property name="font">
+             <font>
+              <family>Arial</family>
+              <pointsize>8</pointsize>
+             </font>
+            </property>
+            <property name="styleSheet">
+             <string notr="true">QPushButton {
+border: 2px solid rgb(44, 48, 57);
+	border-radius: 5px;	
+	/*background-color: rgb(52, 59, 72);*/
+background-color: rgb(87, 99, 122);
+color:rgb(175, 199, 242);
+}
+QPushButton:hover {
+	/*background-color: rgb(57, 65, 80);*/
+background-color: rgb(103, 117, 144);
+border: 0px solid rgb(52, 59, 72);
+	
+}
+QPushButton:pressed {	
+	background-color: rgb(35, 40, 49);
+	border: 2px solid rgb(43, 50, 61);
+}</string>
+            </property>
+            <property name="text">
+             <string>Reset Range</string>
             </property>
            </widget>
           </item>

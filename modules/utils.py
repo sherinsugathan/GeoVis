@@ -200,7 +200,7 @@ def updateGlobeGeometry(self, variableName):
         self.mapper.GetInput().GetCellData().AddArray(self.pa.GetOutput().GetCellData().GetAbstractArray(variableName))
         #self.mapper.GetInput().GetCellData().AddArray(self.pa.GetOutput().GetCellData().GetArray(0))
         self.mapper.GetInput().GetCellData().SetActiveScalars(variableName)
-        dataRange = self.mapper.GetInput().GetCellData().GetScalars(variableName).GetRange()
+        self.dataRange = self.mapper.GetInput().GetCellData().GetScalars(variableName).GetRange()
 
         #print("sherin", self.gradient.gradient())
 
@@ -212,8 +212,8 @@ def updateGlobeGeometry(self, variableName):
         stops = [data[0] for data in gradients]
         oldMin = 0
         oldMax = 1
-        newMin = dataRange[0]
-        newMax = dataRange[1]
+        newMin = self.dataRange[0]
+        newMax = self.dataRange[1]
         #self.label_VarMin.setText(str(f'{newMin:.2f}'))
         #self.label_VarMax.setText(str(f'{newMax:.2f}'))
         newRange = newMax - newMin
