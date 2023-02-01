@@ -2,9 +2,9 @@ import numpy as np
 import datetime as dt
 import vtk
 import xml.etree.ElementTree as ET
-from PyQt5.QtWidgets import QInputDialog, QErrorMessage, QFileDialog
+from PyQt5.QtWidgets import QInputDialog, QErrorMessage, QFileDialog, QMessageBox
 import time
-
+import math
 
 ##############################################################################
 ################# outputs dimensions, variables and their attribute information.
@@ -317,20 +317,34 @@ def readColorMapInfo(self, colorRampFile):
 ##############################################################################
 def exportImage(self):
     if(self.stackedWidget.currentWidget().objectName() == "page_3DMap"):
-        windowToImageFilter = vtk.vtkWindowToImageFilter()
-        windowToImageFilter.SetInput(self.vtkWidget.GetRenderWindow())
-        windowToImageFilter.SetScale(2) # image quality
-        windowToImageFilter.SetInputBufferTypeToRGBA() # also record the alpha
-        windowToImageFilter.ReadFrontBufferOff()       # read from the back buffer
-        windowToImageFilter.Update()
+        largeImage = vtk.vtkRenderLargeImage()
+        largeImage.SetInput(self.ren)
+        largeImage.SetMagnification(2)
+        largeImage.Update()
         self.iren.Render()
 
         writer = vtk.vtkPNGWriter()
         file = str(QFileDialog.getExistingDirectory(self, "Select Directory"))
         timestr = time.strftime("%Y%m%d-%H%M%S")
         writer.SetFileName(file+"/"+timestr+".png")
-        writer.SetInputConnection(windowToImageFilter.GetOutputPort())
+        writer.SetInputConnection(largeImage.GetOutputPort())
         writer.Write()
     else:
-        error_dialog = QErrorMessage()
-        error_dialog.showMessage('Cannot save current view as image switch. Please switch to 3D view and try again.')
+        dlg = QMessageBox(self)
+        dlg.setWindowTitle("Incorrect view selected.")
+        dlg.setText("Cannot save current view as image file. Please switch to 3D view and try again.")
+        dlg.exec()
+
+##############################################################################
+################# Save current visualization as a video to file.
+################# returns nothing.
+##############################################################################
+def exportVideo(self):
+    pass
+
+##############################################################################
+################# Truncate float value
+################# returns truncated value
+##############################################################################
+def truncate(f, n):
+        return math.floor(f * 10 ** n) / 10 ** n

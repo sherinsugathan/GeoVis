@@ -3,6 +3,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtCore import Qt
 from PyQt5.QtCore import pyqtSignal as Signal
 from PyQt5.QtWidgets import QWidget, QPushButton, QLineEdit, QInputDialog
+import math
 
 class Gradient(QtWidgets.QWidget):
     gradientChanged = Signal()
@@ -63,11 +64,11 @@ class Gradient(QtWidgets.QWidget):
                 newRange = self.main.newMax - self.main.newMin
                 newValue = (stop * newRange) + self.main.newMin
                 if(stop == 0.0):
-                    painter.drawText(int(stop * width)+2,int(y)+20, str(round(newValue,1)))
+                    painter.drawText(int(stop * width)+2,int(y)+20, str(self.truncate(newValue,1)))
                 elif(stop == 1.0):
-                    painter.drawText(int(stop * width)-40,int(y)+20, str(round(newValue,1)))
+                    painter.drawText(int(stop * width)-40,int(y)+20, str(self.truncate(newValue,1)))
                 else:
-                    painter.drawText(int(stop * width)-10,int(y)+20, str(round(newValue,1)))
+                    painter.drawText(int(stop * width)-10,int(y)+20, str(self.truncate(newValue,1)))
             pen.setColor(QtGui.QColor('red'))
             painter.setPen(pen)
             
@@ -81,6 +82,9 @@ class Gradient(QtWidgets.QWidget):
             painter.drawRect(rect)
         #self.gradientChanged.emit()
         painter.end()
+
+    def truncate(self, f, n):
+        return math.floor(f * 10 ** n) / 10 ** n
 
     def sizeHint(self):
         return QtCore.QSize(200, 50)

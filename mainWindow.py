@@ -4,7 +4,7 @@ from PyQt5 import QtCore as qCore
 from PyQt5.QtCore import pyqtSlot
 from pathlib import Path
 
-from PyQt5.QtWidgets import QFileDialog, QCheckBox, QButtonGroup, QAbstractButton, QVBoxLayout, QListWidgetItem, \
+from PyQt5.QtWidgets import QFileDialog, QCheckBox, QMessageBox, QButtonGroup, QAbstractButton, QVBoxLayout, QListWidgetItem, \
     QAbstractItemView, QSizePolicy
 from PyQt5.QtWebEngineWidgets import QWebEngineView
 from PyQt5.QtCore import QThread
@@ -66,6 +66,7 @@ class mainWindow(qWidget.QMainWindow):
         self.newMin = None
         self.newMax = None
         self.dataRange = None
+        self.varName = None
         # set app icon
         app_icon = qGui.QIcon()
         app_icon.addFile('assets/icons/icons8-92.png', qCore.QSize(92, 92))
@@ -89,6 +90,9 @@ class mainWindow(qWidget.QMainWindow):
         self.pushButton_UpdateRange.clicked.connect(self.on_buttonClick)  # Attaching button click handler.
         self.pushButton_ResetRange.clicked.connect(self.on_buttonClick)  # Attaching button click handler.
         self.pushButton_ExportImage.clicked.connect(self.on_buttonClick)  # Attaching button click handler.
+        self.pushButton_ExportVideo.clicked.connect(self.on_buttonClick)  # Attaching button click handler.
+        self.dial_videoQuality.valueChanged.connect(self.on_videoQualityUpdate)
+        self.dial_videoFrameRate.valueChanged.connect(self.on_frameRateUpdate)
         self.comboBox_dims.currentTextChanged.connect(self.on_comboboxDims_changed)  # Changed dimensions handler.
 
         # View radio buttons
@@ -113,6 +117,15 @@ class mainWindow(qWidget.QMainWindow):
 
         self.initializeApp()
 
+    @pyqtSlot()
+    def on_videoQualityUpdate(self):
+        dialValue = self.dial_videoQuality.value()
+        self.label_videoQuality.setText(str(dialValue))
+
+    @pyqtSlot()
+    def on_frameRateUpdate(self):
+        dialValue = self.dial_videoFrameRate.value()
+        self.label_frameRate.setText(str(dialValue))
 
     @pyqtSlot()
     def on_scaleChanged(self):
@@ -586,12 +599,12 @@ class mainWindow(qWidget.QMainWindow):
         ############################
         if btnName == "pushButton_UpdateRange":
             text_start, ok = QInputDialog.getText(self, 'Set Start Value', 'Please enter the start value.')
-            if (text_start.replace('.','',1).isdigit() == False): # if not a number
+            if (isinstance(text_start, int) == True or isinstance(text_start, float) == True):
                 em = QErrorMessage(self)
                 em.showMessage("Unable to set the range. Please check your data.")
                 return
             text_end, ok = QInputDialog.getText(self, 'Set End Value', 'Please enter the end value.')
-            if (text_end.replace('.','',1).isdigit() == False): # if not a number
+            if (isinstance(text_end, int) == True or isinstance(text_end, float) == True): # if not a number
                 em = QErrorMessage(self)
                 em.showMessage("Unable to set the range. Please check your data.")
                 return
@@ -610,6 +623,12 @@ class mainWindow(qWidget.QMainWindow):
         if btnName == "pushButton_ExportImage":
             Utils.exportImage(self)
 
+        ############################
+        # Export video.
+        ############################
+        if btnName == "pushButton_ExportVideo":
+            Utils.exportVideo(self)
+
     ##############################################################################
     # Update the scene for new range.
     ##############################################################################
@@ -617,16 +636,20 @@ class mainWindow(qWidget.QMainWindow):
         #dataRange = self.mapper.GetInput().GetCellData().GetScalars(self.varName).GetRange()
         oldMin = 0
         oldMax = 1
-        if(text_start!= None and text_end!=None):
-            self.newMin = float(text_start)
-            self.newMax = float(text_end)
-        else:
+        if(text_start == None and text_end == None):
             self.newMin = self.dataRange[0]
             self.newMax = self.dataRange[1]
-        if(self.newMax <= self.newMin or self.newMin < self.dataRange[0] or self.newMax > self.dataRange[1]):
-            em = QErrorMessage(self)
-            em.showMessage("Unable to set the range. Please check your data.")
-            return
+        else:
+            if(float(text_start) >= float(text_end) or float(text_start) < Utils.truncate(self.dataRange[0],1) or float(text_end) > Utils.truncate(self.dataRange[1], 1)):
+                dlg = QMessageBox(self)
+                dlg.setWindowTitle("Invalid range detected.")
+                dlg.setText("Unable to set the range. Please check your data.")
+                dlg.exec()
+                return
+            self.newMin = float(text_start)
+            self.newMax = float(text_end)
+            
+
         newRange = self.newMax - self.newMin
         gradients = self.gradient.gradient()
         self.ctf.RemoveAllPoints()
@@ -641,7 +664,6 @@ class mainWindow(qWidget.QMainWindow):
         self.ctf.Build()
         self.iren.Render()
 
-    
 
     def closeEvent(self, event):
         self.timer.stop()
@@ -695,6 +717,21 @@ class TaskThread(qCore.QThread):
         # tunits = self.main.reader.GetTimeUnits()
 
         # print("RAW TIMES:", self.main.rawTimes)
+        self.taskFinished.emit()
+
+##############################################################################
+################# Video Writer
+##############################################################################
+class VideoTaskThread(qCore.QThread):
+    taskFinished = qCore.pyqtSignal()
+
+    # I also added this so that I can pass data between classes
+    def __init__(self, mainObject, parent=None):
+        QThread.__init__(self, parent)
+        self.main = mainObject
+
+    def run(self):
+        pass
         self.taskFinished.emit()
 
 app = qWidget.QApplication(sys.argv)
