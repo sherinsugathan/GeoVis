@@ -649,7 +649,6 @@ class mainWindow(qWidget.QMainWindow):
             self.newMin = float(text_start)
             self.newMax = float(text_end)
             
-
         newRange = self.newMax - self.newMin
         gradients = self.gradient.gradient()
         self.ctf.RemoveAllPoints()
