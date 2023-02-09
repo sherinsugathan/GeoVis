@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>1035</width>
-    <height>702</height>
+    <height>772</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -295,7 +295,7 @@ background-color: rgb(44, 48, 57);</string>
           <enum>Qt::LeftToRight</enum>
          </property>
          <property name="text">
-          <string>🌎GeoVis</string>
+          <string>🌎GeoVis v1.2.0</string>
          </property>
          <property name="scaledContents">
           <bool>false</bool>
@@ -407,7 +407,22 @@ QTabBar::tab:selected {
           <enum>QTabWidget::Rounded</enum>
          </property>
          <property name="currentIndex">
-          <number>1</number>
+          <number>0</number>
+         </property>
+         <property name="elideMode">
+          <enum>Qt::ElideNone</enum>
+         </property>
+         <property name="documentMode">
+          <bool>false</bool>
+         </property>
+         <property name="tabsClosable">
+          <bool>false</bool>
+         </property>
+         <property name="movable">
+          <bool>false</bool>
+         </property>
+         <property name="tabBarAutoHide">
+          <bool>false</bool>
          </property>
          <widget class="QWidget" name="tab">
           <attribute name="title">
@@ -498,6 +513,9 @@ background-color: rgb(81,92,112);
                <family>Arial</family>
                <pointsize>10</pointsize>
               </font>
+             </property>
+             <property name="toolTip">
+              <string>Update data based on selected dimension.</string>
              </property>
              <property name="styleSheet">
               <string notr="true">QPushButton {
@@ -670,6 +688,99 @@ height : 15px;
             </widget>
            </item>
            <item>
+            <widget class="QLabel" name="label_10">
+             <property name="font">
+              <font>
+               <family>Arial</family>
+               <pointsize>10</pointsize>
+              </font>
+             </property>
+             <property name="styleSheet">
+              <string notr="true">color:rgb(175, 199, 242);</string>
+             </property>
+             <property name="text">
+              <string>Choose Mode</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QFrame" name="frame_4">
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>40</height>
+              </size>
+             </property>
+             <property name="styleSheet">
+              <string notr="true">background : rgb(52, 59, 72);</string>
+             </property>
+             <property name="frameShape">
+              <enum>QFrame::StyledPanel</enum>
+             </property>
+             <property name="frameShadow">
+              <enum>QFrame::Raised</enum>
+             </property>
+             <layout class="QHBoxLayout" name="horizontalLayout_7">
+              <item>
+               <widget class="QRadioButton" name="radioButton_ColorMode">
+                <property name="font">
+                 <font>
+                  <family>Arial</family>
+                  <pointsize>10</pointsize>
+                 </font>
+                </property>
+                <property name="styleSheet">
+                 <string notr="true">QRadioButton
+{
+color:rgb(175, 199, 242);
+}
+
+QRadioButton::indicator
+{
+width : 15px;
+height : 15px;
+}</string>
+                </property>
+                <property name="text">
+                 <string>Color</string>
+                </property>
+                <property name="checked">
+                 <bool>true</bool>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QRadioButton" name="radioButton_ContourMode">
+                <property name="font">
+                 <font>
+                  <family>Arial</family>
+                  <pointsize>10</pointsize>
+                 </font>
+                </property>
+                <property name="styleSheet">
+                 <string notr="true">QRadioButton
+{
+color:rgb(175, 199, 242);
+}
+
+QRadioButton::indicator
+{
+width : 15px;
+height : 15px;
+}</string>
+                </property>
+                <property name="text">
+                 <string>Contour</string>
+                </property>
+                <property name="checked">
+                 <bool>false</bool>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </widget>
+           </item>
+           <item>
             <layout class="QHBoxLayout" name="horizontalLayout_5">
              <property name="bottomMargin">
               <number>0</number>
@@ -743,6 +854,9 @@ height : 15px;
                   <pointsize>16</pointsize>
                  </font>
                 </property>
+                <property name="toolTip">
+                 <string>Play Backward</string>
+                </property>
                 <property name="styleSheet">
                  <string notr="true">QPushButton {
 	border: 2px solid rgb(52, 59, 72);
@@ -768,8 +882,8 @@ QPushButton:pressed {
                 </property>
                 <property name="iconSize">
                  <size>
-                  <width>15</width>
-                  <height>15</height>
+                  <width>20</width>
+                  <height>20</height>
                  </size>
                 </property>
                 <property name="shortcut">
@@ -790,6 +904,9 @@ QPushButton:pressed {
                   <family>Arial</family>
                   <pointsize>16</pointsize>
                  </font>
+                </property>
+                <property name="toolTip">
+                 <string>Previous Frame</string>
                 </property>
                 <property name="styleSheet">
                  <string notr="true">QPushButton {
@@ -830,6 +947,9 @@ QPushButton:pressed {
                   <pointsize>16</pointsize>
                  </font>
                 </property>
+                <property name="toolTip">
+                 <string>Pause Playback</string>
+                </property>
                 <property name="styleSheet">
                  <string notr="true">QPushButton {
 	border: 2px solid rgb(52, 59, 72);
@@ -868,6 +988,9 @@ QPushButton:pressed {
                   <family>Arial</family>
                   <pointsize>16</pointsize>
                  </font>
+                </property>
+                <property name="toolTip">
+                 <string>Next Frame</string>
                 </property>
                 <property name="styleSheet">
                  <string notr="true">QPushButton {
@@ -908,6 +1031,9 @@ QPushButton:pressed {
                   <pointsize>16</pointsize>
                  </font>
                 </property>
+                <property name="toolTip">
+                 <string>Play Forward</string>
+                </property>
                 <property name="styleSheet">
                  <string notr="true">QPushButton {
 	border: 2px solid rgb(52, 59, 72);
@@ -933,8 +1059,8 @@ QPushButton:pressed {
                 </property>
                 <property name="iconSize">
                  <size>
-                  <width>15</width>
-                  <height>15</height>
+                  <width>20</width>
+                  <height>20</height>
                  </size>
                 </property>
                </widget>
@@ -959,7 +1085,7 @@ QPushButton:pressed {
                 <string notr="true">color:rgb(175, 199, 242);</string>
                </property>
                <property name="text">
-                <string>Color Mapping</string>
+                <string>Colormaps</string>
                </property>
               </widget>
              </item>
@@ -1114,127 +1240,12 @@ QPushButton:pressed {
 }</string>
              </property>
              <property name="text">
-              <string>Export Image</string>
+              <string>Export 2D Image</string>
              </property>
             </widget>
            </item>
            <item>
-            <layout class="QGridLayout" name="gridLayout_5">
-             <property name="bottomMargin">
-              <number>0</number>
-             </property>
-             <property name="spacing">
-              <number>0</number>
-             </property>
-             <item row="1" column="0">
-              <widget class="QDial" name="dial_videoQuality">
-               <property name="maximumSize">
-                <size>
-                 <width>60</width>
-                 <height>60</height>
-                </size>
-               </property>
-               <property name="maximum">
-                <number>2</number>
-               </property>
-              </widget>
-             </item>
-             <item row="0" column="1">
-              <widget class="QLabel" name="label_9">
-               <property name="font">
-                <font>
-                 <family>Arial</family>
-                 <pointsize>10</pointsize>
-                </font>
-               </property>
-               <property name="styleSheet">
-                <string notr="true">color:rgb(175, 199, 242);</string>
-               </property>
-               <property name="text">
-                <string>Frame Rate</string>
-               </property>
-               <property name="alignment">
-                <set>Qt::AlignCenter</set>
-               </property>
-              </widget>
-             </item>
-             <item row="0" column="0">
-              <widget class="QLabel" name="label_7">
-               <property name="font">
-                <font>
-                 <family>Arial</family>
-                 <pointsize>10</pointsize>
-                </font>
-               </property>
-               <property name="styleSheet">
-                <string notr="true">color:rgb(175, 199, 242);</string>
-               </property>
-               <property name="text">
-                <string>Quality</string>
-               </property>
-               <property name="alignment">
-                <set>Qt::AlignCenter</set>
-               </property>
-              </widget>
-             </item>
-             <item row="1" column="1">
-              <widget class="QDial" name="dial_videoFrameRate">
-               <property name="maximumSize">
-                <size>
-                 <width>60</width>
-                 <height>60</height>
-                </size>
-               </property>
-               <property name="minimum">
-                <number>25</number>
-               </property>
-               <property name="maximum">
-                <number>100</number>
-               </property>
-              </widget>
-             </item>
-             <item row="2" column="0">
-              <widget class="QLabel" name="label_videoQuality">
-               <property name="font">
-                <font>
-                 <family>Arial</family>
-                 <pointsize>10</pointsize>
-                </font>
-               </property>
-               <property name="styleSheet">
-                <string notr="true">color:rgb(175, 199, 242);</string>
-               </property>
-               <property name="text">
-                <string>0</string>
-               </property>
-               <property name="alignment">
-                <set>Qt::AlignCenter</set>
-               </property>
-              </widget>
-             </item>
-             <item row="2" column="1">
-              <widget class="QLabel" name="label_frameRate">
-               <property name="font">
-                <font>
-                 <family>Arial</family>
-                 <pointsize>10</pointsize>
-                </font>
-               </property>
-               <property name="styleSheet">
-                <string notr="true">color:rgb(175, 199, 242);</string>
-               </property>
-               <property name="text">
-                <string>25</string>
-               </property>
-               <property name="alignment">
-                <set>Qt::AlignCenter</set>
-               </property>
-              </widget>
-             </item>
-            </layout>
-           </item>
-           <item>
-            <widget class="QPushButton" name="pushButton_ExportVideo">
+            <widget class="QPushButton" name="pushButton">
              <property name="minimumSize">
               <size>
                <width>0</width>
@@ -1267,8 +1278,279 @@ QPushButton:pressed {
 }</string>
              </property>
              <property name="text">
-              <string>Export Video</string>
+              <string>Export Shareable 3D Model</string>
              </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QGroupBox" name="groupBox_2">
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>0</height>
+              </size>
+             </property>
+             <property name="font">
+              <font>
+               <family>Arial</family>
+               <pointsize>10</pointsize>
+              </font>
+             </property>
+             <property name="styleSheet">
+              <string notr="true">background : rgb(52, 59, 72);
+color:rgb(175, 199, 242);</string>
+             </property>
+             <property name="title">
+              <string>Animation Export</string>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignCenter</set>
+             </property>
+             <property name="flat">
+              <bool>true</bool>
+             </property>
+             <layout class="QVBoxLayout" name="verticalLayout_5">
+              <property name="spacing">
+               <number>0</number>
+              </property>
+              <item>
+               <spacer name="verticalSpacer_7">
+                <property name="orientation">
+                 <enum>Qt::Vertical</enum>
+                </property>
+                <property name="sizeType">
+                 <enum>QSizePolicy::Fixed</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>20</width>
+                  <height>20</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+              <item>
+               <layout class="QGridLayout" name="gridLayout_5">
+                <property name="bottomMargin">
+                 <number>0</number>
+                </property>
+                <property name="spacing">
+                 <number>0</number>
+                </property>
+                <item row="1" column="0">
+                 <widget class="QDial" name="dial_videoQuality">
+                  <property name="maximumSize">
+                   <size>
+                    <width>60</width>
+                    <height>60</height>
+                   </size>
+                  </property>
+                  <property name="maximum">
+                   <number>2</number>
+                  </property>
+                  <property name="notchesVisible">
+                   <bool>true</bool>
+                  </property>
+                 </widget>
+                </item>
+                <item row="0" column="1">
+                 <widget class="QLabel" name="label_9">
+                  <property name="font">
+                   <font>
+                    <family>Arial</family>
+                    <pointsize>10</pointsize>
+                   </font>
+                  </property>
+                  <property name="styleSheet">
+                   <string notr="true">color:rgb(175, 199, 242);</string>
+                  </property>
+                  <property name="text">
+                   <string>Frame Rate</string>
+                  </property>
+                  <property name="alignment">
+                   <set>Qt::AlignCenter</set>
+                  </property>
+                 </widget>
+                </item>
+                <item row="0" column="0">
+                 <widget class="QLabel" name="label_7">
+                  <property name="font">
+                   <font>
+                    <family>Arial</family>
+                    <pointsize>10</pointsize>
+                   </font>
+                  </property>
+                  <property name="styleSheet">
+                   <string notr="true">color:rgb(175, 199, 242);</string>
+                  </property>
+                  <property name="text">
+                   <string>Quality</string>
+                  </property>
+                  <property name="alignment">
+                   <set>Qt::AlignCenter</set>
+                  </property>
+                 </widget>
+                </item>
+                <item row="1" column="1">
+                 <widget class="QDial" name="dial_videoFrameRate">
+                  <property name="maximumSize">
+                   <size>
+                    <width>60</width>
+                    <height>60</height>
+                   </size>
+                  </property>
+                  <property name="minimum">
+                   <number>1</number>
+                  </property>
+                  <property name="maximum">
+                   <number>100</number>
+                  </property>
+                  <property name="value">
+                   <number>25</number>
+                  </property>
+                  <property name="wrapping">
+                   <bool>false</bool>
+                  </property>
+                  <property name="notchesVisible">
+                   <bool>true</bool>
+                  </property>
+                 </widget>
+                </item>
+                <item row="2" column="0">
+                 <widget class="QLabel" name="label_videoQuality">
+                  <property name="font">
+                   <font>
+                    <family>Arial</family>
+                    <pointsize>10</pointsize>
+                   </font>
+                  </property>
+                  <property name="styleSheet">
+                   <string notr="true">color:rgb(175, 199, 242);</string>
+                  </property>
+                  <property name="text">
+                   <string>0</string>
+                  </property>
+                  <property name="alignment">
+                   <set>Qt::AlignCenter</set>
+                  </property>
+                 </widget>
+                </item>
+                <item row="2" column="1">
+                 <widget class="QLabel" name="label_frameRate">
+                  <property name="font">
+                   <font>
+                    <family>Arial</family>
+                    <pointsize>10</pointsize>
+                   </font>
+                  </property>
+                  <property name="styleSheet">
+                   <string notr="true">color:rgb(175, 199, 242);</string>
+                  </property>
+                  <property name="text">
+                   <string>25</string>
+                  </property>
+                  <property name="alignment">
+                   <set>Qt::AlignCenter</set>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
+              </item>
+              <item>
+               <spacer name="verticalSpacer_8">
+                <property name="orientation">
+                 <enum>Qt::Vertical</enum>
+                </property>
+                <property name="sizeType">
+                 <enum>QSizePolicy::Fixed</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>20</width>
+                  <height>10</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+              <item>
+               <widget class="QProgressBar" name="progressBar_ExportVideo">
+                <property name="minimumSize">
+                 <size>
+                  <width>0</width>
+                  <height>10</height>
+                 </size>
+                </property>
+                <property name="maximumSize">
+                 <size>
+                  <width>16777215</width>
+                  <height>10</height>
+                 </size>
+                </property>
+                <property name="font">
+                 <font>
+                  <family>Arial</family>
+                  <pointsize>8</pointsize>
+                 </font>
+                </property>
+                <property name="autoFillBackground">
+                 <bool>false</bool>
+                </property>
+                <property name="styleSheet">
+                 <string notr="true">border-radius: 5px;	</string>
+                </property>
+                <property name="value">
+                 <number>0</number>
+                </property>
+                <property name="alignment">
+                 <set>Qt::AlignCenter</set>
+                </property>
+                <property name="invertedAppearance">
+                 <bool>false</bool>
+                </property>
+                <property name="textDirection">
+                 <enum>QProgressBar::TopToBottom</enum>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QPushButton" name="pushButton_ExportVideo">
+                <property name="minimumSize">
+                 <size>
+                  <width>0</width>
+                  <height>30</height>
+                 </size>
+                </property>
+                <property name="font">
+                 <font>
+                  <family>Arial</family>
+                  <pointsize>10</pointsize>
+                 </font>
+                </property>
+                <property name="styleSheet">
+                 <string notr="true">QPushButton {
+border: 2px solid rgb(44, 48, 57);
+	border-radius: 5px;	
+	/*background-color: rgb(52, 59, 72);*/
+background-color: rgb(87, 99, 122);
+color:rgb(175, 199, 242);
+}
+QPushButton:hover {
+	/*background-color: rgb(57, 65, 80);*/
+background-color: rgb(103, 117, 144);
+border: 0px solid rgb(52, 59, 72);
+	
+}
+QPushButton:pressed {	
+	background-color: rgb(35, 40, 49);
+	border: 2px solid rgb(43, 50, 61);
+}</string>
+                </property>
+                <property name="text">
+                 <string>Export Video</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
             </widget>
            </item>
            <item>

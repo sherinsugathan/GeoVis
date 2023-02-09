@@ -154,3 +154,5 @@ sherinTemp*.py
 exampleDataset/
 venv_geovis/
 .vs/
+*.bin
+*.autosave
