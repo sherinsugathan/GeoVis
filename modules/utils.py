@@ -262,16 +262,19 @@ def loadContours(self, variableName):
 	oldMax = 1
 	newRange = self.newMax - self.newMin
 	isos = self.gradientContours.gradient()[1:-1]  # extract subset after removing first and last elements.
+	if(len(isos)==0):
+		if self.contActor != None:
+			self.ren.RemoveActor(self.contActor)
+			self.iren.Render()
+			return
 	contourIndex = 0
 	for item in isos:
 		oldValue = float(item[0])
 		newValue = ((oldValue - oldMin) * newRange) + self.newMin
 		self.contourFilter.SetValue(contourIndex, newValue)
-		#print("Seting Value ", newValue)
 		contourIndex = contourIndex + 1
 
-	#contourFilter.SetValue(0, 2000.0)
-	#self.contourFilter.GenerateValues(3, dataRange[0], dataRange[1])
+	self.contourFilter.SetNumberOfContours(len(isos))
 	self.contourFilter.Update()
 
 	self.contourMapper = vtk.vtkPolyDataMapper()

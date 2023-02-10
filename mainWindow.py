@@ -241,6 +241,7 @@ class mainWindow(qWidget.QMainWindow):
         self.newMin = self.dataRange[0]
         self.newMax = self.dataRange[1]
         self.gradient.update()
+        self.gradientContours.update()
         if self.radioButton_ContourMode.isChecked():  # If contour mode is selected
             # self.colorGradientsBackup = self.gradient.gradient()
             # self.contourGradients = [(0.0, QColor(52, 59, 72)), (0.5, QColor(52, 59, 72)), (1.0, QColor(52, 59, 72))]
@@ -520,7 +521,6 @@ class mainWindow(qWidget.QMainWindow):
 
     # Contour values changed.
     def contourValuesChanged(self):
-        # print("contour values changed")
         Utils.loadContours(self, self.varName)
 
     # Visualization color map changed.
@@ -920,8 +920,6 @@ class mainWindow(qWidget.QMainWindow):
 
         newRange = self.newMax - self.newMin
         gradients = self.gradient.gradient()
-        print(gradients)
-        print(type(gradients))
         self.ctf.RemoveAllPoints()
         for gradient in gradients:
             oldValue = float(gradient[0])

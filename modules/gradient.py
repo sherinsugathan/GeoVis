@@ -113,7 +113,7 @@ class Gradient(QtWidgets.QWidget):
     def _end_stops(self):
         return [0, len(self._gradient) - 1]
 
-    def addStop(self, stop, color=None):
+    def addStop(self, stop, color=None, refresh = True):
         # Stop is a value 0...1, find the point to insert this stop
         # in the list.
         assert 0.0 <= stop <= 1.0
@@ -124,13 +124,15 @@ class Gradient(QtWidgets.QWidget):
                 self._gradient.insert(n, (stop, color or g[1]))
                 break
         self._constrain_gradient()
-        self.gradientChanged.emit()
+        if(refresh == True):
+            self.gradientChanged.emit()
         self.update()
 
-    def removeStopAtPosition(self, n):
+    def removeStopAtPosition(self, n, refresh = True):
         if n not in self._end_stops:
             del self._gradient[n]
-            self.gradientChanged.emit()
+            if(refresh == True):
+                self.gradientChanged.emit()
             self.update()
 
     def setColorAtPosition(self, n, color):
@@ -188,10 +190,9 @@ class Gradient(QtWidgets.QWidget):
                 return
             n = self._find_stop_handle_for_event(e)
             normalized_value, color = self._gradient[n]
-            
-            self.removeStopAtPosition(n)
+            self.removeStopAtPosition(n, refresh=False)
             normalized_user_input = (float(text) - self.main.newMin)/(self.main.newMax - self.main.newMin)
-            self.addStop(float(normalized_user_input), color)
+            self.addStop(float(normalized_user_input), color, refresh = False)
             self._drag_position = None
             self._sort_gradient()
             self.gradientChanged.emit()
