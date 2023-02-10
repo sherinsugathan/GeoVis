@@ -932,6 +932,7 @@ class mainWindow(qWidget.QMainWindow):
         else:
             self.ctf.SetScaleToLinear()
         self.ctf.Build()
+
         self.iren.Render()
 
     def closeEvent(self, event):
