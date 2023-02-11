@@ -284,7 +284,7 @@ def loadContours(self, variableName):
 		self.contActor = vtk.vtkActor()	
 	self.contActor.SetMapper(self.contourMapper)
 	self.contActor.GetProperty().SetColor(0,0,0)
-	self.contActor.GetProperty().SetLineWidth(5.0)
+	self.contActor.GetProperty().SetLineWidth(self.spinBox_ContourThickness.value())
 	 
 	self.ren.AddActor(self.contActor)
 	self.iren.Render()

@@ -305,7 +305,7 @@ background-color: rgb(44, 48, 57);</string>
          </property>
          <property name="styleSheet">
           <string notr="true">background-image : url(assets/ui/logo.png);
-border-radius: 10px;	</string>
+border-radius: 3px;	</string>
          </property>
          <property name="frameShape">
           <enum>QFrame::NoFrame</enum>
@@ -426,7 +426,7 @@ QTabBar::tab:selected {
           <enum>QTabWidget::Rounded</enum>
          </property>
          <property name="currentIndex">
-          <number>0</number>
+          <number>2</number>
          </property>
          <property name="elideMode">
           <enum>Qt::ElideNone</enum>
@@ -1791,7 +1791,7 @@ color:rgb(255,255,255);</string>
                  <string notr="true">color:rgb(175, 199, 242);</string>
                 </property>
                 <property name="text">
-                 <string>Set Contour Thickness</string>
+                 <string>Set Contour Thickness (1-15)</string>
                 </property>
                </widget>
               </item>
@@ -1815,6 +1815,15 @@ color:rgb(255,255,255);</string>
 	/*background-color: rgb(52, 59, 72);*/
 background-color: rgb(87, 99, 122);
 color:rgb(175, 199, 242);</string>
+                </property>
+                <property name="minimum">
+                 <number>1</number>
+                </property>
+                <property name="maximum">
+                 <number>15</number>
+                </property>
+                <property name="value">
+                 <number>5</number>
                 </property>
                </widget>
               </item>

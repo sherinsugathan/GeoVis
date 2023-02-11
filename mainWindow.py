@@ -150,6 +150,9 @@ class mainWindow(qWidget.QMainWindow):
         # time slider
         self.horizontalSlider_Main.valueChanged.connect(self.on_timeSlider_Changed)
 
+        # Contour thickness updated
+        self.spinBox_ContourThickness.valueChanged.connect(self.on_contourThicknessUpdated)
+
         # Log scale
         self.checkBox_LogScale.stateChanged.connect(self.on_scaleChanged)
         self.progbar()
@@ -174,6 +177,12 @@ class mainWindow(qWidget.QMainWindow):
         # self.videoExportTask.taskFinished.connect(self.onFinishedVideoExport)
         self.initializeApp()
 
+
+    @pyqtSlot()
+    def on_contourThicknessUpdated(self):
+        if(self.varName != None):
+            Utils.loadContours(self, self.varName)
+
     @pyqtSlot()
     def on_colorModeSelected(self):
         self.gradientContours.setVisible(False)
@@ -186,6 +195,8 @@ class mainWindow(qWidget.QMainWindow):
     def on_contourModeSelected(self):
         self.gradientContours.setVisible(True)
         self.gradient.setVisible(False)
+        if(self.varName != None):
+            self.applyVariable(False)
 
     @pyqtSlot()
     def on_videoQualityUpdate(self):
@@ -209,8 +220,9 @@ class mainWindow(qWidget.QMainWindow):
         self.iren.Render()
 
     @pyqtSlot()
-    def applyVariable(self):
-        self.varName = self.listWidget_Variables.currentItem().text()
+    def applyVariable(self, refreshVariable = True):
+        if(refreshVariable == True):
+            self.varName = self.listWidget_Variables.currentItem().text()
         self.fmt = qGui.QTextCharFormat()
         self.cursor = qGui.QTextCursor(self.plainTextEdit_netCDFDataText.document())
         self.cursor.select(qGui.QTextCursor.Document)
