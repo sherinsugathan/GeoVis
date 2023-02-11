@@ -389,7 +389,7 @@ def exportImage(self):
 		file = str(QFileDialog.getExistingDirectory(self, "Select Directory"))
 		if(file==""):
 			return
-		timestr = time.strftime("%Y%m%d-%H%M%S")
+		timestr = time.strftime("ImageCapture_%Y%m%d-%H%M%S")
 		writer.SetFileName(file+"/"+timestr+".png")
 		writer.SetInputConnection(largeImage.GetOutputPort())
 		writer.Write()

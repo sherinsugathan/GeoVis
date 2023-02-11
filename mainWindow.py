@@ -34,6 +34,7 @@ import vtk
 
 vtk.vtkObject.GlobalWarningDisplayOff()
 import os
+import time
 import ctypes
 import modules.utils as Utils
 import modules.gradient as Gd
@@ -134,6 +135,9 @@ class mainWindow(qWidget.QMainWindow):
             self.on_buttonClick
         )  # Attaching button click handler.
         self.pushButton_SaveColorMap.clicked.connect(
+            self.on_buttonClick
+        )  # Attaching button click handler.
+        self.pushButton_Export3DModel.clicked.connect(
             self.on_buttonClick
         )  # Attaching button click handler.
         self.dial_videoQuality.valueChanged.connect(self.on_videoQualityUpdate)
@@ -318,6 +322,11 @@ class mainWindow(qWidget.QMainWindow):
         self.label_FrameStatus.setText(
             str(self.currentTimeStep) + "/" + str(self.maxTimeSteps)
         )
+        if self.radioButton_ContourMode.isChecked():
+            Utils.loadContours(self, self.varName)
+        else:
+            if self.contActor != None:
+                self.ren.RemoveActor(self.contActor)
         self.iren.Render()
 
     @pyqtSlot()
@@ -875,7 +884,8 @@ class mainWindow(qWidget.QMainWindow):
             windowToImageFilter.Update()
 
             oggWriter = vtk.vtkOggTheoraWriter()
-            oggWriter.SetFileName(self.videoExportFolderName + "/movie.ogv")
+            timestr = time.strftime("VideoCapture_%Y%m%d-%H%M%S")
+            oggWriter.SetFileName(self.videoExportFolderName + "/" + timestr + ".ogv")
             oggWriter.SetInputConnection(windowToImageFilter.GetOutputPort())
             oggWriter.SetQuality(self.dial_videoQuality.value())
             oggWriter.SetRate(self.dial_videoFrameRate.value())
@@ -950,6 +960,38 @@ class mainWindow(qWidget.QMainWindow):
             else:
                 print('Cancelled')
 
+        ############################
+        # Save 3D model (GLB/GLTF)
+        ############################
+        if btnName == "pushButton_Export3DModel":
+            dlg = QMessageBox(self)
+            dlg.setWindowTitle("Not implemented.")
+            dlg.setText("Sorry! This feature is not implemented yet.")
+            Utils.applyTheme(dlg)
+            #dlg.setWindowFlags(qCore.Qt.FramelessWindowHint)
+            dlg.exec_()
+            return
+            #self.modelExportFolderName = str(
+            #    QFileDialog.getExistingDirectory(self, "Select Directory")
+            #)
+            #if self.modelExportFolderName == "":
+            #    return
+            ##exporter = vtk.vtkGLTFExporter()
+            #timestr = time.strftime("3DModelCapture_%Y%m%d-%H%M%S")
+            ##exporter.SetRenderWindow(self.vtkWidget.GetRenderWindow())
+            ##exporter.SetFileName(self.modelExportFolderName + "/" + timestr + ".glb")
+            ##exporter.SetInlineData(True)
+            ##exporter.SetSaveNormal(True)
+            ##exporter.Update()
+
+
+            #writer = vtk.vtkGLTFExporter()
+            #writer.SetFileName(self.modelExportFolderName + "/" + timestr + ".gltf")
+            #writer.InlineDataOn()
+            #writer.SetRenderWindow(self.vtkWidget.GetRenderWindow())
+            #writer.SetActiveRenderer(self.ren)
+            #writer.Write()
+
 
     ##############################################################################
     # Update the scene for new range.
@@ -970,7 +1012,9 @@ class mainWindow(qWidget.QMainWindow):
                 dlg = QMessageBox(self)
                 dlg.setWindowTitle("Invalid range detected.")
                 dlg.setText("Unable to set the range. Please check your data.")
-                dlg.exec()
+                Utils.applyTheme(dlg)
+                #dlg.setWindowFlags(qCore.Qt.FramelessWindowHint)
+                dlg.exec_()
                 return
             self.newMin = float(text_start)
             self.newMax = float(text_end)
