@@ -2,7 +2,9 @@ import sys
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtCore import Qt
 from PyQt5.QtCore import pyqtSignal as Signal
+from PyQt5 import QtCore as qCore
 from PyQt5.QtWidgets import QWidget, QPushButton, QLineEdit, QInputDialog
+import modules.utils as Utils
 import math
 
 class Gradient(QtWidgets.QWidget):
@@ -185,8 +187,21 @@ class Gradient(QtWidgets.QWidget):
                 # Activate drag mode.
                 self._drag_position = n
         elif e.button() == Qt.MiddleButton:
-            text, ok = QInputDialog.getText(self, 'Set Value', 'Please enter a value for this stop.')
+            #text, ok = QInputDialog.getText(self, 'Set Value', 'Please enter a value for this stop.')
+
+            inputDialog = QInputDialog(None)
+            inputDialog.setInputMode(QInputDialog.TextInput)
+            inputDialog.setLabelText('Please enter a value for this stop:')
+            Utils.applyTheme(inputDialog)
+            inputDialog.setWindowFlags(qCore.Qt.FramelessWindowHint)
+            ok = inputDialog.exec_()
+            if not ok:
+                return
+            text = inputDialog.textValue()
+
             if (text.replace('.','',1).isdigit() == False): # if not a number
+                return
+            if(float(text) <=self.main.newMin or float(text) >=self.main.newMax): # Trying to set out of range values.
                 return
             n = self._find_stop_handle_for_event(e)
             normalized_value, color = self._gradient[n]

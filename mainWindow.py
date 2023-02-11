@@ -133,6 +133,9 @@ class mainWindow(qWidget.QMainWindow):
         self.pushButton_ExportVideo.clicked.connect(
             self.on_buttonClick
         )  # Attaching button click handler.
+        self.pushButton_SaveColorMap.clicked.connect(
+            self.on_buttonClick
+        )  # Attaching button click handler.
         self.dial_videoQuality.valueChanged.connect(self.on_videoQualityUpdate)
         self.dial_videoFrameRate.valueChanged.connect(self.on_frameRateUpdate)
         self.comboBox_dims.currentTextChanged.connect(
@@ -792,9 +795,16 @@ class mainWindow(qWidget.QMainWindow):
         # Set New Scalar Range
         ############################
         if btnName == "pushButton_UpdateRange":
-            text_start, ok = QInputDialog.getText(
-                self, "Set Start Value", "Please enter the start value."
-            )
+            inputDialog = QInputDialog(None)
+            inputDialog.setInputMode(QInputDialog.TextInput)
+            inputDialog.setLabelText('Please enter the start value:')
+            Utils.applyTheme(inputDialog)
+            inputDialog.setWindowFlags(qCore.Qt.FramelessWindowHint)
+            ok = inputDialog.exec_()
+            if not ok:
+                return
+            text_start = inputDialog.textValue()
+
             if (
                 isinstance(text_start, int) == True
                 or isinstance(text_start, float) == True
@@ -802,9 +812,17 @@ class mainWindow(qWidget.QMainWindow):
                 em = QErrorMessage(self)
                 em.showMessage("Unable to set the range. Please check your data.")
                 return
-            text_end, ok = QInputDialog.getText(
-                self, "Set End Value", "Please enter the end value."
-            )
+
+            inputDialog = QInputDialog(None)
+            inputDialog.setInputMode(QInputDialog.TextInput)
+            inputDialog.setLabelText('Please enter the end value:')
+            Utils.applyTheme(inputDialog)
+            inputDialog.setWindowFlags(qCore.Qt.FramelessWindowHint)
+            ok = inputDialog.exec_()
+            if not ok:
+                return
+            text_end = inputDialog.textValue()
+
             if (
                 isinstance(text_end, int) == True or isinstance(text_end, float) == True
             ):  # if not a number
@@ -905,6 +923,33 @@ class mainWindow(qWidget.QMainWindow):
 
             self.progressBar_ExportVideo.setVisible(False)
             # self.videoExportTask.start()
+
+        ############################
+        # Save color map.
+        ############################
+        if btnName == "pushButton_SaveColorMap":
+            #text, ok = QInputDialog.getText(self, 'Enter a name', 'Please enter a name for the colormap.')
+            
+            # Create a custom font
+            # ---------------------
+            font = qGui.QFont()
+            font.setFamily("Arial")
+            font.setPointSize(10)
+
+            # Create and show the input dialog
+            # ---------------------------------
+            inputDialog = QInputDialog(None)
+            inputDialog.setInputMode(QInputDialog.TextInput)
+            inputDialog.setLabelText('Enter a name for the color map:')
+            Utils.applyTheme(inputDialog)
+            inputDialog.setWindowFlags(qCore.Qt.FramelessWindowHint)
+            ok = inputDialog.exec_()
+            filename = inputDialog.textValue()
+            if(ok):
+                print('Name of file = ' + filename)
+            else:
+                print('Cancelled')
+
 
     ##############################################################################
     # Update the scene for new range.

@@ -426,7 +426,7 @@ QTabBar::tab:selected {
           <enum>QTabWidget::Rounded</enum>
          </property>
          <property name="currentIndex">
-          <number>2</number>
+          <number>0</number>
          </property>
          <property name="elideMode">
           <enum>Qt::ElideNone</enum>
@@ -1652,15 +1652,12 @@ color:rgb(255,255,255);</string>
                  <string notr="true">QPushButton {
 border: 2px solid rgb(44, 48, 57);
 	border-radius: 5px;	
-	/*background-color: rgb(52, 59, 72);*/
 background-color: rgb(87, 99, 122);
 color:rgb(175, 199, 242);
 }
 QPushButton:hover {
-	/*background-color: rgb(57, 65, 80);*/
 background-color: rgb(103, 117, 144);
 border: 0px solid rgb(52, 59, 72);
-	
 }
 QPushButton:pressed {	
 	background-color: rgb(35, 40, 49);

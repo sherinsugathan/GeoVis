@@ -255,7 +255,9 @@ def loadContours(self, variableName):
 	assignAttribute.Update()
 
 	dataRange = self.mapper.GetInput().GetCellData().GetScalars(variableName).GetRange()
-	
+	self.contourFilter.ComputeScalarsOff()
+	self.contourFilter.ComputeGradientsOff()
+	self.contourFilter.ComputeNormalsOff()
 	self.contourFilter.SetInputData(assignAttribute.GetOutput())
 	self.contourFilter.SetInputArrayToProcess(0, 0, 0, 0, variableName)
 	oldMin = 0
@@ -459,3 +461,16 @@ class VideoTaskThread(qCore.QThread):
 		aviWriter.End()
 
 		self.taskFinished.emit()
+
+
+##############################################################################
+################# Apply theme to dialog and message boxes
+##############################################################################
+def applyTheme(widget):
+	widget.setStyleSheet( "QLabel{color:rgb(175, 199, 242);font: 10pt 'Arial';}"
+                                      "QPushButton{font: 10pt 'Arial';height:30px;width:90px;}"
+                                      "QPushButton { border: 2px solid rgb(44, 48, 57); border-radius: 5px;background-color: rgb(87, 99, 122);color:rgb(175, 199, 242);}"
+                                      "QPushButton:hover {background-color: rgb(103, 117, 144);border: 0px solid rgb(52, 59, 72);}"
+                                      "QPushButton:pressed {background-color: rgb(35, 40, 49);border: 2px solid rgb(43, 50, 61);}"
+                                      "QLineEdit{color:rgb(175, 199, 242);font: 10pt 'Arial';height:30px;width:550px;background-color:rgb(44, 48, 57);border: 0px solid rgb(52, 59, 72);}"
+                   "QInputDialog {background-color: rgb(52, 59, 72);};border: 2px solid rgb(243, 50, 61);")
