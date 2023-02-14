@@ -445,7 +445,7 @@ QTabBar::tab:selected {
          </property>
          <widget class="QWidget" name="tab">
           <attribute name="title">
-           <string>Data</string>
+           <string>Visualization</string>
           </attribute>
           <layout class="QVBoxLayout" name="verticalLayout_2">
            <item>
