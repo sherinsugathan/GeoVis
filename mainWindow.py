@@ -254,11 +254,10 @@ class mainWindow(qWidget.QMainWindow):
         # if self.radioButton_ColorMode.isChecked():  # If color mode is selected
         Utils.updateGlobeGeometry(self, self.varName)
         Utils.statusMessage(self, "Active: " + self.varName, "success")
-        self.dataRange = (
-            self.mapper.GetInput().GetCellData().GetScalars(self.varName).GetRange()
-        )
-        self.newMin = self.dataRange[0]
-        self.newMax = self.dataRange[1]
+        if(refreshVariable):
+            self.dataRange = self.mapper.GetInput().GetCellData().GetScalars(self.varName).GetRange()
+            self.newMin = self.dataRange[0]
+            self.newMax = self.dataRange[1]
         self.gradient.update()
         self.gradientContours.update()
         if self.radioButton_ContourMode.isChecked():  # If contour mode is selected
@@ -846,6 +845,9 @@ class mainWindow(qWidget.QMainWindow):
         if btnName == "pushButton_ResetRange":
             self.update_scene_for_new_range()
             self.gradient.update()
+            self.gradientContours.update()
+            if self.radioButton_ContourMode.isChecked():
+                Utils.loadContours(self, self.varName)
 
         ############################
         # Export image.
@@ -1033,7 +1035,8 @@ class mainWindow(qWidget.QMainWindow):
         else:
             self.ctf.SetScaleToLinear()
         self.ctf.Build()
-
+        if self.radioButton_ContourMode.isChecked():
+            Utils.loadContours(self, self.varName)
         self.iren.Render()
 
     def closeEvent(self, event):
