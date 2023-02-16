@@ -372,6 +372,46 @@ def readColorMapInfo(self, colorRampFile):
 		colorDataList.append(cmapitem)
 	return colorDataList
 
+##############################################################################
+################# add a new colormap to datafile.
+################# returns nothing
+##############################################################################
+def addColormap(self, addItem, color1, color2, stops):
+	tree = ET.parse(self.cmapFile)
+	root = tree.getroot()
+	for item in root.findall('colorramp'):
+		x = item.get('name')
+		if(x == addItem):
+			print("A colormap with the same name already exists.")
+			return
+	subi=ET.SubElement(root,'colorramp')
+	subi.set('type', 'gradient')
+	subi.set('name', addItem)
+	subip1= ET.SubElement(subi, 'prop')
+	subip1.set('k','color1')
+	subip1.set('v', color1)
+	subip2= ET.SubElement(subi, 'prop')
+	subip2.set('k','color2')
+	subip2.set('v', color2)
+	subip3= ET.SubElement(subi, 'prop')
+	subip3.set('k','stops')
+	subip3.set('v', stops)
+	tree.write(self.cmapFile)
+
+##############################################################################
+################# remove an existing colormap from datafile.
+################# returns True or False based on success
+##############################################################################
+def removeColormap(self, removeItem):
+	tree = ET.parse(self.cmapFile)
+	root = tree.getroot()
+	# REMOVE ITEM
+	# Get an iterator for the root node
+	for item in root.findall('colorramp'):
+		x = item.get('name')
+		if(x == removeItem):
+			root.remove(item)
+	tree.write(self.cmapFile)
 
 ##############################################################################
 ################# Save current visualization to file.
@@ -403,8 +443,24 @@ def exportImage(self):
 ################# Save current visualization as a video to file.
 ################# returns nothing.
 ##############################################################################
-def exportVideo(self):
-	pass
+def themedMessageBox(self, title, text):
+	dlg = QMessageBox(self)
+	dlg.setWindowTitle(title)
+	dlg.setText(text)
+	applyTheme(dlg)
+	dlg.exec_()
+
+##############################################################################
+################# Refresh data displayed in all of the colormap comboboxes
+################# returns nothing.
+##############################################################################
+def refreshCmapControls(self):
+	self.cmaps = readColorMapInfo(self, self.cmapFile)
+	self.comboBox_ColorMaps.clear()
+	self.comboBox_ColorMapsSettings.clear()
+	for item in self.cmaps:
+		self.comboBox_ColorMaps.addItem(item["name"])
+		self.comboBox_ColorMapsSettings.addItem(item["name"])
 
 ##############################################################################
 ################# Truncate float value

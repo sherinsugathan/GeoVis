@@ -344,7 +344,7 @@ border-radius: 3px;	</string>
         <widget class="QPushButton" name="pushButton_LoadDataset">
          <property name="minimumSize">
           <size>
-           <width>0</width>
+           <width>250</width>
            <height>30</height>
           </size>
          </property>
@@ -789,7 +789,7 @@ height : 15px;
 }</string>
                 </property>
                 <property name="text">
-                 <string>Contour</string>
+                 <string>Color + Contour</string>
                 </property>
                 <property name="checked">
                  <bool>false</bool>
@@ -1670,12 +1670,34 @@ QPushButton:pressed {
                </widget>
               </item>
               <item>
-               <widget class="QComboBox" name="comboBox">
+               <widget class="QLabel" name="label_12">
+                <property name="font">
+                 <font>
+                  <family>Arial</family>
+                  <pointsize>10</pointsize>
+                 </font>
+                </property>
+                <property name="styleSheet">
+                 <string notr="true">color:rgb(175, 199, 242);</string>
+                </property>
+                <property name="text">
+                 <string>Available colormaps</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QComboBox" name="comboBox_ColorMapsSettings">
                 <property name="minimumSize">
                  <size>
                   <width>0</width>
                   <height>30</height>
                  </size>
+                </property>
+                <property name="font">
+                 <font>
+                  <family>Arial</family>
+                  <pointsize>10</pointsize>
+                 </font>
                 </property>
                 <property name="styleSheet">
                  <string notr="true">QComboBox{
@@ -1693,7 +1715,7 @@ background-color: rgb(81,92,112);
                </widget>
               </item>
               <item>
-               <widget class="QPushButton" name="pushButton_2">
+               <widget class="QPushButton" name="pushButton_RemoveColormap">
                 <property name="minimumSize">
                  <size>
                   <width>0</width>
@@ -1727,6 +1749,44 @@ QPushButton:pressed {
                 </property>
                 <property name="text">
                  <string>Remove Selected Colormap</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QPushButton" name="pushButton_RestoreDefaultColormaps">
+                <property name="minimumSize">
+                 <size>
+                  <width>0</width>
+                  <height>30</height>
+                 </size>
+                </property>
+                <property name="font">
+                 <font>
+                  <family>Arial</family>
+                  <pointsize>10</pointsize>
+                 </font>
+                </property>
+                <property name="styleSheet">
+                 <string notr="true">QPushButton {
+border: 2px solid rgb(44, 48, 57);
+	border-radius: 5px;	
+	/*background-color: rgb(52, 59, 72);*/
+background-color: rgb(87, 99, 122);
+color:rgb(175, 199, 242);
+}
+QPushButton:hover {
+	/*background-color: rgb(57, 65, 80);*/
+background-color: rgb(103, 117, 144);
+border: 0px solid rgb(52, 59, 72);
+	
+}
+QPushButton:pressed {	
+	background-color: rgb(35, 40, 49);
+	border: 2px solid rgb(43, 50, 61);
+}</string>
+                </property>
+                <property name="text">
+                 <string>Restore Default Colormaps</string>
                 </property>
                </widget>
               </item>

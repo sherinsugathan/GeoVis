@@ -39,6 +39,7 @@ import ctypes
 import modules.utils as Utils
 import modules.gradient as Gd
 import matplotlib
+import xml.etree.ElementTree as ET
 
 # import matplotlib.colorsp
 
@@ -77,6 +78,8 @@ class mainWindow(qWidget.QMainWindow):
         self.rawTimes = []
         self.pa = None
         self.cmaps = None
+        self.cmapFile = "assets//colormaps//colormaps.xml"
+        self.cmapDefaultFile = "assets//colormaps//colormapsDefault.xml"
         self.currentTimeStep = None
         self.animationDirection = 1
         self.actualTimeStrings = None
@@ -88,6 +91,7 @@ class mainWindow(qWidget.QMainWindow):
         self.varName = None
         self.videoExportFolderName = None
         self.contActor = None
+        self.update
         # set app icon
         app_icon = qGui.QIcon()
         app_icon.addFile("assets/icons/icons8-92.png", qCore.QSize(92, 92))
@@ -135,6 +139,12 @@ class mainWindow(qWidget.QMainWindow):
             self.on_buttonClick
         )  # Attaching button click handler.
         self.pushButton_SaveColorMap.clicked.connect(
+            self.on_buttonClick
+        )  # Attaching button click handler.
+        self.pushButton_RemoveColormap.clicked.connect(
+            self.on_buttonClick
+        )  # Attaching button click handler.
+        self.pushButton_RestoreDefaultColormaps.clicked.connect(
             self.on_buttonClick
         )  # Attaching button click handler.
         self.pushButton_Export3DModel.clicked.connect(
@@ -187,7 +197,7 @@ class mainWindow(qWidget.QMainWindow):
 
     @pyqtSlot()
     def on_contourThicknessUpdated(self):
-        if(self.varName != None):
+        if(self.varName != None and self.radioButton_ContourMode.isChecked()):
             Utils.loadContours(self, self.varName)
 
     @pyqtSlot()
@@ -514,9 +524,10 @@ class mainWindow(qWidget.QMainWindow):
         self.gradientContours.setVisible(False)
         self.frame_colormap.setLayout(self.layout)
         # Read color map information.
-        self.cmaps = Utils.readColorMapInfo(self, "assets//colormaps//colormaps.xml")
+        self.cmaps = Utils.readColorMapInfo(self, self.cmapFile)
         for item in self.cmaps:
             self.comboBox_ColorMaps.addItem(item["name"])
+            self.comboBox_ColorMapsSettings.addItem(item["name"])
         color1List = [int(x) for x in self.cmaps[0]["color1"].split(",")]
         color2List = [int(x) for x in self.cmaps[0]["color2"].split(",")]
         gradientList = []
@@ -540,6 +551,7 @@ class mainWindow(qWidget.QMainWindow):
         self.gradientContours.gradientChanged.connect(self.contourValuesChanged)
         self.progressBar_ExportVideo.setVisible(False)
         # Disable all data controls when mainwindow loads.
+        self.tabWidget.setVisible(False)
         Utils.controlsSetVisible(self, False)
 
     # Contour values changed.
@@ -613,14 +625,18 @@ class mainWindow(qWidget.QMainWindow):
             self.label_FrameStatus.setText("1/" + str(self.maxTimeSteps))
             self.horizontalSlider_Main.setMaximum(self.maxTimeSteps - 1)
             self.horizontalSlider_Main.setEnabled(True)
+            self.IsTemporalDataset = True
         else:  # no time points available
             self.maxTimeSteps = 1
             self.horizontalSlider_Main.setEnabled(False)
             self.label_FrameStatus.setText("1/1")
+            self.IsTemporalDataset = False
+
         self.currentTimeStep = 1
         # self.stackedWidget.setCurrentWidget(self.page_InspectData)
         Utils.statusMessage(self, "Data loaded.", "success")
         # Enable all data controls
+        self.tabWidget.setVisible(True)
         Utils.controlsSetVisible(self, True)
 
     # Handler for browse folder button click.
@@ -645,6 +661,8 @@ class mainWindow(qWidget.QMainWindow):
 
                 self.comboBox_dims.clear()  # clear dim var combobox
                 self.listWidget_Variables.clear()  # clear variable list.
+                self.gradientContours.setVisible(False) # hide contour widget.
+                self.varName = None
 
                 self.prog_win.show()
                 self.onStart()  # Start your very very long computation/process
@@ -853,24 +871,43 @@ class mainWindow(qWidget.QMainWindow):
         # Export image.
         ############################
         if btnName == "pushButton_ExportImage":
+            if self.varName == None:
+                dlg = QMessageBox(self)
+                dlg.setWindowTitle("No variable selected!")
+                Utils.applyTheme(dlg)
+                dlg.setText(
+                    "No variable has been selected. Please select a variable first for using export feature."
+                )
+                dlg.exec()
+                return
             Utils.exportImage(self)
 
         ############################
         # Export video.
         ############################
         if btnName == "pushButton_ExportVideo":
-            self.videoExportFolderName = str(
-                QFileDialog.getExistingDirectory(self, "Select Directory")
-            )
-            if self.videoExportFolderName == "" or self.IsTemporalDataset == False:
+            if self.varName == None:
+                dlg = QMessageBox(self)
+                dlg.setWindowTitle("No variable selected!")
+                Utils.applyTheme(dlg)
+                dlg.setText(
+                    "No variable has been selected. Please select a variable first for using export feature."
+                )
+                dlg.exec()
                 return
             if self.IsTemporalDataset == False:
                 dlg = QMessageBox(self)
                 dlg.setWindowTitle("Cannot export as video.")
+                Utils.applyTheme(dlg)
                 dlg.setText(
-                    "The current dataset do not have multiple time points. Please load a temporal dataset for video export"
+                    "The current dataset do not have multiple time points. Please load a temporal dataset to use the video export feature."
                 )
                 dlg.exec()
+                return
+            self.videoExportFolderName = str(
+                QFileDialog.getExistingDirectory(self, "Select Directory")
+            )
+            if self.videoExportFolderName == "":
                 return
 
             # Stop play threads if running
@@ -940,13 +977,15 @@ class mainWindow(qWidget.QMainWindow):
         # Save color map.
         ############################
         if btnName == "pushButton_SaveColorMap":
-            #text, ok = QInputDialog.getText(self, 'Enter a name', 'Please enter a name for the colormap.')
-            
-            # Create a custom font
-            # ---------------------
-            font = qGui.QFont()
-            font.setFamily("Arial")
-            font.setPointSize(10)
+            if(self.varName==None):
+                dlg = QMessageBox(self)
+                dlg.setWindowTitle("No variable selected!")
+                Utils.applyTheme(dlg)
+                dlg.setText(
+                    "No variable has been selected. Please select a variable first."
+                )
+                dlg.exec()
+                return
 
             # Create and show the input dialog
             # ---------------------------------
@@ -958,9 +997,42 @@ class mainWindow(qWidget.QMainWindow):
             ok = inputDialog.exec_()
             filename = inputDialog.textValue()
             if(ok):
-                print('Name of file = ' + filename)
+                gradients = self.gradient.gradient()
+                adjustible_stops = gradients[1:-1]
+                if(adjustible_stops == []):
+                    stops = ""
+                else:
+                    stops = ""
+                    for item in adjustible_stops:
+                        stops = stops + "%f;%d,%d,%d,255:" % (item[0], item[1].red(), item[1].green(), item[1].blue())
+                    stops = stops[:-1]
+                
+                addItem = filename
+                color1 = "%d,%d,%d,255" % (gradients[0][1].red(), gradients[0][1].green(), gradients[0][1].blue())
+                color2 = "%d,%d,%d,255" % (gradients[-1][1].red(), gradients[-1][1].green(), gradients[-1][1].blue())
+                Utils.addColormap(self, addItem, color1, color2, stops)
+                Utils.refreshCmapControls(self)
+                Utils.themedMessageBox(self, "Colormap added.", "The new colormap have been successfully added.")
             else:
-                print('Cancelled')
+                return
+
+        ############################
+        # Remove colormap.
+        ############################
+        if btnName == "pushButton_RemoveColormap":
+            cmapname = self.comboBox_ColorMapsSettings.currentText() 
+            Utils.removeColormap(self, cmapname)
+            Utils.refreshCmapControls(self)
+            Utils.themedMessageBox(self, "Colormap removed.", "The selected colormap is now removed.")
+            
+        ############################
+        # Restore default colormap.
+        ############################
+        if btnName == "pushButton_RestoreDefaultColormaps":
+            treeDefault = ET.parse(self.cmapDefaultFile)
+            treeDefault.write(self.cmapFile)
+            Utils.refreshCmapControls(self)
+            Utils.themedMessageBox(self, "Default colormap restored.", "The default colomap have been successfully restored!")
 
         ############################
         # Save 3D model (GLB/GLTF)

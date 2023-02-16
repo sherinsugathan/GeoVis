@@ -150,7 +150,7 @@ class Gradient(QtWidgets.QWidget):
             dlg.setCurrentColor(QtGui.QColor(current_color))
 
         if dlg.exec_():
-            self.setColorAtPosition(n, dlg.currentColor().name())
+            self.setColorAtPosition(n, dlg.currentColor().toRgb())
 
     def _find_stop_handle_for_event(self, e, to_exclude=None):
         width = self.width()
