@@ -978,13 +978,7 @@ class mainWindow(qWidget.QMainWindow):
         ############################
         if btnName == "pushButton_SaveColorMap":
             if(self.varName==None):
-                dlg = QMessageBox(self)
-                dlg.setWindowTitle("No variable selected!")
-                Utils.applyTheme(dlg)
-                dlg.setText(
-                    "No variable has been selected. Please select a variable first."
-                )
-                dlg.exec()
+                Utils.themedMessageBox(self, "No variable selected!", "No variable has been selected. Please select a variable first.")
                 return
 
             # Create and show the input dialog
@@ -996,6 +990,9 @@ class mainWindow(qWidget.QMainWindow):
             inputDialog.setWindowFlags(qCore.Qt.FramelessWindowHint)
             ok = inputDialog.exec_()
             filename = inputDialog.textValue()
+            if(len(filename.strip())==0):
+                Utils.themedMessageBox(self, "Unable to save colormap", "Unable to save the colormap with an empty name. Please try again with a valid string.")
+                return
             if(ok):
                 gradients = self.gradient.gradient()
                 adjustible_stops = gradients[1:-1]
@@ -1007,12 +1004,13 @@ class mainWindow(qWidget.QMainWindow):
                         stops = stops + "%f;%d,%d,%d,255:" % (item[0], item[1].red(), item[1].green(), item[1].blue())
                     stops = stops[:-1]
                 
-                addItem = filename
+                addItem = filename.strip()
                 color1 = "%d,%d,%d,255" % (gradients[0][1].red(), gradients[0][1].green(), gradients[0][1].blue())
                 color2 = "%d,%d,%d,255" % (gradients[-1][1].red(), gradients[-1][1].green(), gradients[-1][1].blue())
-                Utils.addColormap(self, addItem, color1, color2, stops)
-                Utils.refreshCmapControls(self)
-                Utils.themedMessageBox(self, "Colormap added.", "The new colormap have been successfully added.")
+                success = Utils.addColormap(self, addItem, color1, color2, stops)
+                if(success == True):
+                    Utils.refreshCmapControls(self)
+                    Utils.themedMessageBox(self, "Colormap added.", "The new colormap have been successfully added.")
             else:
                 return
 

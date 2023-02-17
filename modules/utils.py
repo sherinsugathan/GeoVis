@@ -374,7 +374,7 @@ def readColorMapInfo(self, colorRampFile):
 
 ##############################################################################
 ################# add a new colormap to datafile.
-################# returns nothing
+################# returns True/False
 ##############################################################################
 def addColormap(self, addItem, color1, color2, stops):
 	tree = ET.parse(self.cmapFile)
@@ -382,8 +382,8 @@ def addColormap(self, addItem, color1, color2, stops):
 	for item in root.findall('colorramp'):
 		x = item.get('name')
 		if(x == addItem):
-			print("A colormap with the same name already exists.")
-			return
+			themedMessageBox(self, "Name already exists!", "A colormap with the same name already exists. Please try again with a unique colormap name.")
+			return False
 	subi=ET.SubElement(root,'colorramp')
 	subi.set('type', 'gradient')
 	subi.set('name', addItem)
@@ -397,6 +397,7 @@ def addColormap(self, addItem, color1, color2, stops):
 	subip3.set('k','stops')
 	subip3.set('v', stops)
 	tree.write(self.cmapFile)
+	return True
 
 ##############################################################################
 ################# remove an existing colormap from datafile.
