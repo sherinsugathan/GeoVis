@@ -304,7 +304,8 @@ background-color: rgb(44, 48, 57);</string>
           <bool>false</bool>
          </property>
          <property name="styleSheet">
-          <string notr="true">background-image : url(assets/ui/logo.png);
+          <string notr="true">/*background-image : url(assets/ui/logo.png);*/
+border-image: url(assets/ui/logo.png) 0 0 0 0 stretch stretch;
 border-radius: 3px;	</string>
          </property>
          <property name="frameShape">
@@ -1204,7 +1205,7 @@ background-color: rgb(81,92,112);
            </item>
           </layout>
          </widget>
-         <widget class="QWidget" name="tab_2">
+         <widget class="QWidget" name="Export">
           <attribute name="title">
            <string>Export</string>
           </attribute>
@@ -1587,7 +1588,7 @@ QPushButton:pressed {
            </item>
           </layout>
          </widget>
-         <widget class="QWidget" name="tab_3">
+         <widget class="QWidget" name="Settings">
           <attribute name="title">
            <string>Settings</string>
           </attribute>

@@ -368,6 +368,8 @@ class mainWindow(qWidget.QMainWindow):
 
     @pyqtSlot()
     def comboBox_ColorMaps_changed(self):
+        if(self.tabWidget.currentWidget().objectName() == "Settings"): # Do not update when user in settings page.
+            return
         for cmapItem in self.cmaps:
             if cmapItem["name"] == str(self.comboBox_ColorMaps.currentText()):
                 color1List = [int(x) for x in cmapItem["color1"].split(",")]
