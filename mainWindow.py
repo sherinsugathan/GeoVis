@@ -431,6 +431,7 @@ class mainWindow(qWidget.QMainWindow):
     @pyqtSlot()
     def initializeRenderer(self):
         self.vl = Qt.QVBoxLayout()
+        self.vl.setContentsMargins(0,0,0,0)
         self.vtkWidget = QVTKRenderWindowInteractor(self.frame)
         self.vl.addWidget(self.vtkWidget)
         self.ren = vtk.vtkRenderer()
