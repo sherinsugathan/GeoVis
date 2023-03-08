@@ -46,7 +46,7 @@ class Gradient(QtWidgets.QWidget):
         for stop, color in self._gradient:
             gradient.setColorAt(stop, QtGui.QColor(color))
 
-        rect = QtCore.QRect(0, 0, width, height)
+        rect = QtCore.QRect(0, 0, width, int(height))
         painter.fillRect(rect, gradient)
 
         pen = QtGui.QPen()

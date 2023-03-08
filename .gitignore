@@ -156,3 +156,4 @@ venv_geovis/
 .vs/
 *.bin
 *.autosave
+tempCode/

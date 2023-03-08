@@ -15,7 +15,7 @@ from PyQt5.QtWidgets import (
     QAbstractItemView,
     QSizePolicy,
 )
-from PyQt5.QtWebEngineWidgets import QWebEngineView
+#from PyQt5.QtWebEngineWidgets import QWebEngineView
 from PyQt5.QtCore import QThread
 from PyQt5.QtWidgets import QInputDialog, QErrorMessage
 
