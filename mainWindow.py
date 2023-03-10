@@ -78,8 +78,8 @@ class mainWindow(qWidget.QMainWindow):
         self.rawTimes = []
         self.pa = None
         self.cmaps = None
-        self.cmapFile = "assets//colormaps//colormaps.xml"
-        self.cmapDefaultFile = "assets//colormaps//colormapsDefault.xml"
+        self.cmapFile = os.path.join(os.path.dirname(__file__), "assets/colormaps/colormaps.xml")
+        self.cmapDefaultFile = os.path.join(os.path.dirname(__file__), "assets/colormaps/colormapsDefault.xml")
         self.currentTimeStep = None
         self.animationDirection = 1
         self.actualTimeStrings = None
@@ -94,10 +94,10 @@ class mainWindow(qWidget.QMainWindow):
         self.update
         # set app icon
         app_icon = qGui.QIcon()
-        app_icon.addFile("assets/icons/icons8-92.png", qCore.QSize(92, 92))
-        app_icon.addFile("assets/icons/icons8-100.png", qCore.QSize(100, 100))
-        app_icon.addFile("assets/icons/icons8-200.png", qCore.QSize(200, 200))
-        app_icon.addFile("assets/icons/icons8-400.png", qCore.QSize(400, 400))
+        app_icon.addFile(os.path.join(os.path.dirname(__file__),"assets/icons/icons8-92.png"), qCore.QSize(92, 92))
+        app_icon.addFile(os.path.join(os.path.dirname(__file__),"assets/icons/icons8-100.png"), qCore.QSize(100, 100))
+        app_icon.addFile(os.path.join(os.path.dirname(__file__),"assets/icons/icons8-200.png"), qCore.QSize(200, 200))
+        app_icon.addFile(os.path.join(os.path.dirname(__file__),"assets/icons/icons8-400.png"), qCore.QSize(400, 400))
         self.setWindowIcon(app_icon)
         ui = os.path.join(os.path.dirname(__file__), "assets/ui/gui.ui")
         uic.loadUi(ui, self)
@@ -192,6 +192,8 @@ class mainWindow(qWidget.QMainWindow):
         )  # this won't be read until QThread send a signal i think
         # self.videoExportTask = Utils.VideoTaskThread(self)
         # self.videoExportTask.taskFinished.connect(self.onFinishedVideoExport)
+        logoImagePath = os.path.join(os.path.dirname(__file__), "assets/ui/logo.png")
+        self.label_8.setStyleSheet("border-image: url(" + logoImagePath + ") 0 0 0 0 stretch stretch;border-radius: 3px;")
         self.initializeApp()
 
 

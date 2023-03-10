@@ -305,8 +305,8 @@ background-color: rgb(44, 48, 57);</string>
          </property>
          <property name="styleSheet">
           <string notr="true">/*background-image : url(assets/ui/logo.png);*/
-border-image: url(assets/ui/logo.png) 0 0 0 0 stretch stretch;
-border-radius: 3px;	</string>
+
+</string>
          </property>
          <property name="frameShape">
           <enum>QFrame::NoFrame</enum>
