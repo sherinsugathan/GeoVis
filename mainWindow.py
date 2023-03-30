@@ -67,7 +67,6 @@ if os.name == "nt":
     myappid = "uio.geovis.netcdfvisualizer.100"  # arbitrary string
     ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(myappid)
 
-
 class mainWindow(qWidget.QMainWindow):
     """Main window class."""
 
