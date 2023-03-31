@@ -17,7 +17,7 @@
    </sizepolicy>
   </property>
   <property name="windowTitle">
-   <string>GeoVis - v1.2.0</string>
+   <string>GeoVis - v1.3.0</string>
   </property>
   <property name="styleSheet">
    <string notr="true">background-color: rgb(33, 37, 43);
@@ -304,7 +304,7 @@ background-color: rgb(44, 48, 57);</string>
           <bool>false</bool>
          </property>
          <property name="styleSheet">
-          <string notr="true">/*background-image : url(assets/ui/logo.png);*/
+          <string notr="true">
 
 </string>
          </property>

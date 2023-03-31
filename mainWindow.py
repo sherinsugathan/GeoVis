@@ -99,6 +99,7 @@ class mainWindow(qWidget.QMainWindow):
         app_icon.addFile(os.path.join(os.path.dirname(__file__),"assets/icons/icons8-400.png"), qCore.QSize(400, 400))
         self.setWindowIcon(app_icon)
         ui = os.path.join(os.path.dirname(__file__), "assets/ui/gui.ui")
+
         uic.loadUi(ui, self)
 
     def setupUI(self):
@@ -191,8 +192,10 @@ class mainWindow(qWidget.QMainWindow):
         )  # this won't be read until QThread send a signal i think
         # self.videoExportTask = Utils.VideoTaskThread(self)
         # self.videoExportTask.taskFinished.connect(self.onFinishedVideoExport)
-        logoImagePath = os.path.join(os.path.dirname(__file__), "assets/ui/logo.png")
+        
+        logoImagePath = "assets/ui/logo.png"
         self.label_8.setStyleSheet("border-image: url(" + logoImagePath + ") 0 0 0 0 stretch stretch;border-radius: 3px;")
+       
         self.initializeApp()
 
 
@@ -203,18 +206,20 @@ class mainWindow(qWidget.QMainWindow):
 
     @pyqtSlot()
     def on_colorModeSelected(self):
-        self.gradientContours.setVisible(False)
-        self.gradient.setVisible(True)
-        if self.contActor != None:
-            self.ren.RemoveActor(self.contActor)
-            self.iren.Render()
+        if self.radioButton_ColorMode.isChecked():
+            self.gradientContours.setVisible(False)
+            self.gradient.setVisible(True)
+            if self.contActor != None:
+                self.ren.RemoveActor(self.contActor)
+                self.iren.Render()
 
     @pyqtSlot()
     def on_contourModeSelected(self):
-        self.gradientContours.setVisible(True)
-        self.gradient.setVisible(False)
-        if(self.varName != None):
-            self.applyVariable(False)
+        if self.radioButton_ContourMode.isChecked():
+            self.gradientContours.setVisible(True)
+            self.gradient.setVisible(False)
+            if(self.varName != None):
+                self.applyVariable(False)
 
     @pyqtSlot()
     def on_videoQualityUpdate(self):
@@ -262,15 +267,15 @@ class mainWindow(qWidget.QMainWindow):
         if self.radioButton_3DView.isChecked() == True:
             Utils.variableControlsSetVisible(self, True)
 
-        # if self.radioButton_ColorMode.isChecked():  # If color mode is selected
-        Utils.updateGlobeGeometry(self, self.varName)
-        Utils.statusMessage(self, "Active: " + self.varName, "success")
-        if(refreshVariable):
-            self.dataRange = self.mapper.GetInput().GetCellData().GetScalars(self.varName).GetRange()
-            self.newMin = self.dataRange[0]
-            self.newMax = self.dataRange[1]
-        self.gradient.update()
-        self.gradientContours.update()
+        if self.radioButton_ColorMode.isChecked():  # If color mode is selected
+            Utils.updateGlobeGeometry(self, self.varName)
+            Utils.statusMessage(self, "Active: " + self.varName, "success")
+            if(refreshVariable):
+                self.dataRange = self.mapper.GetInput().GetCellData().GetScalars(self.varName).GetRange()
+                self.newMin = self.dataRange[0]
+                self.newMax = self.dataRange[1]
+            self.gradient.update()
+            self.gradientContours.update()
         if self.radioButton_ContourMode.isChecked():  # If contour mode is selected
             # self.colorGradientsBackup = self.gradient.gradient()
             # self.contourGradients = [(0.0, QColor(52, 59, 72)), (0.5, QColor(52, 59, 72)), (1.0, QColor(52, 59, 72))]
