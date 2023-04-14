@@ -5,8 +5,13 @@ import xml.etree.ElementTree as ET
 from PyQt5.QtWidgets import QInputDialog, QErrorMessage, QFileDialog, QMessageBox
 from PyQt5 import QtCore as qCore
 from PyQt5.QtCore import QThread
+from PyQt5.QtGui import QImage, QPixmap
+from vtk.util.numpy_support import vtk_to_numpy
+from vtk.util import numpy_support
+from PIL import Image
 import time
 import math
+import vtkplotlib as vpl
 
 ##############################################################################
 ################# outputs dimensions, variables and their attribute information.
@@ -262,7 +267,7 @@ def loadContours(self, variableName):
 	self.contourFilter.SetInputArrayToProcess(0, 0, 0, 0, variableName)
 	oldMin = 0
 	oldMax = 1
-	newRange = self.newMax - self.newMin
+	newRange = self.newMaxContours - self.newMinContours
 	isos = self.gradientContours.gradient()[1:-1]  # extract subset after removing first and last elements.
 	if(len(isos)==0):
 		if self.contActor != None:
@@ -272,7 +277,7 @@ def loadContours(self, variableName):
 	contourIndex = 0
 	for item in isos:
 		oldValue = float(item[0])
-		newValue = ((oldValue - oldMin) * newRange) + self.newMin
+		newValue = ((oldValue - oldMin) * newRange) + self.newMinContours
 		self.contourFilter.SetValue(contourIndex, newValue)
 		contourIndex = contourIndex + 1
 
@@ -415,7 +420,7 @@ def removeColormap(self, removeItem):
 	tree.write(self.cmapFile)
 
 ##############################################################################
-################# Save current visualization to file.
+################# Save current visualization to file after stitching colormap data
 ################# returns nothing.
 ##############################################################################
 def exportImage(self):
@@ -426,13 +431,35 @@ def exportImage(self):
 		largeImage.Update()
 		self.iren.Render()
 
+		screenshotWidth = largeImage.GetOutput().GetDimensions()[0]
+		channels_count = 3
+		pixmap = self.gradient.grab()
+
+		pixmapScaled = pixmap.scaledToWidth(screenshotWidth) 
+		image = pixmapScaled.toImage()
+		new_image = image.convertToFormat(QImage.Format_RGB888)
+		height = pixmapScaled.height()
+		width = pixmapScaled.width()
+	
+		b = new_image.bits()
+		b.setsize(height * width * channels_count)
+		arr = np.frombuffer(b, np.uint8).reshape((height, width, channels_count))
+		image_data = vpl.image_io.vtkimagedata_from_array(arr, image_data=None)
+
+		# Concatenate the two images vertically
+		append = vtk.vtkImageAppend()
+		append.SetAppendAxis(1)  # 0 for horizontal, 1 for vertical
+		append.AddInputData(largeImage.GetOutput())
+		append.AddInputData(image_data)
+		append.Update()
+
 		writer = vtk.vtkPNGWriter()
 		file = str(QFileDialog.getExistingDirectory(self, "Select Directory"))
 		if(file==""):
 			return
-		timestr = time.strftime("ImageCapture_%Y%m%d-%H%M%S")
+		timestr = time.strftime("ImageCapture_%d%m%y-%H%M%S")
 		writer.SetFileName(file+"/"+timestr+".png")
-		writer.SetInputConnection(largeImage.GetOutputPort())
+		writer.SetInputConnection(append.GetOutputPort())
 		writer.Write()
 	else:
 		dlg = QMessageBox(self)
@@ -482,14 +509,12 @@ class VideoTaskThread(qCore.QThread):
 		self.main = mainObject
 
 	def run(self):
-		print("entering here")
-
-
 		windowToImageFilter = vtk.vtkWindowToImageFilter()
 		windowToImageFilter.SetInput(self.main.vtkWidget.GetRenderWindow())
 		windowToImageFilter.SetInputBufferTypeToRGB()
 		windowToImageFilter.ReadFrontBufferOff()
 		windowToImageFilter.Update()
+		print("bin")
 
 		aviWriter = vtk.vtkAVIWriter()
 		aviWriter.SetFileName(self.main.videoExportFolderName)
@@ -498,7 +523,6 @@ class VideoTaskThread(qCore.QThread):
 		aviWriter.SetRate(24)
 		aviWriter.SetCompressorFourCC("DIB")
 		aviWriter.Start()
-		print("entering here3")
 
 		# Write frames to the file.
 		for timeIndex in range(self.main.rawTimes):
@@ -516,7 +540,6 @@ class VideoTaskThread(qCore.QThread):
 			aviWriter.Write()
 		
 		aviWriter.End()
-
 		self.taskFinished.emit()
 
 

@@ -2,6 +2,7 @@ from PyQt5 import QtWidgets as qWidget
 from PyQt5 import QtGui as qGui
 from PyQt5 import QtCore as qCore
 from PyQt5.QtCore import pyqtSlot
+from PyQt5.QtGui import QImage, QPixmap
 from pathlib import Path
 
 from PyQt5.QtWidgets import (
@@ -40,6 +41,8 @@ import modules.utils as Utils
 import modules.gradient as Gd
 import matplotlib
 import xml.etree.ElementTree as ET
+import numpy as np
+import vtkplotlib as vpl
 
 # import matplotlib.colorsp
 
@@ -86,8 +89,11 @@ class mainWindow(qWidget.QMainWindow):
         self.maxTimeSteps = None
         self.newMin = None
         self.newMax = None
+        self.newMinContours = None
+        self.newMaxContours = None
         self.dataRange = None
         self.varName = None
+        self.contourVarName = None
         self.videoExportFolderName = None
         self.contActor = None
         self.update
@@ -163,6 +169,8 @@ class mainWindow(qWidget.QMainWindow):
 
         # Variable list double click
         self.listWidget_Variables.doubleClicked.connect(self.applyVariable)
+        #self.listWidget_Variables.setSelectionMode(QAbstractItemView.NoSelection)
+        #self.listWidget_Variables.setSelectionMode(QAbstractItemView.NoSelection)
 
         # time slider
         self.horizontalSlider_Main.valueChanged.connect(self.on_timeSlider_Changed)
@@ -192,12 +200,11 @@ class mainWindow(qWidget.QMainWindow):
         )  # this won't be read until QThread send a signal i think
         # self.videoExportTask = Utils.VideoTaskThread(self)
         # self.videoExportTask.taskFinished.connect(self.onFinishedVideoExport)
-        
+
         logoImagePath = "assets/ui/logo.png"
-        self.label_8.setStyleSheet("border-image: url(" + logoImagePath + ") 0 0 0 0 stretch stretch;border-radius: 3px;")
+        self.label_8.setStyleSheet("border-image: url(" + logoImagePath + ") 0 0 0 0 stretch stretch;border-radius: 0px;")
        
         self.initializeApp()
-
 
     @pyqtSlot()
     def on_contourThicknessUpdated(self):
@@ -209,6 +216,11 @@ class mainWindow(qWidget.QMainWindow):
         if self.radioButton_ColorMode.isChecked():
             self.gradientContours.setVisible(False)
             self.gradient.setVisible(True)
+            if(self.varName != None):
+                Utils.statusMessage(self, "Active colormap variable: " + self.varName, "success")
+                items = self.listWidget_Variables.findItems(self.varName, qCore.Qt.MatchExactly)
+                item = items[0]
+                item.setSelected(True)
             if self.contActor != None:
                 self.ren.RemoveActor(self.contActor)
                 self.iren.Render()
@@ -218,8 +230,17 @@ class mainWindow(qWidget.QMainWindow):
         if self.radioButton_ContourMode.isChecked():
             self.gradientContours.setVisible(True)
             self.gradient.setVisible(False)
-            if(self.varName != None):
-                self.applyVariable(False)
+            if(self.contourVarName != None):
+                Utils.statusMessage(self, "Active contour variable: " + self.contourVarName, "success")
+                items = self.listWidget_Variables.findItems(self.contourVarName, qCore.Qt.MatchExactly)
+                item = items[0]
+                item.setSelected(True)
+                if self.contActor != None:
+                    self.ren.AddActor(self.contActor)
+                    self.iren.Render()
+                #self.applyVariable(False)   # commented as part of bug fix
+            else:
+                self.listWidget_Variables.clearSelection()
 
     @pyqtSlot()
     def on_videoQualityUpdate(self):
@@ -244,8 +265,21 @@ class mainWindow(qWidget.QMainWindow):
 
     @pyqtSlot()
     def applyVariable(self, refreshVariable = True):
-        if(refreshVariable == True):
+        if(refreshVariable == True and self.radioButton_ColorMode.isChecked()): # if color mode
             self.varName = self.listWidget_Variables.currentItem().text()
+        if self.radioButton_ContourMode.isChecked(): # if contour mode
+            self.contourVarName = self.listWidget_Variables.currentItem().text()
+        
+
+        # currentItemIndex = self.listWidget_Variables.indexFromItem(self.listWidget_Variables.currentItem()).row()
+        # for index in range(self.listWidget_Variables.count()):
+        #     item = self.listWidget_Variables.item(index)
+        #     print(currentItemIndex, index)
+        #     if(currentItemIndex==index):
+        #         self.listWidget_Variables.item(index).setBackground((QColor(138, 157, 191)))
+        #     else:
+        #         self.listWidget_Variables.item(index).setBackground((QColor(52, 59, 72)))
+
         self.fmt = qGui.QTextCharFormat()
         self.cursor = qGui.QTextCursor(self.plainTextEdit_netCDFDataText.document())
         self.cursor.select(qGui.QTextCursor.Document)
@@ -257,6 +291,7 @@ class mainWindow(qWidget.QMainWindow):
         index = regex.indexIn(
             self.plainTextEdit_netCDFDataText.document().toPlainText(), pos
         )
+
         if index != -1:
             self.cursor.setPosition(index, qGui.QTextCursor.MoveAnchor)
             self.cursor.setPosition(index + len(pattern), qGui.QTextCursor.KeepAnchor)
@@ -269,19 +304,23 @@ class mainWindow(qWidget.QMainWindow):
 
         if self.radioButton_ColorMode.isChecked():  # If color mode is selected
             Utils.updateGlobeGeometry(self, self.varName)
-            Utils.statusMessage(self, "Active: " + self.varName, "success")
+            Utils.statusMessage(self, "Active colormap variable: " + self.varName, "success")
             if(refreshVariable):
                 self.dataRange = self.mapper.GetInput().GetCellData().GetScalars(self.varName).GetRange()
                 self.newMin = self.dataRange[0]
                 self.newMax = self.dataRange[1]
             self.gradient.update()
-            self.gradientContours.update()
         if self.radioButton_ContourMode.isChecked():  # If contour mode is selected
             # self.colorGradientsBackup = self.gradient.gradient()
             # self.contourGradients = [(0.0, QColor(52, 59, 72)), (0.5, QColor(52, 59, 72)), (1.0, QColor(52, 59, 72))]
             # self.gradient.setGradient(self.contourGradients)
             # print(self.colorGradientsBackup)
-            Utils.loadContours(self, self.varName)
+            Utils.statusMessage(self, "Active contour variable: " + self.contourVarName, "success")
+            self.dataRangeContours = self.mapper.GetInput().GetCellData().GetScalars(self.contourVarName).GetRange()
+            self.newMinContours = self.dataRangeContours[0]
+            self.newMaxContours = self.dataRangeContours[1]
+            Utils.loadContours(self, self.contourVarName)
+            self.gradientContours.update()
 
     @pyqtSlot()
     def changeView(self):
@@ -338,7 +377,7 @@ class mainWindow(qWidget.QMainWindow):
             str(self.currentTimeStep) + "/" + str(self.maxTimeSteps)
         )
         if self.radioButton_ContourMode.isChecked():
-            Utils.loadContours(self, self.varName)
+            Utils.loadContours(self, self.contourVarName)
         else:
             if self.contActor != None:
                 self.ren.RemoveActor(self.contActor)
@@ -505,7 +544,7 @@ class mainWindow(qWidget.QMainWindow):
                 str(self.currentTimeStep) + "/" + str(self.maxTimeSteps)
             )
             if self.radioButton_ContourMode.isChecked():
-                Utils.loadContours(self, self.varName)
+                Utils.loadContours(self, self.contourVarName)
             else:
                 if self.contActor != None:
                     self.ren.RemoveActor(self.contActor)
@@ -565,7 +604,7 @@ class mainWindow(qWidget.QMainWindow):
 
     # Contour values changed.
     def contourValuesChanged(self):
-        Utils.loadContours(self, self.varName)
+        Utils.loadContours(self, self.contourVarName)
 
     # Visualization color map changed.
     def colorMapChanged(self):
@@ -760,7 +799,7 @@ class mainWindow(qWidget.QMainWindow):
                     str(self.currentTimeStep) + "/" + str(self.maxTimeSteps)
                 )
                 if self.radioButton_ContourMode.isChecked():
-                    Utils.loadContours(self, self.varName)
+                    Utils.loadContours(self, self.contourVarName)
                 else:
                     if self.contActor != None:
                         self.ren.RemoveActor(self.contActor)
@@ -810,7 +849,7 @@ class mainWindow(qWidget.QMainWindow):
                 )
 
                 if self.radioButton_ContourMode.isChecked():
-                    Utils.loadContours(self, self.varName)
+                    Utils.loadContours(self, self.contourVarName)
                 else:
                     if self.contActor != None:
                         self.ren.RemoveActor(self.contActor)
@@ -860,7 +899,7 @@ class mainWindow(qWidget.QMainWindow):
 
             if (
                 isinstance(text_end, int) == True or isinstance(text_end, float) == True
-            ):  # if not a number
+            ):  # if not a numberupdate_scene_for_new_range
                 em = QErrorMessage(self)
                 em.showMessage("Unable to set the range. Please check your data.")
                 return
@@ -871,10 +910,11 @@ class mainWindow(qWidget.QMainWindow):
         ############################
         if btnName == "pushButton_ResetRange":
             self.update_scene_for_new_range()
-            self.gradient.update()
-            self.gradientContours.update()
+            if self.radioButton_ColorMode.isChecked():
+                self.gradient.update()
             if self.radioButton_ContourMode.isChecked():
-                Utils.loadContours(self, self.varName)
+                self.gradientContours.update()
+                Utils.loadContours(self, self.contourVarName)
 
         ############################
         # Export image.
@@ -931,10 +971,32 @@ class mainWindow(qWidget.QMainWindow):
             windowToImageFilter.ReadFrontBufferOff()
             windowToImageFilter.Update()
 
+            screenshotWidth = windowToImageFilter.GetOutput().GetDimensions()[0]
+            channels_count = 3
+            pixmap = self.gradient.grab()
+
+            pixmapScaled = pixmap.scaledToWidth(screenshotWidth) 
+            image = pixmapScaled.toImage()
+            new_image = image.convertToFormat(QImage.Format_RGB888)
+            height = pixmapScaled.height()
+            width = pixmapScaled.width()
+        
+            b = new_image.bits()
+            b.setsize(height * width * channels_count)
+            arr = np.frombuffer(b, np.uint8).reshape((height, width, channels_count))
+            image_data = vpl.image_io.vtkimagedata_from_array(arr, image_data=None)
+
+            # Concatenate the two images vertically
+            append = vtk.vtkImageAppend()
+            append.SetAppendAxis(1)  # 0 for horizontal, 1 for vertical
+            append.AddInputData(windowToImageFilter.GetOutput())
+            append.AddInputData(image_data)
+            append.Update()
+
             oggWriter = vtk.vtkOggTheoraWriter()
             timestr = time.strftime("VideoCapture_%Y%m%d-%H%M%S")
             oggWriter.SetFileName(self.videoExportFolderName + "/" + timestr + ".ogv")
-            oggWriter.SetInputConnection(windowToImageFilter.GetOutputPort())
+            oggWriter.SetInputConnection(append.GetOutputPort())
             oggWriter.SetQuality(self.dial_videoQuality.value())
             oggWriter.SetRate(self.dial_videoFrameRate.value())
             oggWriter.Start()
@@ -975,6 +1037,8 @@ class mainWindow(qWidget.QMainWindow):
                 # self.mapper.Update()
                 self.iren.Render()
                 windowToImageFilter.Modified()
+                windowToImageFilter.Update()
+
                 oggWriter.Write()
 
             oggWriter.End()
@@ -1082,40 +1146,61 @@ class mainWindow(qWidget.QMainWindow):
         oldMin = 0
         oldMax = 1
         if text_start == None and text_end == None:
-            self.newMin = self.dataRange[0]
-            self.newMax = self.dataRange[1]
+            if self.radioButton_ColorMode.isChecked():
+                self.newMin = self.dataRange[0]
+                self.newMax = self.dataRange[1]
+            else:
+                self.newMinContours = self.dataRangeContours[0]
+                self.newMaxContours = self.dataRangeContours[1]
         else:
-            if (
-                float(text_start) >= float(text_end)
-                or float(text_start) < Utils.truncate(self.dataRange[0], 1)
-                or float(text_end) > Utils.truncate(self.dataRange[1], 1)
-            ):
-                dlg = QMessageBox(self)
-                dlg.setWindowTitle("Invalid range detected.")
-                dlg.setText("Unable to set the range. Please check your data.")
-                Utils.applyTheme(dlg)
-                #dlg.setWindowFlags(qCore.Qt.FramelessWindowHint)
-                dlg.exec_()
-                return
-            self.newMin = float(text_start)
-            self.newMax = float(text_end)
+            if self.radioButton_ColorMode.isChecked():
+                if (
+                    float(text_start) >= float(text_end)
+                    or float(text_start) < Utils.truncate(self.dataRange[0], 1)
+                    or float(text_end) > Utils.truncate(self.dataRange[1], 1)
+                ):
+                    dlg = QMessageBox(self)
+                    dlg.setWindowTitle("Invalid range detected.")
+                    dlg.setText("Unable to set the range. Please check your data.")
+                    Utils.applyTheme(dlg)
+                    #dlg.setWindowFlags(qCore.Qt.FramelessWindowHint)
+                    dlg.exec_()
+                    return
+                self.newMin = float(text_start)
+                self.newMax = float(text_end)
+            else: # contour mode is selected
+                if (
+                    float(text_start) >= float(text_end)
+                    or float(text_start) < Utils.truncate(self.dataRangeContours[0], 1)
+                    or float(text_end) > Utils.truncate(self.dataRangeContours[1], 1)
+                ):
+                    dlg = QMessageBox(self)
+                    dlg.setWindowTitle("Invalid range detected.")
+                    dlg.setText("Unable to set the range. Please check your data.")
+                    Utils.applyTheme(dlg)
+                    #dlg.setWindowFlags(qCore.Qt.FramelessWindowHint)
+                    dlg.exec_()
+                    return
+                self.newMinContours = float(text_start)
+                self.newMaxContours = float(text_end)
 
-        newRange = self.newMax - self.newMin
-        gradients = self.gradient.gradient()
-        self.ctf.RemoveAllPoints()
-        for gradient in gradients:
-            oldValue = float(gradient[0])
-            newValue = ((oldValue - oldMin) * newRange) + self.newMin
-            self.ctf.AddRGBPoint(
-                newValue, gradient[1].redF(), gradient[1].greenF(), gradient[1].blueF()
-            )
-        if self.checkBox_LogScale.isChecked():
-            self.ctf.SetScaleToLog10()
-        else:
-            self.ctf.SetScaleToLinear()
-        self.ctf.Build()
+        if self.radioButton_ColorMode.isChecked():
+            newRange = self.newMax - self.newMin
+            gradients = self.gradient.gradient()
+            self.ctf.RemoveAllPoints()
+            for gradient in gradients:
+                oldValue = float(gradient[0])
+                newValue = ((oldValue - oldMin) * newRange) + self.newMin
+                self.ctf.AddRGBPoint(
+                    newValue, gradient[1].redF(), gradient[1].greenF(), gradient[1].blueF()
+                )
+            if self.checkBox_LogScale.isChecked():
+                self.ctf.SetScaleToLog10()
+            else:
+                self.ctf.SetScaleToLinear()
+            self.ctf.Build()
         if self.radioButton_ContourMode.isChecked():
-            Utils.loadContours(self, self.varName)
+            Utils.loadContours(self, self.contourVarName)
         self.iren.Render()
 
     def closeEvent(self, event):
