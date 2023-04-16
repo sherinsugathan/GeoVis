@@ -99,10 +99,7 @@ class mainWindow(qWidget.QMainWindow):
         self.update
         # set app icon
         app_icon = qGui.QIcon()
-        app_icon.addFile(os.path.join(os.path.dirname(__file__),"assets/icons/icons8-92.png"), qCore.QSize(92, 92))
-        app_icon.addFile(os.path.join(os.path.dirname(__file__),"assets/icons/icons8-100.png"), qCore.QSize(100, 100))
-        app_icon.addFile(os.path.join(os.path.dirname(__file__),"assets/icons/icons8-200.png"), qCore.QSize(200, 200))
-        app_icon.addFile(os.path.join(os.path.dirname(__file__),"assets/icons/icons8-400.png"), qCore.QSize(400, 400))
+        app_icon.addFile(os.path.join(os.path.dirname(__file__), "assets/icons/geo.png"), qCore.QSize(80, 80))
         self.setWindowIcon(app_icon)
         ui = os.path.join(os.path.dirname(__file__), "assets/ui/gui.ui")
 
@@ -203,7 +200,7 @@ class mainWindow(qWidget.QMainWindow):
 
         logoImagePath = "assets/ui/logo.png"
         self.label_8.setStyleSheet("border-image: url(" + logoImagePath + ") 0 0 0 0 stretch stretch;border-radius: 0px;")
-       
+        self.horizontalSlider_Main.setVisible(False)
         self.initializeApp()
 
     @pyqtSlot()
@@ -217,7 +214,6 @@ class mainWindow(qWidget.QMainWindow):
             self.gradientContours.setVisible(False)
             self.gradient.setVisible(True)
             if(self.varName != None):
-                Utils.statusMessage(self, "Active colormap variable: " + self.varName, "success")
                 items = self.listWidget_Variables.findItems(self.varName, qCore.Qt.MatchExactly)
                 item = items[0]
                 item.setSelected(True)
@@ -228,10 +224,10 @@ class mainWindow(qWidget.QMainWindow):
     @pyqtSlot()
     def on_contourModeSelected(self):
         if self.radioButton_ContourMode.isChecked():
-            self.gradientContours.setVisible(True)
-            self.gradient.setVisible(False)
+            if(self.newMinContours != None):
+                self.gradientContours.setVisible(True)
+            self.gradient.setVisible(True)
             if(self.contourVarName != None):
-                Utils.statusMessage(self, "Active contour variable: " + self.contourVarName, "success")
                 items = self.listWidget_Variables.findItems(self.contourVarName, qCore.Qt.MatchExactly)
                 item = items[0]
                 item.setSelected(True)
@@ -267,9 +263,10 @@ class mainWindow(qWidget.QMainWindow):
     def applyVariable(self, refreshVariable = True):
         if(refreshVariable == True and self.radioButton_ColorMode.isChecked()): # if color mode
             self.varName = self.listWidget_Variables.currentItem().text()
+            self.label_color_varname.setText(self.varName)
         if self.radioButton_ContourMode.isChecked(): # if contour mode
             self.contourVarName = self.listWidget_Variables.currentItem().text()
-        
+            self.label_contour_varname.setText(self.contourVarName)
 
         # currentItemIndex = self.listWidget_Variables.indexFromItem(self.listWidget_Variables.currentItem()).row()
         # for index in range(self.listWidget_Variables.count()):
@@ -304,7 +301,6 @@ class mainWindow(qWidget.QMainWindow):
 
         if self.radioButton_ColorMode.isChecked():  # If color mode is selected
             Utils.updateGlobeGeometry(self, self.varName)
-            Utils.statusMessage(self, "Active colormap variable: " + self.varName, "success")
             if(refreshVariable):
                 self.dataRange = self.mapper.GetInput().GetCellData().GetScalars(self.varName).GetRange()
                 self.newMin = self.dataRange[0]
@@ -315,18 +311,19 @@ class mainWindow(qWidget.QMainWindow):
             # self.contourGradients = [(0.0, QColor(52, 59, 72)), (0.5, QColor(52, 59, 72)), (1.0, QColor(52, 59, 72))]
             # self.gradient.setGradient(self.contourGradients)
             # print(self.colorGradientsBackup)
-            Utils.statusMessage(self, "Active contour variable: " + self.contourVarName, "success")
             self.dataRangeContours = self.mapper.GetInput().GetCellData().GetScalars(self.contourVarName).GetRange()
             self.newMinContours = self.dataRangeContours[0]
             self.newMaxContours = self.dataRangeContours[1]
             Utils.loadContours(self, self.contourVarName)
             self.gradientContours.update()
+            if(self.gradientContours.isVisible() == False):
+                self.gradientContours.setVisible(True)
 
     @pyqtSlot()
     def changeView(self):
         rbtn = self.sender()
         if rbtn.isChecked() == True:
-            if rbtn.text() == "Raw":
+            if rbtn.text() == "Metadata":
                 self.stackedWidget.setCurrentWidget(self.page_InspectData)
                 Utils.variableControlsSetVisible(self, False)
             ############################
@@ -493,6 +490,14 @@ class mainWindow(qWidget.QMainWindow):
         self.ren.ResetCamera()
         self.frame.setLayout(self.vl)
         self.iren.Initialize()
+
+        # Get the generic render window ID
+        #gl_info = self.vtkWidget.GetRenderWindow().GetOpenGLInformation()
+        openglRendererInUse = self.ren.GetRenderWindow().ReportCapabilities().splitlines()[1].split(":")[1].strip()
+
+        # Print the active graphics card info
+        self.label_6.setText("Current Graphics Vendor:" + "\n" + str(openglRendererInUse))
+
         # Sign up to receive TimerEvent
         # cb = vtkTimerCallback(1, self.iren)
         # self.iren.AddObserver('TimerEvent', cb.execute)
@@ -556,9 +561,9 @@ class mainWindow(qWidget.QMainWindow):
 
     def initializeApp(self):
         self.pa = vtk.vtkPassArrays()
-        self.gradient = Gd.Gradient(self)
+        self.gradient = Gd.Gradient("color", self)
         self.gradient.setGradient([(0, "black"), (1, "green"), (0.5, "red")])
-        self.gradientContours = Gd.Gradient(self)
+        self.gradientContours = Gd.Gradient("contour", self)
         self.gradientContours.setGradient(
             [
                 (0, QColor(52, 59, 72)),
@@ -566,6 +571,8 @@ class mainWindow(qWidget.QMainWindow):
                 (0.5, QColor(52, 59, 72)),
             ]
         )
+        self.gradient.setFixedHeight(35)
+        self.gradientContours.setFixedHeight(35)
         self.layout = QVBoxLayout()
         self.layout.addWidget(self.gradient, qCore.Qt.AlignCenter)
         self.layout.addWidget(self.gradientContours, qCore.Qt.AlignCenter)
@@ -658,7 +665,6 @@ class mainWindow(qWidget.QMainWindow):
     # added this function to close the progress bar
     # def onFinishedVideoExport(self):
     # self.prog_win.close()
-    # Utils.statusMessage(self, "Video export successful.", "success")
 
     # added this function to close the progress bar
     def onFinished(self):
@@ -682,7 +688,6 @@ class mainWindow(qWidget.QMainWindow):
 
         self.currentTimeStep = 1
         # self.stackedWidget.setCurrentWidget(self.page_InspectData)
-        Utils.statusMessage(self, "Data loaded.", "success")
         # Enable all data controls
         self.tabWidget.setVisible(True)
         Utils.controlsSetVisible(self, True)
@@ -869,6 +874,12 @@ class mainWindow(qWidget.QMainWindow):
         # Set New Scalar Range
         ############################
         if btnName == "pushButton_UpdateRange":
+            if self.radioButton_ColorMode.isChecked():
+                if self.varName == None:
+                    return
+            else:
+                if(self.contourVarName == None):
+                    return
             inputDialog = QInputDialog(None)
             inputDialog.setInputMode(QInputDialog.TextInput)
             inputDialog.setLabelText('Please enter the start value:')
@@ -909,6 +920,12 @@ class mainWindow(qWidget.QMainWindow):
         # Reset variable scalar range to default.
         ############################
         if btnName == "pushButton_ResetRange":
+            if self.radioButton_ColorMode.isChecked():
+                if self.varName == None:
+                    return
+            else:
+                if(self.contourVarName == None):
+                    return
             self.update_scene_for_new_range()
             if self.radioButton_ColorMode.isChecked():
                 self.gradient.update()
@@ -991,10 +1008,30 @@ class mainWindow(qWidget.QMainWindow):
             append.SetAppendAxis(1)  # 0 for horizontal, 1 for vertical
             append.AddInputData(windowToImageFilter.GetOutput())
             append.AddInputData(image_data)
+            if self.radioButton_ContourMode.isChecked() and self.contourVarName != None:
+                pixmapContours = self.gradientContours.grab()
+                pixmapScaledContours = pixmapContours.scaledToWidth(screenshotWidth)
+                imageContours = pixmapScaledContours.toImage()
+                new_image_contours = imageContours.convertToFormat(QImage.Format_RGB888)
+                height = pixmapScaledContours.height()
+                width = pixmapScaledContours.width()
+                b_contours = new_image_contours.bits()
+                b_contours.setsize(height * width * channels_count)
+                arr_contours = np.frombuffer(b_contours, np.uint8).reshape((height, width, channels_count))
+                image_data_conntours = vpl.image_io.vtkimagedata_from_array(arr_contours, image_data=None)
+                append.AddInputData(image_data_conntours)
             append.Update()
 
+            varString = ""
+            fileString = ""
+            if (self.varName != None):
+                varString += "_" + self.varName
+            if (self.contourVarName != None):
+                varString += "-" + self.contourVarName
+            fileString = os.path.basename(self.path)
+
             oggWriter = vtk.vtkOggTheoraWriter()
-            timestr = time.strftime("VideoCapture_%Y%m%d-%H%M%S")
+            timestr = time.strftime(fileString + "_Video_%Y%m%d-%H%M%S" + varString)
             oggWriter.SetFileName(self.videoExportFolderName + "/" + timestr + ".ogv")
             oggWriter.SetInputConnection(append.GetOutputPort())
             oggWriter.SetQuality(self.dial_videoQuality.value())
@@ -1030,7 +1067,7 @@ class mainWindow(qWidget.QMainWindow):
                     str(self.currentTimeStep) + "/" + str(self.maxTimeSteps)
                 )
                 if self.radioButton_ContourMode.isChecked():
-                    Utils.loadContours(self, self.varName)
+                    Utils.loadContours(self, self.contourVarName)
                 else:
                     if self.contActor != None:
                         self.ren.RemoveActor(self.contActor)

@@ -12,6 +12,7 @@ from PIL import Image
 import time
 import math
 import vtkplotlib as vpl
+import os
 
 ##############################################################################
 ################# outputs dimensions, variables and their attribute information.
@@ -252,6 +253,8 @@ def updateGlobeGeometry(self, variableName):
 ################# load globe geometry
 ##############################################################################
 def loadContours(self, variableName):
+	if (self.newMaxContours == None and self.newMinContours == None):
+		return
 	if self.contActor != None:
 		self.ren.RemoveActor(self.contActor)
 	assignAttribute = vtk.vtkAssignAttribute()
@@ -303,23 +306,23 @@ def loadContours(self, variableName):
 def updateExistingContours(self):
 	pass
 
-##############################################################################
-################# show status message
-################# type = success (showed in green) , type = error (showed in red)
-##############################################################################
-def statusMessage(self, message, type="success"):
-	if(type == "success"):
-		self.textEdit_Status.setStyleSheet("background-color: #7E9C73;")
-	if(type == "error"):
-		self.textEdit_Status.setStyleSheet("background-color: #DE7575;")
-	self.textEdit_Status.setPlainText(message)
+# ##############################################################################
+# ################# show status message  >>DEPRECATED>>
+# ################# type = success (showed in green) , type = error (showed in red)
+# ##############################################################################
+# def statusMessage(self, message, type="success"):
+# 	if(type == "success"):
+# 		self.textEdit_Status.setStyleSheet("background-color: #7E9C73;")
+# 	if(type == "error"):
+# 		self.textEdit_Status.setStyleSheet("background-color: #DE7575;")
+# 	self.textEdit_Status.setPlainText(message)
 
 
 ##############################################################################
 ################# show/hide basic data controls
 ##############################################################################
 def controlsSetVisible(self, visibility):
-	self.horizontalSlider_Main.setVisible(visibility)
+	#self.horizontalSlider_Main.setVisible(visibility)
 	self.pushButton_SetDimensions.setVisible(visibility)
 	self.gradient.setVisible(visibility)
 	self.comboBox_dims.setVisible(visibility)
@@ -329,7 +332,6 @@ def controlsSetVisible(self, visibility):
 	self.frame_2.setVisible(visibility)
 	self.listWidget_Variables.setVisible(visibility)
 	self.label_6.setVisible(visibility)
-	self.textEdit_Status.setVisible(visibility)
 	if(visibility==True):
 		visibility = not visibility
 	self.frame_3.setVisible(visibility)
@@ -434,13 +436,11 @@ def exportImage(self):
 		screenshotWidth = largeImage.GetOutput().GetDimensions()[0]
 		channels_count = 3
 		pixmap = self.gradient.grab()
-
-		pixmapScaled = pixmap.scaledToWidth(screenshotWidth) 
+		pixmapScaled = pixmap.scaledToWidth(screenshotWidth)
 		image = pixmapScaled.toImage()
 		new_image = image.convertToFormat(QImage.Format_RGB888)
 		height = pixmapScaled.height()
 		width = pixmapScaled.width()
-	
 		b = new_image.bits()
 		b.setsize(height * width * channels_count)
 		arr = np.frombuffer(b, np.uint8).reshape((height, width, channels_count))
@@ -451,13 +451,33 @@ def exportImage(self):
 		append.SetAppendAxis(1)  # 0 for horizontal, 1 for vertical
 		append.AddInputData(largeImage.GetOutput())
 		append.AddInputData(image_data)
+		if self.radioButton_ContourMode.isChecked() and self.contourVarName != None:
+			pixmapContours = self.gradientContours.grab()
+			pixmapScaledContours = pixmapContours.scaledToWidth(screenshotWidth)
+			imageContours = pixmapScaledContours.toImage()
+			new_image_contours = imageContours.convertToFormat(QImage.Format_RGB888)
+			height = pixmapScaledContours.height()
+			width = pixmapScaledContours.width()
+			b_contours = new_image_contours.bits()
+			b_contours.setsize(height * width * channels_count)
+			arr_contours = np.frombuffer(b_contours, np.uint8).reshape((height, width, channels_count))
+			image_data_conntours = vpl.image_io.vtkimagedata_from_array(arr_contours, image_data=None)
+			append.AddInputData(image_data_conntours)
 		append.Update()
 
 		writer = vtk.vtkPNGWriter()
 		file = str(QFileDialog.getExistingDirectory(self, "Select Directory"))
 		if(file==""):
 			return
-		timestr = time.strftime("ImageCapture_%d%m%y-%H%M%S")
+		varString = ""
+		fileString = ""
+		if(self.varName !=None):
+			varString += "_" + self.varName
+		if(self.contourVarName !=None):
+			varString += "-" + self.contourVarName
+
+		fileString = os.path.basename(self.path)
+		timestr = time.strftime(fileString + "_Image_%d%m%y-%H%M%S_" + varString)
 		writer.SetFileName(file+"/"+timestr+".png")
 		writer.SetInputConnection(append.GetOutputPort())
 		writer.Write()
@@ -514,7 +534,6 @@ class VideoTaskThread(qCore.QThread):
 		windowToImageFilter.SetInputBufferTypeToRGB()
 		windowToImageFilter.ReadFrontBufferOff()
 		windowToImageFilter.Update()
-		print("bin")
 
 		aviWriter = vtk.vtkAVIWriter()
 		aviWriter.SetFileName(self.main.videoExportFolderName)

@@ -10,7 +10,7 @@ import math
 class Gradient(QtWidgets.QWidget):
     gradientChanged = Signal()
 
-    def __init__(self, smain=None, gradient=None, *args, **kwargs):
+    def __init__(self, g_type, smain=None, gradient=None, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
         self.setSizePolicy(
@@ -23,6 +23,9 @@ class Gradient(QtWidgets.QWidget):
 
         if smain:
             self.main = smain
+
+        if g_type:
+            self.g_type = g_type
 
         else:
             self._gradient = [
@@ -38,10 +41,10 @@ class Gradient(QtWidgets.QWidget):
 
     def paintEvent(self, e):
 
-        if self.main.radioButton_ContourMode.isChecked():
+        if self.g_type == "contour":
             if(self.main.newMinContours == None or self.main.newMaxContours == None):
                 return
-        if self.main.radioButton_ColorMode.isChecked():
+        if self.g_type == "color":
             if(self.main.newMin == None or self.main.newMax == None):
                 return
         painter = QtGui.QPainter(self)
@@ -70,7 +73,7 @@ class Gradient(QtWidgets.QWidget):
             pen.setColor(QtGui.QColor(175, 199, 242, 255))
             painter.setPen(pen)
 
-            if self.main.radioButton_ContourMode.isChecked():
+            if self.g_type == "contour":
                 newRange = self.main.newMaxContours - self.main.newMinContours
                 newValue = (stop * newRange) + self.main.newMinContours
                 if(stop == 0.0):
@@ -79,7 +82,7 @@ class Gradient(QtWidgets.QWidget):
                     painter.drawText(int(stop * width)-40,int(y)+20, str(self.truncate(newValue,1)))
                 else:
                     painter.drawText(int(stop * width)-10,int(y)+20, str(self.truncate(newValue,1)))
-            if self.main.radioButton_ColorMode.isChecked():
+            if self.g_type == "color":
                 newRange = self.main.newMax - self.main.newMin
                 newValue = (stop * newRange) + self.main.newMin
                 if(stop == 0.0):
@@ -222,19 +225,19 @@ class Gradient(QtWidgets.QWidget):
 
             if (text.replace('.','',1).isdigit() == False): # if not a number
                 return
-            if self.main.radioButton_ColorMode.isChecked():
+            if self.g_type == "color":
                 if(float(text) <=self.main.newMin or float(text) >=self.main.newMax): # Trying to set out of range values.
                     return
                 
-            if self.main.radioButton_ContourMode.isChecked():
+            if self.g_type == "contour":
                 if(float(text) <=self.main.newMinContours or float(text) >=self.main.newMaxContours): # Trying to set out of range values.
                     return
             n = self._find_stop_handle_for_event(e)
             normalized_value, color = self._gradient[n]
             self.removeStopAtPosition(n, refresh=False)
-            if self.main.radioButton_ColorMode.isChecked():
+            if self.g_type == "color":
                 normalized_user_input = (float(text) - self.main.newMin)/(self.main.newMax - self.main.newMin)
-            if self.main.radioButton_ContourMode.isChecked():
+            if self.g_type == "contour":
                 normalized_user_input = (float(text) - self.main.newMinContours)/(self.main.newMaxContours - self.main.newMinContours)
             self.addStop(float(normalized_user_input), color, refresh = False)
             self._drag_position = None
