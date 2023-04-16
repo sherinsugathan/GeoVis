@@ -715,8 +715,27 @@ class mainWindow(qWidget.QMainWindow):
                 self.comboBox_dims.clear()  # clear dim var combobox
                 self.listWidget_Variables.clear()  # clear variable list.
                 self.gradientContours.setVisible(False) # hide contour widget.
+                self.currentTimeStep = None
+                self.animationDirection = 1
+                self.actualTimeStrings = None
                 self.varName = None
+                self.contourVarName = None
+                self.IsTemporalDataset = False
+                self.maxTimeSteps = None
+                self.newMin = None
+                self.newMax = None
+                self.newMinContours = None
+                self.newMaxContours = None
+                self.dataRange = None
+                self.contActor = None
+                self.radioButton_ColorMode.blockSignals(True)
+                self.radioButton_ColorMode.setChecked(True)
+                self.radioButton_ColorMode.blockSignals(False)
+                #if(self.ren!=None):
+                #    self.ren.RemoveAllViewProps()
 
+                self.label_color_varname.setText("")
+                self.label_contour_varname.setText("")
                 self.prog_win.show()
                 self.onStart()  # Start your very very long computation/process
 
@@ -1259,7 +1278,7 @@ class TaskThread(qCore.QThread):
 
     def run(self):
         if self.isRefresh == True:
-            print("Processing NetCDF file")
+            #print("Processing NetCDF file")
             nc_fid = Dataset(
                 self.main.path, "r"
             )  # Dataset is the class behavior to open the file
