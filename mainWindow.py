@@ -107,6 +107,7 @@ class mainWindow(qWidget.QMainWindow):
 
     def setupUI(self):
         print("Starting application...")
+        print("Please note that the application may take some time to start. So please be patient and wait...")
         self.initializeRenderer()
         self.pushButton_LoadDataset.clicked.connect(
             self.on_buttonClick
@@ -512,7 +513,7 @@ class mainWindow(qWidget.QMainWindow):
         self.contourFilter = vtk.vtkContourFilter()
         # web view
         # self.webView = QWebEngineView()
-        print("Renderer Initialized.")
+        #print("Renderer Initialized.")
 
     def onTimerEvent(self):
         if (
