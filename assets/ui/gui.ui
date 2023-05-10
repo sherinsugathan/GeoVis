@@ -17,7 +17,7 @@
    </sizepolicy>
   </property>
   <property name="windowTitle">
-   <string>GeoVis - v1.4</string>
+   <string>GeoVis - v1.4.3</string>
   </property>
   <property name="styleSheet">
    <string notr="true">background-color: rgb(33, 37, 43);
@@ -92,7 +92,7 @@ color: rgb(255, 255, 255);</string>
           <enum>QFrame::Plain</enum>
          </property>
          <property name="text">
-          <string> GeoVis 1.4</string>
+          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;GeoVis 1.4.3&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
          </property>
          <property name="scaledContents">
           <bool>false</bool>

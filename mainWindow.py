@@ -754,6 +754,7 @@ class mainWindow(qWidget.QMainWindow):
             self.listWidget_Variables.clearSelection()
             self.reader.SetDimensions(self.comboBox_dims.currentText())
             self.reader.ComputeArraySelection()
+            self.radioButton_RawView.setChecked(True)
             self.prog_win.show()
             self.onStart(False)  # Start your very very long computation/process
             # Utils.loadGlobeGeometry(self)
@@ -1068,24 +1069,14 @@ class mainWindow(qWidget.QMainWindow):
                     self.currentTimeStep = self.currentTimeStep + 1
                 else:
                     self.currentTimeStep = 1
-                self.reader.GetOutputInformation(0).Set(
-                    vtk.vtkStreamingDemandDrivenPipeline.UPDATE_TIME_STEP(), timeIndex
-                )
-                self.pa.AddArray(
-                    1, self.varName
-                )  # 0 for PointData, 1 for CellData, 2 for FieldData
+                self.reader.GetOutputInformation(0).Set(vtk.vtkStreamingDemandDrivenPipeline.UPDATE_TIME_STEP(), timeIndex)
+                self.pa.AddArray(1, self.varName)  # 0 for PointData, 1 for CellData, 2 for FieldData
                 self.pa.Update()
-                self.textActor.SetInput(
-                    str(self.actualTimeStrings[self.currentTimeStep - 1])
-                )
-                self.mapper.GetInput().GetCellData().AddArray(
-                    self.pa.GetOutput().GetCellData().GetAbstractArray(self.varName)
-                )
+                self.textActor.SetInput(str(self.actualTimeStrings[self.currentTimeStep - 1]))
+                self.mapper.GetInput().GetCellData().AddArray(self.pa.GetOutput().GetCellData().GetAbstractArray(self.varName))
                 # self.mapper.GetInput().GetCellData().AddArray(self.pa.GetOutput().GetCellData().GetArray(0))
                 self.mapper.GetInput().GetCellData().SetActiveScalars(self.varName)
-                self.label_FrameStatus.setText(
-                    str(self.currentTimeStep) + "/" + str(self.maxTimeSteps)
-                )
+                self.label_FrameStatus.setText(str(self.currentTimeStep) + "/" + str(self.maxTimeSteps))
                 if self.radioButton_ContourMode.isChecked():
                     Utils.loadContours(self, self.contourVarName)
                 else:
