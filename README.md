@@ -49,14 +49,12 @@ ssh -L 6000:localhost:5904 username@mimi.uio.no
 $ export __NV_PRIME_RENDER_OFFLOAD=1
 $ export __GLX_VENDOR_LIBRARY_NAME=nvidia
 ```
+Here, the first variable will tell the system to offload the rendering to the discrete card, the second variable will force applications to use the NVIDIA's GLX stuff.
+
 2. Clone the repository - `git clone https://github.com/sherinsugathan/GeoVis.git`
 3. Install dependencies.
    `$ pip install -r requirements.txt`
 4. Run `python mainWindow.py`.
-
-
-The first variable will tell the system to offload the rendering to the discrete card, the second variable will force applications to use the NVIDIA's GLX stuff.
-
 
 ## II. Steps for Running GeoVis Under EduCloud OnDemand
 Educloud On Demand is a service within the Educloud research infrastructure that enables running interactive, and/or graphical applications on the Fox HPC cluster. Unlike mimi, Fox cluster is hosting more advanced GPUs that can help render large datasets.
