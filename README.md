@@ -64,7 +64,7 @@ Educloud On Demand is a service within the Educloud research infrastructure that
 - Any modern browser
 ### b. Running GeoVis
 1. Go to https://ondemand.educloud.no/ and login using educloud credentials. If you don't have an educloud already, visit https://research.educloud.no/ to apply for access to Educloud Research.
-2. Choose Fox Desktop from the available apps.
+2. Choose `Fox Desktop` from the available apps.
 3. In the next page, hit `Launch` after choosing your educloud project name, GPU and required runtime.
 4. Once your instance is allocated, run the instance.
 5. Once the instance is started, you will see a linux desktop. Open a terminal and follow the same steps as provided in I.(c).
