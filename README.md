@@ -1,7 +1,7 @@
 # GeoVis
 Global climate datasets, whether from satellite observations or from models, are often enormous in scope and thus challenging to visualize in effective ways. This is especially true in popular scientific presentations and in teaching situations where strong visual ‘effects’ are increasingly expected by the public. This tool serves as an aid to researchers for communicating science through effective visuals.
 <p align="center">
-  <img src="screens/demo.gif" alt="Alt text" style="max-width:70%;"/>
+  <img src="screens/demo.gif" alt="" style="width:500px"/>
 </p>
 
 ## I. Steps for Running GeoVis Under MIMI
@@ -35,11 +35,11 @@ ssh -L 6000:localhost:5904 username@mimi.uio.no
 7. Now, for connecting to remote server running in mimi, you can launch  TigerVNC Viewer and enter the server name as `localhost:6000` and press Connect.
 
 <p align="center">
-  <img src="screens/logintigerVNC.png" alt="Alt text" style="max-width:50%;"/>
+  <img src="screens/logintigerVNC.png" alt="login" style="width:400px"/>
 </p>
 8. Once you are successfully connected, you should see a remote desktop as shown below:
 <p align="center" style="display: block">
-<img src="screens/login.png" alt="Alt text" style="max-width:50%;"/>  <img src="screens/loggedin.png" alt="Alt text" style="max-width:50%;"/>
+<img src="screens/login.png" alt="Alt text" style="width:500px"/>  <img src="screens/loggedin.png" alt="Alt text" style="width:500px"/>
 </p>
 
 
