@@ -7,7 +7,7 @@ Global climate datasets, whether from satellite observations or from models, are
 ## I. Steps for Running GeoVis Under MIMI
 MIMI (mimi.uio.no) is a shared computing resource at the Department of GeoSciences (UiO). It is an RHEL8 machine with 128 cores and a Quadro RTX 6000. 
 ### a. Software Needed
-- TigerVNC Client - https://github.com/TigerVNC/tigervnc/releases
+- TurboVNC Client - https://sourceforge.net/projects/turbovnc/files/3.1/
 ### b. Setting up a VNCServer and establishing connection. 
 1. Login to mimi using your credentials.
 2. Before starting TurboVNC Server, load the module ``$ module load TurboVNC/3.0.1-GCCcore-11.3.0``
@@ -35,9 +35,9 @@ ssh -L 6000:localhost:5904 username@mimi.uio.no
 7. Now, for connecting to remote server running in mimi, you can launch  TigerVNC Viewer and enter the server name as `localhost:6000` and press Connect.
 
 <p align="center">
-  <img src="screens/logintigerVNC.png" alt="login" style="width:400px"/>
+  <img src="screens/loginturboVNC.png" alt="login" style="width:400px"/>
 </p>
-8. Once you are successfully connected, you should see a remote desktop as shown below:
+8. Once the connection is successfully established, you will be presented with a remote desktop interface through which you can log into the Linux system.
 <p align="center" style="display: block">
 <img src="screens/login.png" alt="Alt text" style="width:500px"/>  <img src="screens/loggedin.png" alt="Alt text" style="width:500px"/>
 </p>
@@ -51,7 +51,9 @@ $ export __GLX_VENDOR_LIBRARY_NAME=nvidia
 ```
 Here, the first variable will tell the system to offload the rendering to the discrete card, the second variable will force applications to use the NVIDIA's GLX stuff.
 
-2. Clone the repository - `git clone https://github.com/sherinsugathan/GeoVis.git`
+2. Choose a suitable folder and clone the repository - `git clone https://github.com/sherinsugathan/GeoVis.git`
+3. `cd` into the `GeoVis` folder.
+4. 
 3. Install dependencies.
    `$ pip install -r requirements.txt`
 4. Run `python mainWindow.py`.
