@@ -32,7 +32,7 @@ X DISPLAY #     PROCESS ID      NOVNC PROCESS ID
 ```python
 ssh -L 6000:localhost:5904 username@mimi.uio.no 
 ```
-7. Now, for connecting to remote server running in mimi, you can launch  TurboVNC Viewer and enter the server name as `localhost:6000` and press Connect.
+7. Now, for connecting to remote server running in mimi, you can launch TurboVNC Viewer and enter the server name as `localhost:6000` and press Connect.
 
 <p align="center">
   <img src="screens/loginturboVNC.png" alt="login" style="width:400px"/>
@@ -60,7 +60,7 @@ Here, the first variable will tell the system to offload the rendering to the di
 7. Run `python3 mainWindow.py`.
 
 ## II. Steps for Running GeoVis Under EduCloud OnDemand
-Educloud On Demand is a service within the Educloud research infrastructure that enables running interactive, and/or graphical applications on the Fox HPC cluster. Unlike mimi, Fox cluster is hosting more advanced GPUs that can help render large datasets.
+Educloud On Demand is a service within the Educloud research infrastructure that enables running interactive, and/or graphical applications on the Fox HPC cluster. Fox cluster hosts more advanced GPUs that can help render large datasets.
 ### a. Software Needed
 - Any modern browser
 ### b. Running GeoVis
