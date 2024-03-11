@@ -54,7 +54,7 @@ Here, the first variable will tell the system to offload the rendering to the di
 2. Choose a suitable folder and clone the repository - `git clone https://github.com/sherinsugathan/GeoVis.git`
 3. `cd` into the `GeoVis` folder.
 4. Create a virtual environment `python3 -m venv myenv`
-5. Activate the environment source myenv/bin/activate
+5. Activate the environment `source myenv/bin/activate`
 6. Install dependencies.
    `$ pip install -r requirements.txt`
 7. Run `python3 mainWindow.py`.
