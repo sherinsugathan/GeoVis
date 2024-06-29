@@ -1776,11 +1776,20 @@ color:rgb(175, 199, 242);</string>
               <pointsize>9</pointsize>
              </font>
             </property>
+            <property name="acceptDrops">
+             <bool>false</bool>
+            </property>
             <property name="styleSheet">
              <string notr="true">border: 0px solid lightgray;</string>
             </property>
             <property name="lineWidth">
              <number>11</number>
+            </property>
+            <property name="verticalScrollBarPolicy">
+             <enum>Qt::ScrollBarAlwaysOn</enum>
+            </property>
+            <property name="undoRedoEnabled">
+             <bool>false</bool>
             </property>
             <property name="readOnly">
              <bool>true</bool>
