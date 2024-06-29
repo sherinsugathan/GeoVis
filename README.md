@@ -57,7 +57,7 @@ Here, the first variable will tell the system to offload the rendering to the di
 5. Activate the environment `source myenv/bin/activate`
 6. Install dependencies.
    `$ pip install -r requirements.txt`
-7. Run `python3 mainWindow.py`.
+7. Run `python3 mainWindow.py`
 
 ## II. Steps for Running GeoVis Under EduCloud OnDemand
 Educloud On Demand is a service within the Educloud research infrastructure that enables running interactive, and/or graphical applications on the Fox HPC cluster. Fox cluster hosts more advanced GPUs that can help render large datasets.
