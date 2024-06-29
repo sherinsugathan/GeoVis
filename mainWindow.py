@@ -96,7 +96,7 @@ class mainWindow(qWidget.QMainWindow):
         self.contourVarName = None
         self.videoExportFolderName = None
         self.contActor = None
-        self.update
+        #self.update()
         # set app icon
         app_icon = qGui.QIcon()
         app_icon.addFile(os.path.join(os.path.dirname(__file__), "assets/icons/geo.png"), qCore.QSize(80, 80))
