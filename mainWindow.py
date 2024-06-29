@@ -102,7 +102,6 @@ class mainWindow(qWidget.QMainWindow):
         app_icon.addFile(os.path.join(os.path.dirname(__file__), "assets/icons/geo.png"), qCore.QSize(80, 80))
         self.setWindowIcon(app_icon)
         ui = os.path.join(os.path.dirname(__file__), "assets/ui/gui.ui")
-
         uic.loadUi(ui, self)
 
     def setupUI(self):
@@ -199,7 +198,7 @@ class mainWindow(qWidget.QMainWindow):
         # self.videoExportTask = Utils.VideoTaskThread(self)
         # self.videoExportTask.taskFinished.connect(self.onFinishedVideoExport)
 
-        logoImagePath = "assets/ui/logo.png"
+        logoImagePath = os.path.join(os.path.dirname(__file__), "assets/ui/logo.png")
         self.label_8.setStyleSheet("border-image: url(" + logoImagePath + ") 0 0 0 0 stretch stretch;border-radius: 0px;")
         self.horizontalSlider_Main.setVisible(False)
         self.initializeApp()
@@ -325,8 +324,8 @@ class mainWindow(qWidget.QMainWindow):
         rbtn = self.sender()
         if rbtn.isChecked() == True:
             if rbtn.text() == "Metadata":
-                self.stackedWidget.setCurrentWidget(self.page_InspectData)
                 Utils.variableControlsSetVisible(self, False)
+                self.stackedWidget.setCurrentWidget(self.page_InspectData)
             ############################
             # 2D Render View  (# Not going to be implemented.)
             ############################
@@ -350,9 +349,10 @@ class mainWindow(qWidget.QMainWindow):
             # 3D Render View
             ############################
             if rbtn.text() == "3D":
-                self.stackedWidget.setCurrentWidget(self.page_3DMap)
                 if self.varName != None:
                     Utils.variableControlsSetVisible(self, True)
+                self.stackedWidget.setCurrentWidget(self.page_3DMap)
+
 
     @pyqtSlot()
     def on_timeSlider_Changed(self):
