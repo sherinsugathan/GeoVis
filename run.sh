@@ -15,6 +15,9 @@ else
   echo "Updated $DIR_NAME repository."
 fi
 
+export __NV_PRIME_RENDER_OFFLOAD=1
+export __GLX_VENDOR_LIBRARY_NAME=nvidia
+
 module load Python/3.10.8-GCCcore-12.2.0
 
 # Run the application
