@@ -107,7 +107,7 @@ class mainWindow(qWidget.QMainWindow):
     def setupUI(self):
         print("Starting application...")
         print("Please note that the application may take some time to start. So please be patient and wait...")
-        self.initializeRenderer()
+
         self.pushButton_LoadDataset.clicked.connect(
             self.on_buttonClick
         )  # Attaching button click handler.
@@ -202,6 +202,8 @@ class mainWindow(qWidget.QMainWindow):
         self.label_8.setStyleSheet("border-image: url(" + logoImagePath + ") 0 0 0 0 stretch stretch;border-radius: 0px;")
         self.horizontalSlider_Main.setVisible(False)
         self.initializeApp()
+
+        self.initializeRenderer()
 
     @pyqtSlot()
     def on_contourThicknessUpdated(self):
@@ -491,12 +493,12 @@ class mainWindow(qWidget.QMainWindow):
         self.actor_style = vtk.vtkInteractorStyleTrackballCamera()
         self.iren.SetInteractorStyle(self.actor_style)
 
-        self.iren.SetRenderWindow(self.vtkWidget.GetRenderWindow())
+        #self.iren.SetRenderWindow(self.vtkWidget.GetRenderWindow())
 
         # self.ren.UseFXAAOn()
-        self.ren.ResetCamera()
 
         self.iren.Initialize()
+        self.ren.ResetCamera()
 
         # Get the generic render window ID
         #gl_info = self.vtkWidget.GetRenderWindow().GetOpenGLInformation()
@@ -510,8 +512,8 @@ class mainWindow(qWidget.QMainWindow):
         # self.iren.AddObserver('TimerEvent', cb.execute)
         # cb.timerId = self.iren.CreateRepeatingTimer(500)
 
-        self.iren.Render()
-        self.ren.Render()
+        #self.iren.Render()
+        #self.ren.Render()
 
         self.timer = qCore.QTimer()
         self.timer.timeout.connect(self.onTimerEvent)
