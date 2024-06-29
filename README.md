@@ -75,7 +75,7 @@ If you have a good GPU in your local computer, and a python installation you can
 1. Clone the repository - `git clone https://github.com/sherinsugathan/GeoVis.git`
 2. Install dependencies.
    `$ pip install -r requirements.txt`
-3. Run `python mainWindow.py`.
+3. Run `python mainWindow.py`
 
 ## IV. Sample dataset
 The sample dataset used in the screenshots is a temporal dataset. If you wish to the download the same dataset, click [here](https://uio-my.sharepoint.com/:u:/g/personal/sherinsu_uio_no/ER7m6NV5_HlLupdAsknUAgIBAsF_WQDDfhycW_jr5vSaJw?e=rn7ga0)
