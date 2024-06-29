@@ -477,6 +477,7 @@ class mainWindow(qWidget.QMainWindow):
         self.vl.setContentsMargins(0,0,0,0)
         self.vtkWidget = QVTKRenderWindowInteractor(self.frame)
         self.vl.addWidget(self.vtkWidget)
+        self.frame.setLayout(self.vl)
         self.ren = vtk.vtkRenderer()
         self.ren.SetBackground(33 / 255.0, 37.0 / 255, 43.0 / 255)
         self.vtkWidget.GetRenderWindow().AddRenderer(self.ren)
@@ -487,9 +488,10 @@ class mainWindow(qWidget.QMainWindow):
         self.iren.SetInteractorStyle(self.actor_style)
 
         self.iren.SetRenderWindow(self.vtkWidget.GetRenderWindow())
+
         # self.ren.UseFXAAOn()
         self.ren.ResetCamera()
-        self.frame.setLayout(self.vl)
+
         self.iren.Initialize()
 
         # Get the generic render window ID
@@ -936,6 +938,8 @@ class mainWindow(qWidget.QMainWindow):
                 em.showMessage("Unable to set the range. Please check your data.")
                 return
             self.update_scene_for_new_range(text_start, text_end)
+            self.gradient.update()
+
 
         ############################
         # Reset variable scalar range to default.
@@ -1317,6 +1321,5 @@ app = qWidget.QApplication(sys.argv)
 window = mainWindow()
 window.setupUI()
 window.show()
-
 window.showMaximized()
 sys.exit(app.exec_())
