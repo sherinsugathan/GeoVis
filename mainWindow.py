@@ -326,6 +326,8 @@ class mainWindow(qWidget.QMainWindow):
             if rbtn.text() == "Metadata":
                 Utils.variableControlsSetVisible(self, False)
                 self.stackedWidget.setCurrentWidget(self.page_InspectData)
+                self.stackedWidget.update()
+                self.stackedWidget.repaint()
             ############################
             # 2D Render View  (# Not going to be implemented.)
             ############################
@@ -352,6 +354,8 @@ class mainWindow(qWidget.QMainWindow):
                 if self.varName != None:
                     Utils.variableControlsSetVisible(self, True)
                 self.stackedWidget.setCurrentWidget(self.page_3DMap)
+                self.stackedWidget.update()
+                self.stackedWidget.repaint()
 
 
     @pyqtSlot()
