@@ -63,6 +63,9 @@ import vtkmodules.qt.QVTKRenderWindowInteractor
 import vtkmodules.util
 import vtkmodules.util.numpy_support
 
+os.environ['__NV_PRIME_RENDER_OFFLOAD'] = '1'
+os.environ['__GLX_VENDOR_LIBRARY_NAME'] = 'nvidia'
+
 if os.name == "nt":
     import cftime
     import cftime._strptime
