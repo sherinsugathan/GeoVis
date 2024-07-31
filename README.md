@@ -51,13 +51,10 @@ $ export __GLX_VENDOR_LIBRARY_NAME=nvidia
 ```
 Here, the first variable will tell the system to offload the rendering to the discrete card, the second variable will force applications to use the NVIDIA's GLX stuff.
 
-2. Choose a suitable folder and clone the repository - `git clone https://github.com/sherinsugathan/GeoVis.git`
-3. `cd` into the `GeoVis` folder.
-4. Create a virtual environment `python3 -m venv myenv`
-5. Activate the environment `source myenv/bin/activate`
-6. Install dependencies.
-   `$ pip install -r requirements.txt`
-7. Run `python3 mainWindow.py`
+2. Clone the repository - `git clone https://github.com/sherinsugathan/GeoVis.git`
+3. cd into GeoVis folder - `cd GeoVis`
+4. Change permission for run.sh script - `chmod +x run.sh`
+5. Run `./run.sh`
 
 ## II. Steps for Running GeoVis Under EduCloud OnDemand
 Educloud On Demand is a service within the Educloud research infrastructure that enables running interactive, and/or graphical applications on the Fox HPC cluster. Fox cluster hosts more advanced GPUs that can help render large datasets.
